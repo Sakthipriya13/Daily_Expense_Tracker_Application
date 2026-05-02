@@ -85,7 +85,7 @@
                     android:id="@+id/idCloseBtn"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:onClick="@{()->monthlySummaryViewModel.fnCloseReport()}"
+                    android:onClick="@{()->monthlySummaryViewModel.isBack()}"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/back"/>
 
@@ -159,7 +159,9 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_calendar"
                 app:layout_constraintStart_toEndOf="@+id/idLSelectYear"
-                app:layout_constraintWidth_percent="0.13"/>
+                app:layout_constraintWidth_percent="0.13"
+                android:onClick="@{() -> monthlySummaryViewModel.isCalendarSelected()}"
+                />
 
             <androidx.constraintlayout.helper.widget.Flow
                 android:id="@+id/idFlow1"

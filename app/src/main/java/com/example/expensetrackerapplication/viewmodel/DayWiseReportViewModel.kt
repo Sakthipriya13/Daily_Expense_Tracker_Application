@@ -80,8 +80,14 @@ class DayWiseReportViewModel(application : Application) : AndroidViewModel(appli
         }
     }
 
-    fun resetCloseState() {
-        _isClosed.value = false
+    fun resetCloseState()
+    {
+        try {
+            _isClosed.value = false
+        }
+        catch (e: Exception) {
+            Log.e("DAY_WISE_REPORT", "Reset Close State: ${e.message}")
+        }
     }
 
     fun fnClearAllFields(){
@@ -149,9 +155,9 @@ class DayWiseReportViewModel(application : Application) : AndroidViewModel(appli
 
                     }
                     _expenseList.value = list
-                    _totalExpenseSummary.value= Global.fnFormatFloatTwoDigits(totalExpenseAmtSum) .toString()
-                    _addedExpenseSummary.value =Global.fnFormatFloatTwoDigits(addedExpenseAmtSum) .toString()
-                    _deletedExpenseSummary.value = Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum) .toString()
+                    _totalExpenseSummary.value= Global.fnFormatFloatTwoDigits(totalExpenseAmtSum)
+                    _addedExpenseSummary.value =Global.fnFormatFloatTwoDigits(addedExpenseAmtSum)
+                    _deletedExpenseSummary.value = Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum)
 
                 }
                 else
@@ -398,7 +404,7 @@ class DayWiseReportViewModel(application : Application) : AndroidViewModel(appli
             true
         }
         catch (e : Exception){
-            Log.e("DAY_WISE_REPORT_VIEW_MODEL","Export Report To Downloads: ${e.message}")
+            Log.e("DAY_WISE_REPORT_VIEW_MODEL","Day-Wise Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 

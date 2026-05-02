@@ -12,11 +12,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -27,54 +29,91 @@ import kotlin.math.abs
 
 class MonthlySummaryViewModel(application: Application) : AndroidViewModel(application = application)
 {
+    // Expense Repository Variable Declaration
     val expenseRepository : ExpenseRepository
+    // Income Repository Variable Declaration
     val incomeRepository : IncomeRepository
     init {
+        // Income & Expense Repository Variable Initialization
         val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
         val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
         incomeRepository= IncomeRepository(incomeDao)
         expenseRepository= ExpenseRepository(expenseDao)
     }
-    var _closeReport = MutableLiveData<Boolean>()
-    var closeReport : LiveData<Boolean> = _closeReport
+    // Close The Monthly Report Screen
+    var _isClosed = MutableLiveData<Boolean>()
+    var isClosed : LiveData<Boolean> = _isClosed
 
+    // Month Variable Initialization
     var _selectedMonth = MutableLiveData<String>(Global.fnGetCurrentMonth())
     var selectedMonth : LiveData<String> = _selectedMonth
-
+    // Year Variable Initialization
     var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear())
     var selectedYear : LiveData<String> = _selectedYear
 
+    // selected Month And Year Variable Initialization
     var _selectedMonthAndYear = MutableLiveData<String>("${selectedMonth.value}/${selectedYear.value}")
     var selectedMonthAndYear : LiveData<String> = _selectedMonthAndYear
 
+    // Income AMount Variable Initialization
     var _incomeAmt = MutableLiveData<String?>("0.00")
     var incomeAmt : LiveData<String?> = _incomeAmt
 
+    // Expense Amount Variable Initialization
     var _expenseAmt = MutableLiveData<String?>("0.00")
     var expenseAmt : LiveData<String?> = _expenseAmt
 
+    // Balance AMount Variable Initialization
     var _balanceAmt = MutableLiveData<String?>("0.00")
     var  balanceAmt : LiveData<String?> = _balanceAmt
 
+    // Monthly Summary Report Variable Initialization
     var _monthlySummaryReportList = MutableLiveData<List<ExpenseDetailsPerMonth>>(emptyList<ExpenseDetailsPerMonth>())
     var monthlySummaryReportList : LiveData<List<ExpenseDetailsPerMonth>> = _monthlySummaryReportList
 
-    var _exportStatus = MutableLiveData<Boolean>()
-    var exportStatus : LiveData<Boolean> = _exportStatus
+    // Export Status Variable Initialization
+    var _exportStatus = MutableLiveData<ResultState1>()
+    var exportStatus : LiveData<ResultState1> = _exportStatus
 
+    // Display Progressbar Status Variable
     var _isExportLoading = MutableLiveData<Boolean>(false)
     var isExportLoading : LiveData<Boolean> = _isExportLoading
 
+    var _isCalendarSelected = MutableLiveData<Boolean>()
+    var isCalendarSelected : LiveData<Boolean> = _isCalendarSelected
 
-    fun fnCloseReport(){
-        _closeReport.value = true
+    fun isBack(){
+        try {
+            _isClosed.value = true
+        }
+        catch (e: Exception){
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Close The Monthly Report Screen: ${e.message}")
+        }
+    }
+
+    fun resetCloseState()
+    {
+        try {
+            _isClosed.value = false
+        }
+        catch (e: Exception) {
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Reset Close State: ${e.message}")
+        }
+    }
+
+    fun isCalendarSelected(){
+        try {
+            _isCalendarSelected.value = true
+        }
+        catch (e: Exception) {
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Calendar Selected: ${e.message}")
+        }
     }
 
     fun fnGetExpenseDetailsPerMonth(month : String, year : String)
     {
         viewModelScope.launch {
             try{
-
                 _isExportLoading.postValue(true)
 
                 _incomeAmt.postValue("0.00")
@@ -86,24 +125,19 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                 var balance = income-expense
 
                 if(income != 0.0f){
-                    _incomeAmt.postValue(income.toString())
+                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
                 if(expense != 0.0f){
-                    _expenseAmt.postValue(expense.toString())
+                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
                 }
                 if(balance != 0.0f){
-                    _balanceAmt.postValue(abs(balance).toString())
+                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
                 }
 
                 val yearMonth = YearMonth.of(year.toInt(),month.toInt())
 
-//                val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
                 val startDate = yearMonth.atDay(1).toString()
                 val endDate = yearMonth.atEndOfMonth().toString()
-
-                Log.i("START DATE","Start Date: $startDate")
-                Log.i("END DATE","End Date: $endDate")
 
                 var resList = expenseRepository.fnGetExpenseDetailsPerMonth(month,year)
 
@@ -111,8 +145,6 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
                 if(resList.isNotEmpty()){
                     resList.forEach { ob ->
-                        Log.i("EXPENSE DETAILS","Expense Details: DATE:${ob.expenseDate}" +
-                                "TRANSACTIONS:${ob.transactionsCount} AMT:${ob.expenseSummaryAmt}")
                         list.add(
                             ExpenseDetailsPerMonth(
                                 expenseDate = ob.expenseDate,
@@ -122,15 +154,17 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                         )
                     }
 
-                    _monthlySummaryReportList.postValue(list)
+                    _monthlySummaryReportList.value = list
                 }
-                else{
-                    _monthlySummaryReportList.postValue(emptyList<ExpenseDetailsPerMonth>())
+                else
+                {
+                    _monthlySummaryReportList.value = emptyList<ExpenseDetailsPerMonth>()
                 }
 
             }
-            catch(e : Exception){
-                Log.e("GET EXPENSE PER MONTH","Get Expense Per Month: ${e.message}")
+            catch(e : Exception)
+            {
+                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Month: ${e.message}")
             }
 
         }
@@ -141,19 +175,16 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         viewModelScope.launch {
             try
             {
-                Log.i("EXPORT LOADING VALUE","Export Loading Value1: ${isExportLoading.value}")
                 if(isExportLoading.value==false)
                 {
                     _isExportLoading.value=true
 
                     delay(1000L)
 
-                    Log.i("EXPORT LOADING VALUE","Export Loading Value2: ${isExportLoading.value}")
-
                     var start = Global.fnGetCurrentTime()
 
                     var workBook = XSSFWorkbook()
-                    var sheet = workBook.createSheet("YEARLY SUMMARY REPORT")
+                    var sheet = workBook.createSheet("MONTHLY SUMMARY REPORT")
 
                     sheet.setColumnWidth(0,30*256)
                     sheet.setColumnWidth(1,30*256)
@@ -276,19 +307,21 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
 
                     }
 
-                    _exportStatus.value = fnExportReportToDownloads(workBook,"MonthlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
+                    val exportStatus  = fnExportReportToDownloads(workBook,"MonthlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
 
-                    Log.i("EXPORT LOADING VALUE","Export Loading Value3: ${isExportLoading.value}")
-
-                    Log.i("TIME DIFF","Time Diff: ${Global.fnGetCurrentTime()} ms")
-
+                    if(exportStatus){
+                        _exportStatus.value = ResultState1.success(R.string.monthlyReport_ExportSuccess)
+                    }
+                    else{
+                        _exportStatus.value = ResultState1.fail(R.string.monthlyReport_ExportFailed)
+                    }
                 }
             }
             catch (e : Exception)
             {
                 _isExportLoading.value=false
-                _exportStatus.value = false
-                Log.e("EXPORT REPORT AS EXCEL","Export Report As Excel: ${e.message}")
+                _exportStatus.value = ResultState1.fail(R.string.monthlyReport_ExportFailed)
+                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
             }
         }
 
@@ -322,7 +355,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             true
         }
         catch (e : Exception){
-            Log.e("FN_EXPORT_REPORT_TO_DOWNLOADS","Fn Export Report To Downloads: ${e.message}")
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
@@ -334,7 +367,10 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
-            } catch (_: Exception) {}
+            }
+            catch (e: Exception) {
+                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+            }
         }
     }
 

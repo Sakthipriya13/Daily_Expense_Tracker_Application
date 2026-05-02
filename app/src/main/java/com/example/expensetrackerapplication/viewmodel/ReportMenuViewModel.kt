@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -23,38 +24,66 @@ class ReportMenuViewModel(application : Application) : AndroidViewModel(applicat
 //    var _showPaymentTypeReport = MutableLiveData<Boolean>()
 //    var showPaymentTypeReport : LiveData<Boolean> = _showPaymentTypeReport
 
-    var _selectReport = MutableLiveData<Report_Menu?>()
-    var selectReport : LiveData<Report_Menu?> = _selectReport
+    // Selected Report Type Variable Initialization
+    var _selectedReportType = MutableLiveData<Report_Menu?>()
+    var selectedReportType : LiveData<Report_Menu?> = _selectedReportType
 
-    fun clearReportSelection() {
-        _selectReport.value = null
+    fun clearReportSelection() 
+    {
+        try {
+            _selectedReportType.value = null
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Closed The Report Selection: ${e.message}")
+        }
     }
     fun fnShowDayWiseReport()
     {
-//        _showDayWiseReport.value=true
-        _selectReport.value = Report_Menu.DayWiseReport
+        try {
+            _selectedReportType.value = Report_Menu.DayWiseReport
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Day-Wise Report Selection: ${e.message}")
+        }
     }
 
     fun fnShowMonthlySummaryReport()
     {
-//        _showMonthlySummaryReport.value=true
-        _selectReport.value = Report_Menu.MonthlyReport
+        try {
+            _selectedReportType.value = Report_Menu.MonthlyReport
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Monthly Summary Report Selection: ${e.message}")
+        }
     }
 
     fun fnShowCategoryReport()
     {
-//        _showCategoryReport.value=true
-        _selectReport.value = Report_Menu.CategoryReport
+        try {
+            _selectedReportType.value = Report_Menu.CategoryReport
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Category Report Selection: ${e.message}")
+        }
     }
 
     fun fnShowPaymentTypeReport()
     {
-//        _showPaymentTypeReport.value=true
-        _selectReport.value = Report_Menu.PaymentTypeReport
+        try {
+            _selectedReportType.value = Report_Menu.PaymentTypeReport
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Payment Type Report Selection: ${e.message}")
+        }
     }
 
-    fun fnShowYearlyReport(){
-//        _showYearlyReport.value = true
-        _selectReport.value = Report_Menu.YearlyReport
+    fun fnShowYearlyReport()
+    {
+        try {
+            _selectedReportType.value = Report_Menu.YearlyReport
+        }
+        catch (e: Exception){
+            Log.e("REPORT_MENU_VIEW_MODEL","Yearly Report Selection: ${e.message}")
+        }
     }
 }

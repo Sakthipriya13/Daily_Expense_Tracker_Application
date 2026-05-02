@@ -289,4 +289,7 @@
     <string name="dayWiseReport_DeleteExpenseFailed">Delete Expense Failed</string>
     <string name="edit_expense">Edit Expense</string>
 
+    <string name="monthlyReport_ExportSuccess">Successfully Monthly Summary Report Exported To Internal Storage(Document Path)</string>
+    <string name="monthlyReport_ExportFailed">Export Monthly Summary Report Failed</string>
+
 </resources>

@@ -53,30 +53,36 @@ open class ReportMenu : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        reportMenuViewModel.selectReport.observe(viewLifecycleOwner){ menu ->
-            menu?.let {
-                when (menu){
-                    is Report_Menu.DayWiseReport ->{
-                        findNavController().navigate(R.id.action_report_menu_to_day_wise_report)
-                        reportMenuViewModel.clearReportSelection()
-                    }
-                    is Report_Menu.MonthlyReport ->{
-                        findNavController().navigate(R.id.idMonthlySummaryReport)
-                        reportMenuViewModel.clearReportSelection()
-                    }
-                    is Report_Menu.YearlyReport ->{
-                        findNavController().navigate(R.id.idYearlyReport)
-                        reportMenuViewModel.clearReportSelection()
-                    }
-                    is Report_Menu.CategoryReport ->{
-                        findNavController().navigate(R.id.idCategoryWiseReport)
-                        reportMenuViewModel.clearReportSelection()
-                    }
-                    is Report_Menu.PaymentTypeReport ->{
-                        findNavController().navigate(R.id.idPaymentTypeReport)
-                        reportMenuViewModel.clearReportSelection()
+        reportMenuViewModel.selectedReportType.observe(viewLifecycleOwner){ menu ->
+            try {
+                menu?.let {
+                    when (menu){
+                        is Report_Menu.DayWiseReport ->{
+                            findNavController().navigate(R.id.action_report_menu_to_day_wise_report)
+                            reportMenuViewModel.clearReportSelection()
+                        }
+                        is Report_Menu.MonthlyReport ->{
+                            findNavController().navigate(R.id.idMonthlySummaryReport)
+                            reportMenuViewModel.clearReportSelection()
+                        }
+                        is Report_Menu.YearlyReport ->{
+                            findNavController().navigate(R.id.idYearlyReport)
+                            reportMenuViewModel.clearReportSelection()
+                        }
+                        is Report_Menu.CategoryReport ->{
+                            findNavController().navigate(R.id.idCategoryWiseReport)
+                            reportMenuViewModel.clearReportSelection()
+                        }
+                        is Report_Menu.PaymentTypeReport ->{
+                            findNavController().navigate(R.id.idPaymentTypeReport)
+                            reportMenuViewModel.clearReportSelection()
+                        }
                     }
                 }
+            }
+            catch (e: Exception)
+            {
+                Log.e("REPORT_MENU","Selected Report Type: ${e.message}")
             }
         }
 

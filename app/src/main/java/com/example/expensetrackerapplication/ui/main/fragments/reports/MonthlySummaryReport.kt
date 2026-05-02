@@ -23,6 +23,7 @@ import com.example.expensetrackerapplication.databinding.MonthlyReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.MonthlySummaryViewModel
 import java.time.Month
@@ -78,136 +79,193 @@ class MonthlyReport : Fragment() {
 
         monthlySummaryViewModel.fnPreWarmExcelEngine()
 
-        monthlySummaryReportAdapter = MonthlySummaryReportAdapter()
-        monthlySummaryBinding.idMonthlySummaryReportView.adapter = monthlySummaryReportAdapter
-        monthlySummaryBinding.idMonthlySummaryReportView.layoutManager = LinearLayoutManager(requireContext())
-
-        monthlySummaryBinding.idBtnCalendar.setOnClickListener{
-            showMonthPicker()
+        try {
+            monthlySummaryReportAdapter = MonthlySummaryReportAdapter()
+            monthlySummaryBinding.idMonthlySummaryReportView.adapter = monthlySummaryReportAdapter
+            monthlySummaryBinding.idMonthlySummaryReportView.layoutManager = LinearLayoutManager(requireContext())
         }
-        monthlySummaryViewModel.closeReport.observe(viewLifecycleOwner){ status ->
-            if(status){
-                findNavController().navigate(R.id.action_monthly_summary_report_to_report_menu)
+        catch (e: Exception){
+            Log.e("MONTHLY_SUMMARY_REPORT","Set Adapter: ${e.message}")
+        }
+
+        monthlySummaryViewModel.isCalendarSelected.observe(viewLifecycleOwner){ isSelected ->
+            try {
+                if(isSelected){
+                    showMonthPicker()
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e("MONTHLY_SUMMARY_REPORT","Calendar Selected: ${e.message}")
+            }
+        }
+        monthlySummaryViewModel.isClosed.observe(viewLifecycleOwner){ status ->
+            try {
+                if(status)
+                {
+                    findNavController().navigate(R.id.action_monthly_summary_report_to_report_menu)
+                    monthlySummaryViewModel.resetCloseState()
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e("MONTHLY_SUMMARY_REPORT","Close The Monthly Summary Report: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.selectedMonthAndYear.observe(viewLifecycleOwner){ monthAndYear ->
-            monthlySummaryViewModel.fnGetExpenseDetailsPerMonth(
-                monthlySummaryViewModel.selectedMonth.value ?:"",
-                monthlySummaryViewModel.selectedYear.value ?:""
-            )
+            try {
+                monthlySummaryViewModel.fnGetExpenseDetailsPerMonth(
+                    monthlySummaryViewModel.selectedMonth.value ?:"",
+                    monthlySummaryViewModel.selectedYear.value ?:""
+                )
+            }
+            catch (e: Exception){
+                Log.e("MONTHLY_SUMMARY_REPORT","Month And Year Observed: ${e.message}")
+            }
         }
 
         monthlySummaryViewModel.monthlySummaryReportList.observe(viewLifecycleOwner){ list ->
-            if(list.isNotEmpty()){
-                monthlySummaryReportAdapter.fnSubmitList(list)
-                monthlySummaryViewModel._isExportLoading.value = false
-//                monthlySummaryBinding.idNoReportsText.visibility = View.GONE
-//                monthlySummaryBinding.idTransactionsView.visibility = View.VISIBLE
+            try
+            {
+                if(list.isNotEmpty())
+                {
+                    monthlySummaryReportAdapter.fnSubmitList(list)
+                    monthlySummaryViewModel._isExportLoading.value = false
+                }
+                else
+                {
+                    monthlySummaryViewModel._isExportLoading.value = false
+                }
             }
-            else{
-                monthlySummaryViewModel._isExportLoading.value = false
-//                monthlySummaryBinding.idNoReportsText.visibility = View.VISIBLE
-//                monthlySummaryBinding.idTransactionsView.visibility = View.GONE
+            catch (e: Exception)
+            {
+                Log.e("MONTHLY_SUMMARY_REPORT","Monthly Summary Report List Observed: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            if(status){
-                fnShowMessage("Report Successfully Exported",requireContext(),R.drawable.bg_success)
+            try {
+                when(status) {
+                    is ResultState1.success -> {
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.bg_success
+                        )
+                    }
+                    is ResultState1.fail -> {
+                        fnShowMessage(getString(status.message), requireContext(), R.drawable.error_bg)
+                    }
+                }
             }
-            else{
-                fnShowMessage("Report Export Failed",requireContext(),R.drawable.error_bg)
+            catch (e: Exception){
+                Log.e("MONTHLY_SUMMARY_REPORT","Export Status: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.isExportLoading.observe(viewLifecycleOwner){ isLoading ->
-            if(isLoading){
-                monthlySummaryBinding.isExportLoading.visibility=View.VISIBLE
+            try {
+                if(isLoading)
+                {
+                    monthlySummaryBinding.isExportLoading.visibility=View.VISIBLE
+                }
+                else
+                {
+                    monthlySummaryBinding.isExportLoading.visibility=View.GONE
+                }
             }
-            else{
-                monthlySummaryBinding.isExportLoading.visibility=View.GONE
+            catch (e: Exception){
+                Log.e("MONTHLY_SUMMARY_REPORT","ProgressBar Loading: ${e.message}")
             }
         }
 
     }
 
 
-    private fun showMonthPicker() {
-        if(Global.isCalendarSelected == false){
-            Global.isCalendarSelected = true
-            val monthBinding = AlertSheetMonthBinding.inflate(layoutInflater)
+    private fun showMonthPicker()
+    {
+        try {
+            if(Global.isCalendarSelected == false)
+            {
+                Global.isCalendarSelected = true
+                val monthBinding = AlertSheetMonthBinding.inflate(layoutInflater)
 
-            val monthAlert = AlertDialog.Builder(requireContext())
-            monthAlert.setView(monthBinding.root)
-            monthAlert.setCancelable(false)
+                val monthAlert = AlertDialog.Builder(requireContext())
+                monthAlert.setView(monthBinding.root)
+                monthAlert.setCancelable(false)
 
-            val dialog = monthAlert.create()
-            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog.show()
+                val dialog = monthAlert.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                dialog.show()
 
-            val monthAdapter = MonthAdapter { month ->
-                selectedYearMonth = selectedYearMonth.withMonth(month)
-                Log.i("SELECTED MONTH","Selected Month: ${selectedYearMonth.monthValue}&${ monthBinding.idTextYear.text}")
-                var selectedMonth = if (month < 10) "0$month" else "$month"
-                monthlySummaryViewModel._selectedMonth.value = selectedMonth
-                monthlySummaryViewModel._selectedYear.value = "${monthBinding.idTextYear.text}"
-                monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
-                dialog.dismiss()
-                Global.isCalendarSelected = false
-            }
-
-            monthBinding.idMonthPicker.apply {
-                layoutManager = GridLayoutManager(requireContext(),3)
-                adapter = monthAdapter
-            }
-
-            monthBinding.idCancelMonth.setOnClickListener {
-                dialog.dismiss()
-                Global.isCalendarSelected =false
-            }
-
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
-            monthBinding.idYearPicker.minValue = 2000
-            monthBinding.idYearPicker.maxValue = currentYear + 100
-            monthBinding.idYearPicker.value = currentYear
-            monthBinding.idYearPicker.wrapSelectorWheel = false
-
-            monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
-
-            monthBinding.idTextYear.setOnClickListener {
-                monthBinding.idYearPicker.visibility = View.VISIBLE
-                monthBinding.idMonthPicker.visibility = View.GONE
-
-                monthBinding.idMonthLayout.visibility = View.GONE
-                monthBinding.idYearLayout.visibility = View.VISIBLE
-
-                monthBinding.idOkYear.setOnClickListener {
-                    monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
-
-                    val selectedYear = java.time.YearMonth.of(
-                        monthBinding.idYearPicker.value,
-                        java.time.YearMonth.now().monthValue
-                    )
-
-                    monthAdapter.submitYearMonth(selectedYear)
-
-                    monthBinding.idYearPicker.visibility = View.GONE
-                    monthBinding.idMonthPicker.visibility = View.VISIBLE
-
-                    monthBinding.idMonthLayout.visibility = View.VISIBLE
-                    monthBinding.idYearLayout.visibility = View.GONE
+                val monthAdapter = MonthAdapter { month ->
+                    selectedYearMonth = selectedYearMonth.withMonth(month)
+                    Log.i("SELECTED MONTH","Selected Month: ${selectedYearMonth.monthValue}&${ monthBinding.idTextYear.text}")
+                    var selectedMonth = if (month < 10) "0$month" else "$month"
+                    monthlySummaryViewModel._selectedMonth.value = selectedMonth
+                    monthlySummaryViewModel._selectedYear.value = "${monthBinding.idTextYear.text}"
+                    monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
+                    dialog.dismiss()
+                    Global.isCalendarSelected = false
                 }
 
-                monthBinding.idCancelYear.setOnClickListener {
-                    monthBinding.idYearPicker.visibility = View.GONE
-                    monthBinding.idMonthPicker.visibility = View.VISIBLE
+                monthBinding.idMonthPicker.apply {
+                    layoutManager = GridLayoutManager(requireContext(),3)
+                    adapter = monthAdapter
+                }
 
-                    monthBinding.idMonthLayout.visibility = View.VISIBLE
-                    monthBinding.idYearLayout.visibility = View.GONE
+                monthBinding.idCancelMonth.setOnClickListener {
+                    dialog.dismiss()
+                    Global.isCalendarSelected =false
+                }
+
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+                monthBinding.idYearPicker.minValue = 2000
+                monthBinding.idYearPicker.maxValue = currentYear + 100
+                monthBinding.idYearPicker.value = currentYear
+                monthBinding.idYearPicker.wrapSelectorWheel = false
+
+                monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
+
+                monthBinding.idTextYear.setOnClickListener {
+                    monthBinding.idYearPicker.visibility = View.VISIBLE
+                    monthBinding.idMonthPicker.visibility = View.GONE
+
+                    monthBinding.idMonthLayout.visibility = View.GONE
+                    monthBinding.idYearLayout.visibility = View.VISIBLE
+
+                    monthBinding.idOkYear.setOnClickListener {
+                        monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
+
+                        val selectedYear = java.time.YearMonth.of(
+                            monthBinding.idYearPicker.value,
+                            java.time.YearMonth.now().monthValue
+                        )
+
+                        monthAdapter.submitYearMonth(selectedYear)
+
+                        monthBinding.idYearPicker.visibility = View.GONE
+                        monthBinding.idMonthPicker.visibility = View.VISIBLE
+
+                        monthBinding.idMonthLayout.visibility = View.VISIBLE
+                        monthBinding.idYearLayout.visibility = View.GONE
+                    }
+
+                    monthBinding.idCancelYear.setOnClickListener {
+                        monthBinding.idYearPicker.visibility = View.GONE
+                        monthBinding.idMonthPicker.visibility = View.VISIBLE
+
+                        monthBinding.idMonthLayout.visibility = View.VISIBLE
+                        monthBinding.idYearLayout.visibility = View.GONE
+                    }
                 }
             }
+        }
+        catch (e: Exception)
+        {
+            Log.e("MONTHLY_SUMMARY_REPORT","Show Monthly Calendar: ${e.message}")
         }
     }
 
@@ -237,9 +295,15 @@ class MonthlySummaryReportAdapter : RecyclerView.Adapter<MonthlySummaryReportAda
 {
     var monthlySummaryList : List<ExpenseDetailsPerMonth> = emptyList()
 
-    fun fnSubmitList(list  : List<ExpenseDetailsPerMonth>){
-        monthlySummaryList = list
-        notifyDataSetChanged()
+    fun fnSubmitList(list  : List<ExpenseDetailsPerMonth>)
+    {
+        try {
+            monthlySummaryList = list
+            notifyDataSetChanged()
+        }
+        catch (e: Exception){
+            Log.e("MONTHLY_SUMMARY_REPORT","Submit List: ${e.message}")
+        }
     }
 
     inner class ListViewHolder(val binding : YearlySummaryReportListItemViewBinding): RecyclerView.ViewHolder(binding.root){
@@ -277,9 +341,15 @@ class MonthAdapter(
 
     private val months = Month.values()
 
-    fun submitYearMonth(yearMonth: YearMonth) {
-        selectedYearMonth = yearMonth
-        notifyDataSetChanged()
+    fun submitYearMonth(yearMonth: YearMonth)
+    {
+        try {
+            selectedYearMonth = yearMonth
+            notifyDataSetChanged()
+        }
+        catch (e: Exception){
+            Log.e("MONTHLY_SUMMARY_REPORT","Submit Year And Month: ${e.message}")
+        }
     }
 
     inner class VH(val binding: MonthYearDialogItemBinding)
