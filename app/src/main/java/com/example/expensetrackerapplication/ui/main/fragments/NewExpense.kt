@@ -19,15 +19,13 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.room.util.copy
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.databinding.NewExpenseBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
-import com.example.expensetrackerapplication.utils.ResultState
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.NewExpenseViewModel
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
@@ -35,7 +33,6 @@ import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // TODO: Rename parameter arguments, choose names that match

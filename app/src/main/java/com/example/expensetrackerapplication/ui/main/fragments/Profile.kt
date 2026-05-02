@@ -20,7 +20,7 @@ import com.example.expensetrackerapplication.databinding.ChangePasswordBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.ProfileBinding
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel

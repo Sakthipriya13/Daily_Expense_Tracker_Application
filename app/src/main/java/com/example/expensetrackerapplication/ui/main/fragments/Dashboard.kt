@@ -1,47 +1,34 @@
 package com.example.expensetrackerapplication.ui.main.fragments
 
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.anychart.AnyChart
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
-import com.anychart.charts.Pie
-import com.db.williamchart.view.BarChartView
-import com.example.expensetrackerapplication.ExpenseTracker
 import com.example.expensetrackerapplication.R
 //import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.databinding.DashboardBinding
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.`object`.StartSync
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.DashBoardViewModel
-import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 // TODO: Rename parameter arguments, choose names that match

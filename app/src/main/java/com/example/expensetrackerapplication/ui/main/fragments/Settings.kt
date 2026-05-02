@@ -27,7 +27,7 @@ import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.datastore.ThemeDataStore
 import com.example.expensetrackerapplication.model.CategoryModel
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui_event.CategoryItemClickListener
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel

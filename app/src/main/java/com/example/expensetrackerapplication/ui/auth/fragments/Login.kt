@@ -14,7 +14,7 @@ import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.databinding.ForgetPasswordBinding
 import com.example.expensetrackerapplication.databinding.LoginBinding
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.main.Main
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.ForgetViewModel

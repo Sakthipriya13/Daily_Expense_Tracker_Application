@@ -1,8 +1,6 @@
 package com.example.expensetrackerapplication.ui.main
 
-import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.Animation
@@ -17,24 +15,15 @@ import com.example.expensetrackerapplication.viewmodel.MainViewModel
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.work.WorkManager
-import com.bumptech.glide.Glide
-import com.example.expensetrackerapplication.ExpenseTracker
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.reusefiles.BaseActivity
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 class Main : BaseActivity() {
     lateinit var mainDataBinding: MainBinding

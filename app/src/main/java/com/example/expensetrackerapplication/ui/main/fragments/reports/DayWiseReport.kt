@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -26,20 +25,16 @@ import com.example.expensetrackerapplication.databinding.ConfirmationPromptBindi
 import com.example.expensetrackerapplication.databinding.DayWiseReportBinding
 import com.example.expensetrackerapplication.databinding.DayWiseReportListItemBinding
 import com.example.expensetrackerapplication.databinding.EditExpenseBinding
-import com.example.expensetrackerapplication.databinding.MainBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
 import com.example.expensetrackerapplication.model.CurrentDayReportModel
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui_event.DayWiseReportClickListener
-import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.DayWiseReportViewModel
 import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
 
-import com.example.expensetrackerapplication.viewmodel.MainViewModel
-import com.example.expensetrackerapplication.viewmodel.ReportMenuViewModel
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment

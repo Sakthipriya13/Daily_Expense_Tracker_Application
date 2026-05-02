@@ -11,7 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.databinding.SignUpBinding
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel

@@ -5,29 +5,22 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.graphics.LinearGradientShader
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.databinding.AlertSheetMonthBinding
 import com.example.expensetrackerapplication.databinding.AlertSheetYearBinding
-import com.example.expensetrackerapplication.databinding.BottomsheetMonthPickerBinding
-import com.example.expensetrackerapplication.databinding.MonthYearDialogItemBinding
-import com.example.expensetrackerapplication.databinding.NewExpenseBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.reusefiles.fnShowMessage
+import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -35,14 +28,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.color.MaterialColors
-import com.google.android.material.datepicker.MaterialDatePicker
-import java.time.Month
-import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.Calendar
-import java.util.Locale
 import kotlin.collections.forEach
 
 // TODO: Rename parameter arguments, choose names that match
