@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="successBackground" format="color"/>
+    <attr name="errorBackground" format="color"/>
+    <attr name="infoBackground" format="color"/>
+    <attr name="warningBackground" format="color"/>
+    <attr name="textColorWhite" format="color"/>
+    <attr name="textColorBlack" format="color"/>
+    <attr name="Color_Gray" format="color"/>
+</resources>

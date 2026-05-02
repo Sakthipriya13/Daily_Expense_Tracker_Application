@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="mainViewModel"
+            type="com.example.expensetrackerapplication.viewmodel.MainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/idAppBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:ignore="MissingConstraints">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/idToolBar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@drawable/appbarbg"
+                android:paddingEnd="10dp"
+                android:paddingStart="10dp"
+                app:title="Expense Tracker"
+                app:titleTextColor="@color/white"
+                app:titleTextAppearance="@style/ToolBarTittle"
+                android:elevation="5dp"
+                >
+<!--                <com.google.android.material.imageview.ShapeableImageView-->
+<!--                    android:id="@+id/idUserProfileImg"-->
+<!--                    android:layout_width="45dp"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    app:shapeAppearanceOverlay="@style/Circular"-->
+<!--                    android:scaleType="centerCrop"-->
+<!--                    android:src="@drawable/profile_default_img"-->
+<!--                    android:layout_margin="10dp"-->
+<!--                    android:layout_gravity="end"-->
+<!--                    />-->
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/logout"
+                    android:layout_marginEnd="10dp"
+                    app:tint="?attr/textColorWhite"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{() -> mainViewModel.fnLogOut()}"
+                    android:layout_gravity="end"/>
+
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/idContainer"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            android:layout_marginTop="65dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="parent"
+            app:navGraph="@navigation/main_nav" />
+
+<!--        android:layout_marginBottom="80dp"-->
+        <View
+            android:id="@+id/idTransparentBg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#66000000"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:layout_editor_absoluteX="0dp">
+
+
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idMenuFab"
+                app:maxImageSize="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/menu1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"/>
+
+
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idDashboardFab"
+                app:maxImageSize="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/dashboard_frag"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/idMenuFab"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"
+                android:visibility="gone"/>
+
+
+
+            <TextView
+                android:id="@+id/idHomeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dashboard_frag"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="8dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="?attr/textColorBlack"
+                android:elevation="8dp"
+                android:background="@drawable/textview_bg"
+                app:layout_constraintTop_toTopOf="@id/idDashboardFab"
+                app:layout_constraintBottom_toBottomOf="@id/idDashboardFab"
+                app:layout_constraintEnd_toStartOf="@id/idDashboardFab"
+                android:visibility="gone"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idReportFab"
+                app:maxImageSize="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/reports_frag"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/idDashboardFab"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"
+                android:visibility="gone"/>
+
+
+            <TextView
+                android:id="@+id/idReportText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reports_frag"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="8dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:textColor="?attr/textColorBlack"
+                android:elevation="8dp"
+                android:background="@drawable/textview_bg"
+                app:layout_constraintTop_toTopOf="@id/idReportFab"
+                app:layout_constraintBottom_toBottomOf="@id/idReportFab"
+                app:layout_constraintEnd_toStartOf="@id/idReportFab"
+                android:visibility="gone"/>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idAddExpenseFab"
+                app:maxImageSize="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/idReportFab"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/idAddText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_expense_frag"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="8dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:elevation="8dp"
+                android:textColor="?attr/textColorBlack"
+                android:background="@drawable/textview_bg"
+                app:layout_constraintTop_toTopOf="@id/idAddExpenseFab"
+                app:layout_constraintBottom_toBottomOf="@id/idAddExpenseFab"
+                app:layout_constraintEnd_toStartOf="@id/idAddExpenseFab"
+                android:visibility="gone"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idSettingsFab"
+                app:maxImageSize="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/settings_frag"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/idAddExpenseFab"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"
+                android:visibility="gone"/>
+
+
+            <TextView
+                android:id="@+id/idSettingsText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/setting_frag"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="8dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:elevation="8dp"
+                android:textColor="?attr/textColorBlack"
+                android:background="@drawable/textview_bg"
+                app:layout_constraintTop_toTopOf="@id/idSettingsFab"
+                app:layout_constraintBottom_toBottomOf="@id/idSettingsFab"
+                app:layout_constraintEnd_toStartOf="@id/idSettingsFab"
+                android:visibility="gone"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/idProfileFab"
+                app:maxImageSize="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/user"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/idSettingsFab"
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:backgroundTint="?attr/colorPrimary"
+                app:tint="@color/white"
+                app:shapeAppearanceOverlay="@style/FabCustomShape"
+                android:visibility="gone"/>
+
+
+            <TextView
+                android:id="@+id/idProfileText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/profile_frag"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="8dp"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:elevation="8dp"
+                android:textColor="?attr/textColorBlack"
+                android:background="@drawable/textview_bg"
+                app:layout_constraintTop_toTopOf="@id/idProfileFab"
+                app:layout_constraintBottom_toBottomOf="@id/idProfileFab"
+                app:layout_constraintEnd_toStartOf="@id/idProfileFab"
+                android:visibility="gone"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
+
+
+
+
+<!--<androidx.fragment.app.FragmentContainerView-->
+<!--android:id="@+id/idContainer"-->
+<!--android:name="androidx.navigation.fragment.NavHostFragment"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="450dp"-->
+<!--app:defaultNavHost="true"-->
+<!--app:navGraph="@navigation/main_nav" />-->
+
+<!--<androidx.cardview.widget.CardView-->
+<!--android:id="@+id/idCardView"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="100dp"-->
+<!--app:cardCornerRadius="20dp"-->
+<!--app:cardElevation="5dp"-->
+<!--android:layout_marginEnd="5dp"-->
+<!--android:layout_marginStart="5dp"-->
+<!--android:layout_marginTop="5dp"-->
+<!--android:layout_gravity="bottom">-->
+<!--<com.google.android.material.bottomappbar.BottomAppBar-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:id="@+id/idBottomAppBar"-->
+<!--    android:background="?attr/colorPrimary"-->
+<!--    app:fabCradleMargin="10dp"-->
+<!--    app:fabCradleRoundedCornerRadius="50dp"-->
+<!--    tools:ignore="BottomAppBar">-->
+<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+<!--        android:id="@+id/idBottomNav"-->
+<!--        android:background="@android:color/transparent"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        app:labelVisibilityMode="labeled"-->
+<!--        app:menu="@menu/main_menu"/>-->
+<!--</com.google.android.material.bottomappbar.BottomAppBar>-->
+
+<!--</androidx.cardview.widget.CardView>-->

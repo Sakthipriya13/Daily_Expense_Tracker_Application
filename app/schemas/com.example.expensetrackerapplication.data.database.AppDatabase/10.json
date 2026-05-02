@@ -1,0 +1,280 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 10,
+    "identityHash": "39e77065e09797379559751ebd80cf4c",
+    "entities": [
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`userId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `UserName` TEXT, `UserMobileNo` TEXT, `UserEmail` TEXT, `UserPassword` TEXT, `UserProfilePhotoUri` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userName",
+            "columnName": "UserName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userMobileNo",
+            "columnName": "UserMobileNo",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userEmail",
+            "columnName": "UserEmail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userPassword",
+            "columnName": "UserPassword",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userProfilePhotoUri",
+            "columnName": "UserProfilePhotoUri",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "userId"
+          ]
+        }
+      },
+      {
+        "tableName": "Categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `CategoryName` TEXT, `UserId` INTEGER NOT NULL, FOREIGN KEY(`UserId`) REFERENCES `User`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "categoryId",
+            "columnName": "categoryId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryName",
+            "columnName": "CategoryName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "UserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "categoryId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Categories_UserId",
+            "unique": false,
+            "columnNames": [
+              "UserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Categories_UserId` ON `${TABLE_NAME}` (`UserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "User",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "UserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ExpenseTable",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`expenseId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `UserId` INTEGER NOT NULL, `ExpenseDate` TEXT NOT NULL, `ExpenseAmountt` REAL NOT NULL, `ExpenseCategoryId` INTEGER NOT NULL, `ExpenseCategoryName` TEXT, `PaymentType` INTEGER NOT NULL, `ExpenseAmtInCash` REAL NOT NULL, `ExpenseAmtInCard` REAL NOT NULL, `ExpenseAmtInUpi` REAL NOT NULL, `ExpenseAmtInOthers` REAL NOT NULL, `ExpenseRemarks` TEXT NOT NULL, `ExpenseStatus` INTEGER NOT NULL, FOREIGN KEY(`UserId`) REFERENCES `User`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "expenseId",
+            "columnName": "expenseId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "UserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseDate",
+            "columnName": "ExpenseDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseAmt",
+            "columnName": "ExpenseAmountt",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseCategoryId",
+            "columnName": "ExpenseCategoryId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseCategoryName",
+            "columnName": "ExpenseCategoryName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "paymentType",
+            "columnName": "PaymentType",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseAmtInCash",
+            "columnName": "ExpenseAmtInCash",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseAmtInCard",
+            "columnName": "ExpenseAmtInCard",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseAmtInUpi",
+            "columnName": "ExpenseAmtInUpi",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseAmtInOthers",
+            "columnName": "ExpenseAmtInOthers",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseRemarks",
+            "columnName": "ExpenseRemarks",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expenseStatus",
+            "columnName": "ExpenseStatus",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "expenseId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ExpenseTable_UserId",
+            "unique": false,
+            "columnNames": [
+              "UserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExpenseTable_UserId` ON `${TABLE_NAME}` (`UserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "User",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "UserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "IncomeTable",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`incomeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `UserId` INTEGER NOT NULL, `Date` TEXT, `Income` REAL, FOREIGN KEY(`UserId`) REFERENCES `User`(`userId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "incomeId",
+            "columnName": "incomeId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "UserId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "Date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "income",
+            "columnName": "Income",
+            "affinity": "REAL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "incomeId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_IncomeTable_UserId",
+            "unique": false,
+            "columnNames": [
+              "UserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_IncomeTable_UserId` ON `${TABLE_NAME}` (`UserId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "User",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "UserId"
+            ],
+            "referencedColumns": [
+              "userId"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39e77065e09797379559751ebd80cf4c')"
+    ]
+  }
+}

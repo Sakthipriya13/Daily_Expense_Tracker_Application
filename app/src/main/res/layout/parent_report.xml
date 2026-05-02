@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="parentReportViewModel"
+            type="com.example.expensetrackerapplication.viewmodel.ParentReportViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/idReportContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:navGraph="@navigation/report_nav"
+            app:defaultNavHost="true"
+            android:name="androidx.navigation.fragment.NavHostFragment"/>
+
+        <!-- CURRENT DAY -->
+<!--            <LinearLayout-->
+<!--                android:id="@+id/idCurrentDayReportCard"-->
+<!--                android:layout_width="70dp"-->
+<!--                android:layout_height="100dp"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical"-->
+<!--                android:clickable="true"-->
+<!--                android:foreground="?attr/selectableItemBackgroundBorderless">-->
+
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    app:cardCornerRadius="10dp"-->
+<!--                    android:padding="5dp"-->
+<!--                    app:cardElevation="4dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    android:scaleType="fitCenter"-->
+<!--                    app:tint="?attr/textColorWhite"-->
+<!--                    android:background="?attr/colorPrimary"-->
+<!--                    android:src="@drawable/ic_day_wise_report" />-->
+<!--                </androidx.cardview.widget.CardView>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Current Day"-->
+<!--                    android:textColor="?attr/colorPrimary"-->
+<!--                    android:textStyle="bold"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:gravity="center" />-->
+
+<!--            </LinearLayout>-->
+
+        <!-- DAY WISE -->
+<!--            <LinearLayout-->
+<!--                android:id="@+id/idDayWiseReportCard"-->
+<!--                android:layout_width="100dp"-->
+<!--                android:layout_height="100dp"-->
+<!--                android:clickable="true"-->
+<!--                android:foreground="?attr/selectableItemBackgroundBorderless"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical">-->
+<!--                <androidx.cardview.widget.CardView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    app:cardCornerRadius="10dp"-->
+<!--                    app:cardElevation="4dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    android:scaleType="fitCenter"-->
+<!--                    app:tint="?attr/textColorWhite"-->
+<!--                    android:background="?attr/colorPrimary"-->
+<!--                    android:src="@drawable/ic_weekly_report" />-->
+<!--                </androidx.cardview.widget.CardView>-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="Day - Wise"-->
+<!--                    android:textColor="?attr/colorPrimary"-->
+<!--                    android:textSize="18sp"-->
+<!--                    android:textStyle="bold" />-->
+<!--            </LinearLayout>-->
+
+
+<!--        &lt;!&ndash; MONTHLY &ndash;&gt;-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/idMonthlyReportCard"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="100dp"-->
+<!--            android:clickable="true"-->
+<!--            android:foreground="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical">-->
+<!--            <androidx.cardview.widget.CardView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:layout_margin="6dp"-->
+<!--                app:cardCornerRadius="10dp"-->
+<!--                app:cardElevation="4dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    android:scaleType="fitCenter"-->
+<!--                    app:tint="?attr/textColorWhite"-->
+<!--                    android:background="?attr/colorPrimary"-->
+<!--                    android:src="@drawable/ic_monthly_report" />-->
+<!--            </androidx.cardview.widget.CardView>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Monthly"-->
+<!--                android:textColor="?attr/colorPrimary"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold" />-->
+<!--        </LinearLayout>-->
+
+
+<!--        &lt;!&ndash; CATEGORY &ndash;&gt;-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/idCateReportCard"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="100dp"-->
+<!--            android:clickable="true"-->
+<!--            android:foreground="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical">-->
+<!--            <androidx.cardview.widget.CardView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:layout_margin="6dp"-->
+<!--                app:cardCornerRadius="10dp"-->
+<!--                app:cardElevation="4dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    android:scaleType="fitCenter"-->
+<!--                    app:tint="?attr/textColorWhite"-->
+<!--                    android:background="?attr/colorPrimary"-->
+<!--                    android:src="@drawable/ic_category_report" />-->
+<!--            </androidx.cardview.widget.CardView>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Category"-->
+<!--                android:textColor="?attr/colorPrimary"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold" />-->
+<!--        </LinearLayout>-->
+
+<!--        &lt;!&ndash; Payment Type &ndash;&gt;-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/idPaymentTypeReportCard"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="100dp"-->
+<!--            android:clickable="true"-->
+<!--            android:foreground="?attr/selectableItemBackgroundBorderless"-->
+<!--            android:gravity="center"-->
+<!--            android:orientation="vertical">-->
+<!--            <androidx.cardview.widget.CardView-->
+<!--                android:layout_width="50dp"-->
+<!--                android:layout_height="50dp"-->
+<!--                android:layout_margin="6dp"-->
+<!--                app:cardCornerRadius="10dp"-->
+<!--                app:cardElevation="4dp">-->
+<!--                <ImageView-->
+<!--                    android:layout_width="50dp"-->
+<!--                    android:layout_height="50dp"-->
+<!--                    android:adjustViewBounds="true"-->
+<!--                    android:scaleType="fitCenter"-->
+<!--                    app:tint="?attr/textColorWhite"-->
+<!--                    android:background="?attr/colorPrimary"-->
+<!--                    android:src="@drawable/ic_payment_type" />-->
+<!--            </androidx.cardview.widget.CardView>-->
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:text="Payment"-->
+<!--                android:textColor="?attr/colorPrimary"-->
+<!--                android:textSize="18sp"-->
+<!--                android:textStyle="bold" />-->
+<!--        </LinearLayout>-->
+
+<!--        <androidx.constraintlayout.helper.widget.Flow-->
+<!--            android:id="@+id/idOptionsFlow"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:constraint_referenced_ids="idDayWiseReportCard,idMonthlyReportCard,idCateReportCard,idPaymentTypeReportCard"-->
+<!--            app:flow_horizontalStyle="spread"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintVertical_bias="0.9" />-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+</layout>

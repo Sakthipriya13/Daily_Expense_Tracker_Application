@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="addIncome"
+            type="com.example.expensetrackerapplication.viewmodel.AddInComeViewModel" />
+    </data>
+<!--    <androidx.cardview.widget.CardView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        app:cardCornerRadius="30dp"-->
+<!--        app:cardElevation="10dp">-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_prompt"
+            android:elevation="10dp">
+            <TextView
+                android:id="@+id/idHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/sub_header_size"
+                android:textStyle="bold"
+                android:text="@string/add_income"
+                android:textColor="?attr/colorPrimary"
+                android:layout_margin="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:id="@+id/idDateLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/sub_header_size"
+                android:text="@string/date"
+                android:textStyle="bold"
+                android:textColor="?attr/textColorBlack"
+                android:layout_margin="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idHeader"
+                />
+            
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/idLSelectDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_percent="0.77"
+                app:layout_constraintEnd_toStartOf="@+id/idBtnCalendar"
+                tools:ignore="MissingConstraints">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/idESelectDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_size"
+                    android:focusable="false"
+                    android:cursorVisible="false"
+                    android:text="@{addIncome._selectedDateUi}"
+                    android:inputType="none"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageView
+                android:id="@+id/idBtnCalendar"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_calendar"
+                app:layout_constraintStart_toEndOf="@+id/idLSelectDate"
+                app:layout_constraintWidth_percent="0.13"/>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/idDateFlow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flow_horizontalStyle="spread_inside"
+                app:flow_horizontalGap="5dp"
+                android:layout_margin="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/idDateLabel"
+                app:layout_constraintBottom_toTopOf="@+id/idLIncome"
+                app:constraint_referenced_ids="idLSelectDate,idBtnCalendar"
+                tools:ignore="MissingConstraints" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/idLIncome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="?attr/colorPrimary"
+                app:boxStrokeErrorColor="?attr/errorBackground"
+                app:hintTextColor="?attr/colorPrimary"
+                app:cursorColor="?attr/colorPrimary"
+                app:startIconDrawable="@drawable/currency_rupee"
+                app:startIconTint="?attr/colorPrimary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idDateFlow"
+                android:layout_margin="20dp"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/idEIncome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/income"
+                    android:singleLine="true"
+                    android:textSize="@dimen/text_size"
+                    android:inputType="number"
+                    android:text="@={addIncome._income}"
+                    android:nextFocusDown="@id/idBtnConfirm"
+                    android:paddingStart="50dp"/>
+                <requestFocus/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <LinearLayout
+                android:id="@+id/idBtnLayout"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_margin="20dp"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idLIncome">
+
+                <ImageView
+                    android:id="@+id/idClear"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="0.5"
+                    android:src="@drawable/ic_clear"
+                    android:background="?attr/selectableItemBackground"
+                    android:onClick="@{()->addIncome.fnClearAllFields()}"
+                    android:layout_gravity="start"/>
+
+                <TextView
+                    android:id="@+id/idBtnCancel"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:text="@string/cancel"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorLink="?attr/colorPrimary"
+                    android:onClick="@{() -> addIncome.onClickCancel()}"
+                    android:textSize="@dimen/button_text_size"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/idBtnConfirm"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textSize="@dimen/button_text_size"
+                    android:text="@string/submit"
+                    android:onClick="@{() -> addIncome.onClickSubmit()}"
+                    android:textColor="@android:color/white"
+                    android:background="@drawable/btn_background"
+                    app:backgroundTint="?attr/colorPrimary"
+                    app:cornerRadius="20dp"/>
+
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.cardview.widget.CardView>-->
+</layout>

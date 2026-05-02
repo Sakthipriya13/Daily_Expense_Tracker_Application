@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/report_nav"
+    app:startDestination="@id/idReportMenu"
+    >
+    <fragment
+        android:id="@+id/idReportMenu"
+        android:label="ReportMenu"
+        android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.menu.ReportMenu">
+        <action android:id="@+id/action_report_menu_to_day_wise_report"
+            app:destination="@id/idDayWiseReport"/>
+        <action android:id="@+id/action_report_menu_to_monthly_report"
+            app:destination="@id/idMonthlySummaryReport"/>
+        <action android:id="@+id/action_report_menu_to_category_wise_report"
+            app:destination="@id/idCategoryWiseReport"/>
+        <action android:id="@+id/action_report_menu_to_payment_type_report"
+            app:destination="@id/idPaymentTypeReport"/>
+        <action android:id="@+id/action_report_menu_to_yearly_report"
+            app:destination="@id/idYearlyReport"/>
+    </fragment>
+
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.DayWiseReport"
+        android:id="@+id/idDayWiseReport"
+        android:label="DayWiseReport">
+        <action android:id="@+id/action_day_wise_report_to_report_menu"
+            app:destination="@id/idReportMenu"/>
+    </fragment>
+
+    <fragment android:id="@+id/idMonthlySummaryReport"
+        android:label="MonthlySummaryReport"
+        android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.MonthlyReport">
+        <action android:id="@+id/action_monthly_summary_report_to_report_menu"
+            app:destination="@id/idReportMenu"/>
+    </fragment>
+
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.CategoryWiseReport"
+        android:label="CategoryWiseReport"
+        android:id="@+id/idCategoryWiseReport">
+        <action android:id="@+id/action_category_wise_report_to_report_menu"
+            app:destination="@id/idReportMenu"/>
+    </fragment>
+
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.PaymentTypeReport"
+        android:label="PaymentTypeReport"
+        android:id="@+id/idPaymentTypeReport">
+        <action android:id="@+id/action_payment_type_report_to_report_menu"
+            app:destination="@id/idReportMenu"/>
+    </fragment>
+
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport"
+        android:label="YearlyReport"
+        android:id="@+id/idYearlyReport">
+        <action android:id="@+id/action_yearly_report_to_report_menu"
+            app:destination="@id/idReportMenu"/>
+    </fragment>
+
+
+</navigation>

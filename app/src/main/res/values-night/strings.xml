@@ -1,0 +1,281 @@
+<resources>
+    <string name="app_name">Expense Tracker</string>
+    <string name="login">Login</string>
+    <string name="noaccount">New User? Sign Up Now</string>
+    <string name="username">UserName</string>
+    <string name="password">Password</string>
+    <string name="mobileno">Mobile No</string>
+    <string name="email">Email</string>
+    <string name="signup">Sign Up</string>
+    <string name="alreadyaccount">Already have an account? Login</string>'
+    <string name="name_field_empty">Name Field Was Emplty So Please Fill It</string>
+    <string name="mobileno_field_empty">MobileNo Field Was Emplty So Please Fill It</string>
+    <string name="password_field_empty">Password Field Was Emplty So Please Fill It</string>
+    <string name="email_field_empty">Email Field Was Emplty So Please Fill It</string>
+    <string name="loginsuccess">Login Success! Welcome</string>
+    <string name="nameorpassword_fields_empty">Name Or Password Fields Are Empty. Please Fill Them In</string>
+    <string name="invalid_name_or_password">Invalid Name Or Password</string>
+    <string name="signupsuccess">User Signed Up!</string>
+    <string name="nameor_mobnoor_password_fields_empty">Name,MobileNO, Email Or Password  Fields Are Empty. Please Fill Them In</string>
+    <string name="select_language">SELECT LANGUAGE</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="clear">Clear</string>
+
+    <string name="dashboard_frag">Dashboard</string>
+    <string name="reports_frag">Reports</string>
+    <string name="add_expense_frag">Add New Expense</string>
+    <string name="category_management">CATEGORY MANAGEMENT</string>
+    <string name="setting_frag">Setting</string>
+    <string name="profile_frag">Profile</string>
+    <string name="logout">Logout</string>
+
+    <string name="day">DAY</string>
+    <string name="week">WEEK</string>
+    <string name="month">MONTH</string>
+    <string name="year">YEAR</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+
+
+    <string name="date">DATE</string>
+    <string name="expense">EXPENSE</string>
+    <string name="category">CATEGORY</string>
+    <string name="payment_type">PAYMENT TYPE</string>
+    <string name="remarks">REMARKS(OP)</string>
+
+    <string name="select_expense_category">Select Expense Category</string>
+    <string name="select_paymenttype">Select Payment Type</string>
+    <string name="add_remarks">Add Remarks</string>
+    <string name="select_date">Select Date</string>
+    <string name="enter_expense">Enter Expense</string>
+    <string name="next">NEXT</string>
+
+
+    <string-array name="language_list">
+        <item>English</item>
+        <item>Tamil</item>
+    </string-array>
+
+    <string-array name="language_code">
+        <item>en</item>
+        <item>ta</item>
+    </string-array>
+
+    <string-array name="payment_types">
+        <item>Cash</item>
+        <item>Card</item>
+        <item>Upi</item>
+        <item>Split</item>
+    </string-array>
+    <string name="add">ADD</string>
+
+    <string name="cash">Cash</string>
+    <string name="upi">Upi</string>
+    <string name="card">Card</string>
+    <string name="split">Split</string>
+    <string name="other">Other</string>
+
+    <string name="day_wise_report">DAY-WISE REPORT</string>
+    <string name="expense_summary">EXPENSE SUMMARY</string>
+    <string name="warning">Warning!</string>
+
+    <string name="do_you_want_to_delete_the_expense">Do You Want To Delete This Expense?</string>
+
+    <string name="edit">EDIT</string>
+
+    <string name="add_income">ADD INCOME</string>
+    <string name="income">Income</string>
+    <string name="change_password">CHANGE PASSWORD</string>
+    <string name="del_account">DELETE ACCOUNT</string>
+    <string name="current_password">CURRENT PASSWORD</string>
+    <string name="new_password">NEW PASSWORD</string>
+
+    <string name="confirm">CONFIRM</string>
+
+    <string name="gallery">Gallery</string>
+    <string name="camera">Camera</string>
+
+    <string name="submit">SUBMIT</string>
+    <string name="english">English</string>
+    <string name="tamil">Tamil</string>
+
+    <string name="theme">THEME</string>
+    <string name="dark_theme">Dark</string>
+    <string name="light_theme">Light</string>
+    <string name="system_theme">System</string>
+
+    <string name="theme_color">THEME COLOR</string>
+
+    <string name="default_categories">Default Categories</string>
+    <string name="category_name">CATEGORY NAME</string>
+    <string name="remove">REMOVE</string>
+
+    <string name="do_you_want_to_delete_the_category">Do You Want To Delete This Category?</string>
+
+    <string name="delete">DELETE</string>
+
+    <string-array name="calendar_options">
+        <item>DAY</item>
+        <item>MONTH</item>
+        <item>YEAR</item>
+    </string-array>
+
+    <string name="_income">Income</string>
+    <string name="_balance">Balance</string>
+    <string name="_expense">Expense</string>
+
+    <string name="_this_year">This Year</string>
+    <string name="_this_month">This Month</string>
+
+    <string name="category_overview">Category OverView</string>
+    <string name="select_day_or_month_or_year">Select Day Or Month Or Year</string>
+    <string name="recent_transactions">RECENT TRANSACTIONS</string>
+    <string name="payment_type_overview">PAYMENT TYPE OVERVIEW</string>
+
+    <string name="export_excel">EXPORT</string>
+
+    <string name="total">TOTAL</string>
+    <string name="added">ADDED</string>
+    <string name="deleted">DELETED</string>
+
+    <string name="expense_status">EXPENSE STATUS</string>
+
+    <string name="del">DELETE</string>
+    <string name="monthly_summary">MONTHLY SUMMARY</string>
+    <string name="transactions">TRANSACTIONS</string>
+    <string name="enter_cash_amount">Enter Cash Amount</string>
+    <string name="enter_card_amount">Enter Card Amount</string>
+    <string name="enter_upi_amount">Enter Upi Amount</string>
+    <string name="split_payment_type">SPLIT PAYMENT TYPE</string>
+
+    <string name="yearly_overview">YEARLY OVERVIEW</string>
+    <string name="name">Name</string>
+    <string name="day_wise">DAY - WISE</string>
+    <string name="monthly_summary1">MONTHLY SUMMARY</string>
+    <string name="yearly_summary">YEARLY SUMMARY</string>
+    <string name="monthly_overview_summary">MONTHLY OVERVIEW SUMMARY</string>
+    <string name="yearly_summary_report">YEARLY SUMMARY REPORT</string>
+    <string name="yearly_overview_summary">YEARLY OVERVIEW SUMMARY</string>
+    <string name="category_wise_report">CATEGORY-WISE REPORT</string>
+    <string name="payment_type_report">PAYMENT TYPE REPORT</string>
+    <string name="no_transaction">No Transaction</string>
+    <string name="forget_password">Forget Password?</string>
+<!--    <string name="new_password">New Password</string>-->
+    <string name="reset">RESET</string>
+    <string name="at_least_6_characters">At Least 6 Characters</string>
+    <string name="export_old_data">Export Old Data</string>
+    <string name="export_expense_details">Export Expense Details</string>
+    <string name="export">EXPORT</string>
+
+    <string-array name = "months">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+
+<!--    <string name="jan">Jan</string>-->
+<!--    <string name="feb">Feb</string>-->
+<!--    <string name="mar">March</string>-->
+<!--    <string name="apr">April</string>-->
+<!--    <string name="may">May</string>-->
+<!--    <string name="june">June</string>-->
+<!--    <string name="july">July</string>-->
+<!--    <string name="aug">Aug</string>-->
+<!--    <string name="sep">Sep</string>-->
+<!--    <string name="oct">Oct</string>-->
+<!--    <string name="nov">Nov</string>-->
+<!--    <string name="dec">Dec</string>-->
+
+    <string name="enter_category">Enter Category</string>
+
+    <string name="login_BothFieldsEmpty">User Name And Password Were An Empty</string>
+    <string name="login_UserNameFieldEmpty">User Name Field Was An Empty</string>
+    <string name="login_PasswordFieldEmpty">Password Field Was An Empty</string>
+    <string name="login_Success">Successfully Login</string>
+    <string name="login_UserNotFound">User Not Found,Enter Valid User</string>
+    <string name="login_UserOrPasswordWrong">User Name Or Password Was Wrong,Enter Valid Details</string>
+
+
+    <string name="passwordAtleast6Chars">Password At Least 6 Characters</string>
+    <string name="bothFieldsEmpty">Both Fields Are Empty</string>
+
+    <string name="forget_EmailFieldEmpty">Email Field Was An Empty</string>
+    <string name="forget_InvalidEmail">Email Was Invalid</string>
+    <string name="forget_PasswordFieldEmpty">Password Field Was Empty</string>
+    <string name="forget_PasswordResetFailed">Password Reset Failed , Check Email</string>
+    <string name="forget_PasswordResetSuccess">Successfully User Password Reset</string>
+
+
+    <string name="signup_AllFieldsEmpty">All Fields Are Empty</string>
+    <string name="signup_nameFieldEmpty">User Name Field Was Empty</string>
+    <string name="signup_MobileNoFieldEmpty">Mobile No Field Was Empty</string>
+    <string name="signup_MobileNoMustBe10Chars">Mobile No Must Be 10 Characters</string>
+    <string name="signup_EmailFieldEmpty">Email Field Was Empty</string>
+    <string name="signup_InvalidEmail">Email Was Invalid</string>
+    <string name="signup_PasswordFieldEmpty">Password Field Was Empty</string>
+    <string name="signup_NewUserAccountCreated">New User Account Was Created</string>
+    <string name="signup_NewUserCreationFailed">New user Account Creation Failed</string>
+    <string name="signup_AlreadyEmailWasUsed">The Email Already Used</string>
+
+    <string name="signup_MayBeTheEmailAlreadyUsed">New user Account Creation Failed.he Email Already Used</string>
+
+    <string name="noInternet">Internet Is Needed</string>
+
+    <string name="newEx_AllFieldsAreEmpty">All Fields Are Empty</string>
+    <string name="newEx_DateMissing">Date Was Missing, So Select Date</string>
+    <string name="newEx_ExpenseAmountMissing">Expense Amount Was Missing, So Enter Amount</string>
+    <string name="newEx_CategoryMissing">Select Category</string>
+    <string name="newEx_PaymentTypeMissing">Select Payment Type</string>
+    <string name="newEx_InsertExpenseSuccess">Successfully Expense Details Are Stored</string>
+    <string name="newEx_InsertExpenseFailed">Something Wrong, Expense Details Are Not Stored</string>
+
+    <string name="income_IncomeFieldEmpty">Income Field Was Empty</string>
+    <string name="income_InsertIncomeSuccess">successfully Income Was Added"</string>
+    <string name="income_InsertIncomeFailed">Add Income Failed"</string>
+
+    <string name="cp_NewPasswordFieldEmpty">New Password Field Was Empty</string>
+    <string name="cp_PasswordChangeFailed">Password Changes Failed</string>
+    <string name="cp_PasswordChangesSuccess">Successfully Password Changed</string>
+
+    <string name="deleteAccount_Title">Warning!</string>
+    <string name="deleteAccount_Content">Do You Want To Delete The Account?</string>
+
+    <string name="deleteAccount_Success">User Account Successfully Deleted</string>
+    <string name="deleteAccount_Failed">Delete User Account Was Failed</string>
+
+    <string name="set_NewCategoryFieldEmpty">New Category Field Was An Empty</string>
+
+    <string name="set_InsertCategorySuccess">Successfully Category Inserted</string>
+    <string name="set_InsertCategoryFailed">Category Insert Failed</string>
+
+    <string name="set_DeleteCategorySuccess">Successfully Category Deleted</string>
+    <string name="set_DeleteCategoryFailed">Delete Category Failed</string>
+
+    <string name="set_ShareData_NoData">No Data To Share</string>
+    <string name="set_ShareDataFailed">Share Data Via Email Was Failed</string>
+
+    <string name="split_TotalAmtMissMatch">Total Amount Was MisMatch</string>
+
+    <string name="enterExpense">Enter Expense</string>
+
+    <string name="dayWiseReport_ExpenseWasAlreadyDeleted">Expense Was Already Deleted</string>
+    <string name="dayWiseReport_EditNotAllowed">Edit Not Allowed</string>
+
+    <string name="dayWiseReport_ExportSuccess">Successfully Day-Wise Report Exported To Internal Storage(Document Path)</string>
+    <string name="dayWiseReport_ExportFailed">Export Day-Wise Report Failed</string>
+
+    <string name="dayWiseReport_DeleteExpenseSuccess">Successfully Expense Was Deleted</string>
+    <string name="dayWiseReport_DeleteExpenseFailed">Delete Expense Failed</string>
+    <string name="edit_expense">Edit Expense</string>
+
+</resources>

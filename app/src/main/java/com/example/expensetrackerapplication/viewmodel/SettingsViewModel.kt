@@ -1,0 +1,535 @@
+package com.example.expensetrackerapplication.viewmodel
+
+import android.app.Application
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.FileProvider
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.application
+import androidx.lifecycle.viewModelScope
+import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.entity.CategoryEntitty
+import com.example.expensetrackerapplication.data.entity.ExpenseEntity
+import com.example.expensetrackerapplication.data.entity.IncomeEntity
+import com.example.expensetrackerapplication.data.repositary.CategoryRepository
+import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
+import com.example.expensetrackerapplication.data.repositary.IncomeRepository
+import com.example.expensetrackerapplication.datastore.LanguageDataStore
+import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
+import com.example.expensetrackerapplication.datastore.ThemeDataStore
+import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileWriter
+
+class SettingsViewModel(application: Application) : AndroidViewModel(application)
+{
+    var categoryRepository : CategoryRepository
+    var expenseRepository : ExpenseRepository
+    var incomeRepository : IncomeRepository
+    val languageDataStore: LanguageDataStore
+    val themeColorDataStore : ThemeColorDataStore
+    val themeDataStore: ThemeDataStore
+
+    init {
+        var dao = AppDatabase.getdatabase(application).CategoryDao()
+        categoryRepository= CategoryRepository(dao)
+        var exdao = AppDatabase.getdatabase(application).ExpenseDao()
+        expenseRepository= ExpenseRepository(exdao)
+        var indao = AppDatabase.getdatabase(application).IncomeDao()
+        incomeRepository= IncomeRepository(indao)
+
+        languageDataStore= LanguageDataStore(application)
+        themeColorDataStore = ThemeColorDataStore(application)
+        themeDataStore = ThemeDataStore(application)
+
+    }
+
+    //Category List
+    var _categoryList = MutableLiveData<List<CategoryEntitty>>()
+    val categoryList: LiveData<List<CategoryEntitty>> get() = _categoryList
+
+    //New Category
+    var _newCategory = MutableLiveData<String?>()
+    val newCategory : LiveData<String?> = _newCategory
+
+    //InsertCategoryStatus
+    var _insertCategoryStatus = MutableLiveData<ResultState1?>(null)
+    var insertCategoryStatus : LiveData<ResultState1?> = _insertCategoryStatus
+
+    //Share Data Via Email Status
+    var _shareDataStatus = MutableLiveData<ResultState1?>(null)
+    var shareDataStatus : LiveData<ResultState1?> = _shareDataStatus
+
+    //Delete Category Status
+    var _deleteCategoryStatus = MutableLiveData<ResultState1>()
+    var deleteCategoryStatus : LiveData<ResultState1> = _deleteCategoryStatus
+
+    //ProgressBar Flag Value
+    var _isLoading= MutableLiveData<Boolean>()
+    val isLoading : LiveData<Boolean> = _isLoading
+
+//    val dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+//    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+//    var _firestoreCloudId = MutableLiveData<String>()
+//    var firestoreCloudId : LiveData<String> = _firestoreCloudId
+
+    //Send Email Event
+    private val _sendEmailEvent = MutableLiveData<Intent?>(null)
+    val sendEmailEvent: LiveData<Intent?> get() = _sendEmailEvent
+
+    var _uiEvent = MutableSharedFlow<UiEvent>()
+    var uiEvent : SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
+
+    var _internetStatus = MutableLiveData<ResultState1>()
+    var internetStatus : LiveData<ResultState1> = _internetStatus
+
+    var _btnThemeCode = MutableLiveData<Int>()
+    var btnThemeCode : LiveData<Int> = _btnThemeCode
+
+
+//    var _uiEvent = MutableLiveData<UiEvent>()
+//    var uiEvent : LiveData<UiEvent> = _uiEvent
+
+    sealed class UiEvent{
+        object RecreateActivity : UiEvent()
+    }
+
+    fun fnClearNewCategoryField(){
+        _newCategory.value = ""
+    }
+
+//    fun fnGetUnSyncedcategories(){
+//        viewModelScope.launch {
+//            var list : List<CategoryEntitty> = emptyList()
+//            list= categoryRepository.fnGetUnSyncedCategoryDb()
+//            Log.i("UNSYNCED CATGGORIES","UnSynced Categories: $list")
+//        }
+//    }
+
+    fun  fnInsertCategories()
+    {
+        try{
+            when{
+                newCategory.value.isNullOrBlank() ->{
+                    _insertCategoryStatus.value = ResultState1.fail(R.string.set_NewCategoryFieldEmpty)
+                }
+                else ->{
+                    fnInsertNewCategory()
+                }
+            }
+        }
+        catch (e : Exception){
+            Log.e("INSERT_NEW_CATEGORY","Insert New Category1: ${e.message}")
+        }
+    }
+
+    fun fnInsertNewCategory() {
+        viewModelScope.launch {
+            try{
+                var expenseDate = Global.fnGetCurrentDate()
+                var newCategory = CategoryEntitty(
+                    userId = Global.lUserId,
+                    cloudId = Global.cloudUserId ?:"",
+                    isSynced = 0,
+                    categoryId = 0,
+                    signUpDate = expenseDate,
+                    categoryName=newCategory.value
+                )
+                var result = categoryRepository.fnInsertCategoriesToDb(
+                    newCategory
+                )
+
+                if(result){
+                    fnGetAllCategories()
+                    fnClearNewCategoryField()
+                    _insertCategoryStatus.value = ResultState1.success(R.string.set_InsertCategorySuccess)
+                }
+                else{
+                    _insertCategoryStatus.value = ResultState1.fail(R.string.set_InsertCategoryFailed)
+                }
+            }
+            catch (e : Exception){
+                Log.e("INSERT_NEW_CATEGORY","Insert New Category2: ${e.message}")
+            }
+
+        }
+
+    }
+
+//    fun fnGetDefaultCategories(){
+//        viewModelScope.launch {
+//            try {
+//                var category_List=categoryRepository.fnGetDefaultCategoriesFromDb()
+//
+//                if(category_List.isNotEmpty()) {
+//                    Log.v("CATEGORY LIST","Category List: $category_List")
+//                }
+//            }
+//            catch (e : Exception)
+//            {
+//                Log.e("GET DEFAULT CATEGORIES FROM VIEW MODEL","Get Default Categories: $e.message")
+//            }
+//        }
+//    }
+
+    fun fnGetAllCategories(){
+        viewModelScope.launch {
+            try {
+                var category_List=categoryRepository.fnGetAllCategoriesFromDb()
+                _categoryList.value=category_List
+            }
+            catch (e : Exception)
+            {
+                Log.e("GET ALL CATEGORIES FROM DB","Get All Categories From Db: ${e.message}")
+            }
+        }
+    }
+
+    fun fnDeleteCategory(categoryId : Int, userId : Int)
+    {
+        viewModelScope.launch {
+            try {
+                var status = categoryRepository.fnDeleteCategory(categoryId,userId)
+                if(status) {
+                    fnGetAllCategories()
+                    _deleteCategoryStatus.value = ResultState1.success(R.string.set_DeleteCategorySuccess)
+                }
+                else
+                    _deleteCategoryStatus.value = ResultState1.fail(R.string.set_DeleteCategoryFailed)
+            }
+            catch (e: Exception)
+            {
+                Log.e("DELETE_CATEGORY","Delete Category: ${e.message}")
+            }
+        }
+    }
+
+    fun onClickExport()
+    {
+        viewModelScope.launch {
+            try{
+                _isLoading.value = true
+
+                val isNetworkAvail = Global.isNetworkAvailable(application)
+
+                if(isNetworkAvail)
+                {
+                    val files = ArrayList<Uri>()
+
+                    val cateList = withContext(Dispatchers.IO){
+                        categoryRepository.fnGetCategoriesFromCloud()
+                    }
+                    val expenseList = withContext(Dispatchers.IO){
+                        expenseRepository.fnGetExpensesFromCloud()
+                    }
+                    val incomeList = withContext(Dispatchers.IO){
+                        incomeRepository.fnGetIncomesFromCloud()
+                    }
+
+                    if(cateList.isEmpty() && expenseList.isEmpty() &&
+                        incomeList.isEmpty())
+                    {
+                        _shareDataStatus.value = ResultState1.fail(R.string.set_ShareData_NoData)
+                        return@launch
+                    }
+                    if(cateList.isNotEmpty())
+                    {
+                        val csvFile : File? = fnConvertCateListToCsvFile(cateList)
+                        csvFile?.let {
+                            val uri1 = FileProvider.getUriForFile(
+                                application,
+                                application.packageName + ".provider",
+                                csvFile
+                            )
+                            files.add(uri1)
+                        }
+                    }
+
+                    if(expenseList.isNotEmpty())
+                    {
+                        val csvFile = fnConvertExpenseListToCsvFile(expenseList)
+                        csvFile?.let {
+                            val uri1 = FileProvider.getUriForFile(
+                                application,
+                                application.packageName + ".provider",
+                                csvFile
+                            )
+                            files.add(uri1)
+                        }
+
+                    }
+
+                    if(incomeList.isNotEmpty())
+                    {
+                        val csvFile = fnConvertIncomeListToCsvFile(incomeList)
+
+                        csvFile?.let {
+                            val uri1 = FileProvider.getUriForFile(
+                                application,
+                                application.packageName + ".provider",
+                                csvFile
+                            )
+                            files.add(uri1)
+                        }
+                    }
+
+                    if(files.size > 0)
+                    {
+                        fnSendFilesViaEmail(files)
+                    }
+                    else{
+                        _shareDataStatus.value = ResultState1.fail(R.string.set_ShareData_NoData)
+                        return@launch
+                    }
+                }
+                else{
+                    _shareDataStatus.value= ResultState1.fail(R.string.noInternet)
+                }
+            }
+            catch (e : Exception)
+            {
+                Log.e("SHARE DATA","Share Data: ${e.message}")
+                _shareDataStatus.value = ResultState1.fail(R.string.set_ShareDataFailed)
+            }
+        }
+    }
+    fun fnConvertCateListToCsvFile(list : List<CategoryEntitty>): File? {
+        try {
+            val file = File(application.cacheDir,"Category_Data.csv")
+
+            var writer = FileWriter(file)
+
+            writer.append("UserId,Date,CategoryId,CategoryName\n")
+
+            for(cat in list){
+                writer.append(
+                    "${cat.userId},${cat.signUpDate},${cat.categoryId},${cat.categoryName}\n"
+                )
+            }
+
+            writer.flush()
+            writer.close()
+
+            return file
+        }
+        catch (e: Exception){
+            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
+            return null
+        }
+    }
+    fun fnConvertExpenseListToCsvFile(list : List<ExpenseEntity>): File? {
+        try {
+            val file = File(application.cacheDir,"Expense_Data.csv")
+
+            var writer = FileWriter(file)
+
+            writer.append("UserId,ExpenseId,ExpenseDate,CategoryName,Expense,PaymentType,ExpenseInCash,ExpenseInCard,ExpenseInUpi," +
+                    "ExpenseInOthers,Remarks\n")
+
+            for(cat in list){
+                var paymentType = when(cat.paymentType){
+                    2 -> "CARD"
+                    3 -> "UPI"
+                    4 -> "SPLIT"
+                    else -> {
+                        "CASH"
+                    }
+                }
+                writer.append(
+                    "${cat.userId},${cat.expenseId},${cat.expenseDate}," +
+                            "${cat.expenseCategoryName}," +
+                            "${cat.expenseAmt},$paymentType,${cat.expenseAmtInCash}," +
+                            "${cat.expenseAmtInCard},${cat.expenseAmtInUpi},${cat.expenseAmtInOthers}," +
+                            "${cat.expenseRemarks}\n"
+                )
+            }
+
+            writer.flush()
+            writer.close()
+
+            return file
+        }
+        catch (e: Exception){
+            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
+            return null
+        }
+    }
+    fun fnConvertIncomeListToCsvFile(list : List<IncomeEntity>): File? {
+        try {
+            val file = File(application.cacheDir,"Income_Data.csv")
+
+            var writer = FileWriter(file)
+
+            writer.append("UserId,IncomeID,IncomeDate,Income\n")
+
+            for(cat in list){
+                writer.append(
+                    "${cat.userId},${cat.incomeId},${cat.date},${cat.income}\n"
+                )
+            }
+
+            writer.flush()
+            writer.close()
+
+            return file
+        }
+        catch (e: Exception){
+            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
+            return null
+        }
+    }
+    fun fnSendFilesViaEmail(file: ArrayList<Uri>){
+        try {
+
+            var isNetworkAvailable = Global.isNetworkAvailable(application)
+
+            if(isNetworkAvailable){
+
+                val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+
+                intent.type ="text/csv"
+                intent.putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
+                intent.putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
+                intent.putExtra(Intent.EXTRA_STREAM,file)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
+            }
+            else{
+                _internetStatus.value = ResultState1.fail(R.string.noInternet)
+            }
+        }
+        catch (e: Exception){
+            Log.e("SEND_FILE_VIA_EMAIL","Send Via Email: ${e.message}")
+        }
+    }
+
+    // Update Selected Language
+    fun fnUpdateLan(langCode : String){
+        viewModelScope.launch {
+            try {
+                val currLang = languageDataStore.fnGetLanguage()
+
+                if(currLang == langCode){
+                    _isLoading.value = false
+                    return@launch
+                }
+
+                _isLoading.value = true
+
+                languageDataStore.fnSaveLanguage(langCode)
+
+                _insertCategoryStatus.value = null
+                _shareDataStatus.value = null
+                _sendEmailEvent.value = null
+
+                _uiEvent.emit(UiEvent.RecreateActivity)
+
+//                _uiEvent.value = UiEvent.RecreateActivity
+
+//                _recreateActvity.value = true
+
+            }
+            catch (e: Exception){
+                Log.e("UPDATE_LANGUAGE","Update Language: ${e.message}")
+                _isLoading.value = false
+            }
+            finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    //Update App Theme
+    fun fnUpdateThemeColor(colorCode : Int) {
+        viewModelScope.launch {
+            try {
+
+                val currColor = themeColorDataStore.fnGetThemeColor()
+
+                if (currColor == colorCode) return@launch
+
+                _isLoading.value = true
+
+                themeColorDataStore.fnSaveThemeColor(colorCode)
+
+                _insertCategoryStatus.value = null
+                _shareDataStatus.value = null
+                _sendEmailEvent.value = null
+
+                _uiEvent.emit(UiEvent.RecreateActivity)
+
+//                _uiEvent.value = UiEvent.RecreateActivity
+
+//                _recreateActvity.value = true
+
+            }
+            catch (e: Exception){
+                Log.e("UPDATE_THEME_COLOR","Update Theme Color: ${e.message}")
+                _isLoading.value = false
+            }
+            finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    //Update Theme
+    fun fnUpdateTheme(themeCode : Int){
+        viewModelScope.launch {
+            try {
+                val curThemeCode = themeDataStore.fnGetTheme()
+
+                if(curThemeCode == themeCode) return@launch
+
+                _isLoading.value = true
+
+                themeDataStore.fnSaveTheme(themeCode)
+
+                _insertCategoryStatus.value = null
+                _shareDataStatus.value = null
+                _sendEmailEvent.value = null
+                _btnThemeCode.value = themeCode
+
+                when(themeCode){
+                    Global.THEME_DARK -> AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_YES
+                    )
+
+                    Global.THEME_LIGHT -> AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_NO
+                    )
+
+                    else -> AppCompatDelegate.setDefaultNightMode(
+                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                    )
+                }
+
+                _isLoading.value = false
+            }
+            catch (e: Exception){
+                Log.e("UPDATE_THEME","Update Theme: ${e.message}")
+                _isLoading.value = false
+            }
+            finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+
+}

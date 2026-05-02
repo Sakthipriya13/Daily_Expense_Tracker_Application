@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/idMenuDashBoard"
+        android:icon="@drawable/dashboard_frag"
+        android:title="DashBoard"/>
+    <item android:title="Reports"
+        android:id="@+id/idMenuReports"
+        android:icon="@drawable/reports_frag"/>
+    <item android:id="@+id/idMenuNewExpense"
+        android:title="New Expense"/>
+    <item android:id="@+id/idMenuSettings"
+        android:title="Settings"
+        android:icon="@drawable/settings_frag"/>
+    <item android:id="@+id/idMenuProfile"
+        android:icon="@drawable/user"
+        android:title="Profile"/>
+</menu>

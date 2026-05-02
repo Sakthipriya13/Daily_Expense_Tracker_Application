@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Application" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="android:colorPrimary">@color/colorPrimary1</item>
+        <item name="android:colorSecondary">@color/colorSecondary1</item>
+        <item name="android:colorAccent">@color/colorAccent1</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+    <style name="FabCustomShape" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item> <!-- make square -->
+    </style>
+
+
+    <style name="Circular" parent="ShapeAppearance.Material3.SmallComponent" >
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+        <item name="strokeColor">?attr/colorPrimary</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+
+    <style name="BottomSheetCorner">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+        <item name="cornerSizeTopLeft">40dp</item>
+        <item name="cornerSizeTopRight">40dp</item>
+    </style>
+
+
+
+    <style name="ToolBarTittle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">25sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+
+
+    <style name="Theme.App.Color1" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="colorPrimary">@color/colorPrimary1</item>
+        <item name="colorOnPrimary">@color/colorPrimary1</item>
+        <item name="colorSecondary">@color/colorSecondary1</item>
+        <item name="colorTertiary">@color/colorAccent1</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+
+    <style name="Theme.App.Color2" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="colorPrimary">@color/colorPrimary2</item>
+        <item name="colorOnPrimary">@color/colorPrimary2</item>
+        <item name="colorSecondary">@color/colorSecondary2</item>
+        <item name="colorTertiary">@color/colorAccent2</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+
+    <style name="Theme.App.Color3" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="colorPrimary">@color/colorPrimary3</item>
+        <item name="colorOnPrimary">@color/colorPrimary3</item>
+        <item name="colorSecondary">@color/colorSecondary3</item>
+        <item name="colorTertiary">@color/colorAccent3</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+
+    <style name="Theme.App.Color4" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="colorPrimary">@color/colorPrimary4</item>
+        <item name="colorOnPrimary">@color/colorPrimary4</item>
+        <item name="colorSecondary">@color/colorSecondary4</item>
+        <item name="colorTertiary">@color/colorAccent4</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+
+    <style name="Theme.App.Color5" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:fontFamily">@font/kanit_regular</item>
+        <item name="fontFamily">@font/kanit_regular</item>
+        <item name="colorPrimary">@color/colorPrimary5</item>
+        <item name="colorOnPrimary">@color/colorPrimary5</item>
+        <item name="colorSecondary">@color/colorSecondary5</item>
+        <item name="colorTertiary">@color/colorAccent5</item>
+        <item name="successBackground">@color/successBackground</item>
+        <item name="infoBackground">@color/infoBackground</item>
+        <item name="warningBackground">@color/warningBackground</item>
+        <item name="errorBackground">@color/errorBackground</item>
+        <item name="textColorWhite">@color/text_color_white</item>
+        <item name="textColorBlack">@color/text_color_black</item>
+        <item name="Color_Gray">@color/color_grey</item>
+    </style>
+
+
+</resources>
