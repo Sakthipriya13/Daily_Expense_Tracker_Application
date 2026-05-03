@@ -55,9 +55,6 @@ class NewExpense : Fragment() {
     val settingsViewModel : SettingsViewModel by activityViewModels()
     var categoryList =emptyList<CategoryEntitty>()
 
-//    val dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-//    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
     val splashViewModel : SplashViewModel by viewModels()
     private lateinit var splitBinding : SplitDialogueBinding
     val splitViewModel : SplitViewModel by viewModels()

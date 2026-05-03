@@ -7,15 +7,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.expensetrackerapplication.data.dao.UserDao
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.`object`.Global
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(application : Application) : AndroidViewModel(application = application)
+class ProfileViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
 {
     private  var userRepository  : UserRepository
 

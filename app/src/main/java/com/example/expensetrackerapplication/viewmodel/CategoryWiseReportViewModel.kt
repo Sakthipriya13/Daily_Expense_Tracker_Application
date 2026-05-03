@@ -17,14 +17,14 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.application
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import java.time.format.DateTimeFormatter
 
-class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(application = application)
+class CategoryWiseReportViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository

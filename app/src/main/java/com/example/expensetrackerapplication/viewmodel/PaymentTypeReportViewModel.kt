@@ -13,8 +13,8 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
-import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
-class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(application = application)
+class PaymentTypeReportViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository

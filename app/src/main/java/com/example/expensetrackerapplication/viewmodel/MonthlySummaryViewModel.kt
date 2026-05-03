@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import androidx.core.i18n.DateTimeFormatter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +13,7 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
@@ -27,7 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.time.YearMonth
 import kotlin.math.abs
 
-class MonthlySummaryViewModel(application: Application) : AndroidViewModel(application = application)
+class MonthlySummaryViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Declaration
     val expenseRepository : ExpenseRepository

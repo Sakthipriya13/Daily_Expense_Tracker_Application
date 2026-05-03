@@ -5,9 +5,10 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.utils.Report_Menu
 
-class ReportMenuViewModel(application : Application) : AndroidViewModel(application = application)
+class ReportMenuViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
 {
 //    var _showDayWiseReport = MutableLiveData<Boolean>()
 //    var showDayWiseReport : LiveData<Boolean> = _showDayWiseReport
