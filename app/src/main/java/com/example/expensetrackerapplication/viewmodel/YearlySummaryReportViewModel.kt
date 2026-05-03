@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
@@ -321,8 +322,11 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
 
                     var result =  fnExportReportToDownloads(workBook,"YearlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
 
-                    if(result == true){
-                        _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportSuccess)
+                    if(result == true)
+                    {
+                        Log.i(
+                            LOG_TAG, "Export Success")
+                        _exportStatus.value = ResultState1.success(R.string.yearlyReport_ExportSuccess)
                     }
                     else{
                         _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportFailed)
@@ -366,7 +370,8 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
             _isExportLoading.value=false
             true
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
             Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Export Yearly Summary Report To Internal Storage(Document Path): ${e.message}")
             false
         }

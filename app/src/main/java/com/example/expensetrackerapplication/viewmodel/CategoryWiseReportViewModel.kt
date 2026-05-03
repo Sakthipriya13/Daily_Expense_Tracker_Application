@@ -16,6 +16,8 @@ import com.example.expensetrackerapplication.`object`.Global
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.application
+import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import org.apache.poi.ss.util.CellRangeAddress
@@ -24,6 +26,7 @@ import java.time.format.DateTimeFormatter
 
 class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(application = application)
 {
+    // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository
 
     init{
@@ -31,36 +34,45 @@ class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(a
         expenseRepository = ExpenseRepository(expenseDao)
     }
 
+    // Date Variables Initialization
     var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
     var selectedDate : LiveData<String> = _selectedDate
 
     var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
     var selectedDateUi : LiveData<String> = _selectedDateUi
 
+    // Category List Variable Initialization
     var _categoryList = MutableLiveData<List<CategoryChartModel>>(mutableListOf<CategoryChartModel>())
     var categoryList : LiveData<List<CategoryChartModel>> = _categoryList
+    
+    // Close The Category Report Variable Initialization
+    var _isClosed = MutableLiveData<Boolean>()
+    var isClosed : LiveData<Boolean> = _isClosed
 
-    var _closeCategoryReport = MutableLiveData<Boolean>()
-    var closeCategoryReport : LiveData<Boolean> = _closeCategoryReport
-
+    // ProgressBar Loading Status Variable Initialization
     var _isExportLoading = MutableLiveData<Boolean>(false)
     var isExportLoading : LiveData<Boolean> = _isExportLoading
 
-    var _exportStatus = MutableLiveData<Boolean>()
-    var exportStatus : LiveData<Boolean> = _exportStatus
+    // Export Status Variable Initialization
+    var _exportStatus = MutableLiveData<ResultState1>()
+    var exportStatus : LiveData<ResultState1> = _exportStatus
 
+    // Total Expense Summary Variable Initialization
     var _totalExpenseSummary = MutableLiveData<String>("0.00")
     var totalExpenseSummary : LiveData<String> = _totalExpenseSummary
 
+    // Added Expense Summary Variable Initialization
     var _addedExpenseSummary = MutableLiveData<String>("0.00")
     var addedExpenseSummary : LiveData<String> = _addedExpenseSummary
 
+    // Deleted Expense Summary Variable Initialization
     var _deletedExpenseSummary = MutableLiveData<String>("0.00")
     var deletedExpenseSummary : LiveData<String> = _deletedExpenseSummary
 
-    val dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+//    val dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+//    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
+    val LOG_TAG = "CATEGORY_WISE_REPORT_VIEW_MODEL"
     fun fnGetCategoryDetailsPerDay(date : String?){
         viewModelScope.launch {
             try{
@@ -86,13 +98,28 @@ class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(a
                 }
             }
             catch (ex : Exception){
-                Log.e("GET CATEGORY LIST PER DAY","Get Category List Per Day: ${ex.message}")
+                Log.e(LOG_TAG,"Get Category List Per Day: ${ex.message}")
             }
         }
     }
 
-    fun fnCloseReport(){
-        _closeCategoryReport.value = true
+    fun isBack(){
+        try {
+            _isClosed.value = true
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Close The Category Report Screen: ${e.message}")
+        }
+    }
+
+    fun resetCloseState()
+    {
+        try {
+            _isClosed.value = false
+        }
+        catch (e: Exception) {
+            Log.e(LOG_TAG, "Reset Close State: ${e.message}")
+        }
     }
 
     fun fnExportCategoryList()
@@ -189,15 +216,21 @@ class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(a
 
                     }
 
-                    _exportStatus.value = fnExportReportToDownloads(workBook,"CategoryWiseReport_${selectedDate.value}_${Global.fnGetCurrentTime()}.xlsx")
+                    val result = fnExportReportToDownloads(workBook,"CategoryWiseReport_${selectedDate.value}_${Global.fnGetCurrentTime()}.xlsx")
 
-                    Log.i("TIME DIFF","Time Diff: ${Global.fnGetCurrentTime()} ms")
-
+                    if(result){
+                        _exportStatus.value = ResultState1.success(R.string.cateReport_ExportSuccess)
+                    }
+                    else{
+                        _exportStatus.value = ResultState1.fail(R.string.cateReport_ExportFailed)
+                    }
                 }
             }
             catch (e : Exception)
             {
-                Log.e("EXPORT CATEGORY LIST AS EXCEL SHEET","Export Category List As Excel Sheet: ${e.message}")
+                _isExportLoading.value = false
+                _exportStatus.value = ResultState1.fail(R.string.cateReport_ExportFailed)
+                Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
     }
@@ -231,7 +264,7 @@ class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(a
             true
         }
         catch (e : Exception){
-            Log.e("FN_EXPORT_REPORT_TO_DOWNLOADS","Fn Export Report To Downloads: ${e.message}")
+            Log.e(LOG_TAG,"Export Category Wise Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
@@ -243,7 +276,10 @@ class CategoryWiseReportViewModel(application: Application) : AndroidViewModel(a
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
-            } catch (_: Exception) {}
+            }
+            catch (e: Exception) {
+                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+            }
         }
     }
 

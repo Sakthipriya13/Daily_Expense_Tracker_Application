@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="alertSheetMonth"
+            type="String" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="40dp">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/idHeaderLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="5dp"
+                android:background="?attr/colorPrimary"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <TextView
+                    android:id="@+id/idHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/select_month"
+                    android:gravity="center"
+                    android:textSize="@dimen/sub_header_size"
+                    android:textStyle="bold"
+                    android:layout_margin="5dp"
+                    android:textColor="?attr/textColorWhite"
+                    />
+                <TextView
+                    android:id="@+id/idTextYear"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="2026"
+                    android:layout_marginLeft="100dp"
+                    android:layout_marginRight="100dp"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/sub_header_size"
+                    android:textStyle="normal"
+                    android:background="?attr/selectableItemBackground"
+                    android:textColor="?attr/textColorWhite"
+                    />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/idContentLayout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idHeaderLayout"
+                app:layout_constraintBottom_toTopOf="@id/idLayout">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/idMonthPicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="10dp"
+                    />
+                <NumberPicker
+                    android:id="@+id/idYearPicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="100dp"
+                    android:layout_marginEnd="100dp"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/idMonthLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                android:gravity="end"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idContentLayout">
+
+                <Button
+                    android:id="@+id/idCancelMonth"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/text_color_white"
+                    android:background="@drawable/btn_background"
+                    android:text= "@string/cancel"
+                    android:textSize="@dimen/button_text_size" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/idYearLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idContentLayout">
+
+                <TextView
+                    android:id="@+id/idCancelYear"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="start"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:text="@string/cancel"
+                    android:textColor="?attr/colorPrimary"
+                    android:textColorLink="?attr/colorPrimary"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/idOkYear"
+                    android:layout_width="150dp"
+                    android:layout_height="match_parent"
+                    android:textColor="@color/text_color_white"
+                    android:background="@drawable/btn_background"
+                    android:text= "@string/ok"
+                    android:textSize="25sp" />
+
+            </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
+</layout>

@@ -284,4 +284,14 @@
 
     <string name="yearlyReport_ExportSuccess">Successfully Yearly Summary Report Exported To Internal Storage(Document Path)</string>
     <string name="yearlyReport_ExportFailed">Export Yearly Summary Report Failed</string>
+
+    <string name="cateReport_ExportSuccess">Successfully Category Wise Report Exported To Internal Storage(Document Path)</string>
+    <string name="cateReport_ExportFailed">Export Category Wise Report Failed</string>
+
+    <string name="paymentTypeReport_ExportSuccess">Successfully PaymentType Report Exported To Internal Storage(Document Path)</string>
+    <string name="paymentTypeReport_ExportFailed">Export PaymentType Report Failed</string>
+
+    <string name="select_year">SELECT YEAR</string>
+    <string name="select_month">SELECT MONTH</string>
+
 </resources>

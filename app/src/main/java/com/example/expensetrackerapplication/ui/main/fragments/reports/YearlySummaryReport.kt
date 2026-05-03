@@ -13,16 +13,18 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.databinding.AlertSheetYearBinding
+import com.example.expensetrackerapplication.databinding.YearCalendarBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
+import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -151,10 +153,10 @@ class YearlySummaryReport : Fragment() {
                 when(status)
                 {
                     is ResultState1.success ->{
-                        fnShowMessage("Report Successfully Exported",requireContext(),R.drawable.bg_success)
+                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
                     }
                     is ResultState1.fail ->{
-                        fnShowMessage("Report Export Failed",requireContext(),R.drawable.error_bg)
+                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
                     }
                 }
             }
@@ -287,8 +289,10 @@ class YearlySummaryReport : Fragment() {
             if(Global.isCalendarSelected == false)
             {
                 Global.isCalendarSelected = true
-                val monthBinding = AlertSheetYearBinding.inflate(layoutInflater)
-
+                var monthBinding = YearCalendarBinding.inflate(layoutInflater)
+//                monthBinding.calendar = calendarYearViewModel
+//                monthBinding.lifecycleOwner = viewLifecycleOwner
+//
                 val monthAlert = AlertDialog.Builder(requireContext())
                 monthAlert.setView(monthBinding.root)
                 monthAlert.setCancelable(false)
@@ -362,9 +366,15 @@ class YearlySummaryAdapter : RecyclerView.Adapter<YearlySummaryAdapter.ListViewH
 
     var expenseList : List<ExpenseDetailsPerMonth> = emptyList<ExpenseDetailsPerMonth>()
 
-    fun fnSubmitList(list : List<ExpenseDetailsPerMonth>){
-        expenseList = list
-        notifyDataSetChanged()
+    fun fnSubmitList(list : List<ExpenseDetailsPerMonth>)
+    {
+        try {
+            expenseList = list
+            notifyDataSetChanged()
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Submit List: ${e.message}")
+        }
     }
 
     inner class ListViewHolder(val binding : YearlySummaryReportListItemViewBinding): RecyclerView.ViewHolder

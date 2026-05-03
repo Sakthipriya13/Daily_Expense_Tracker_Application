@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.databinding.AlertSheetMonthBinding
+import com.example.expensetrackerapplication.databinding.MonthCalendarBinding
 import com.example.expensetrackerapplication.databinding.MonthYearDialogItemBinding
 import com.example.expensetrackerapplication.databinding.MonthlyReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
@@ -189,7 +189,7 @@ class MonthlyReport : Fragment() {
             if(Global.isCalendarSelected == false)
             {
                 Global.isCalendarSelected = true
-                val monthBinding = AlertSheetMonthBinding.inflate(layoutInflater)
+                val monthBinding = MonthCalendarBinding.inflate(layoutInflater)
 
                 val monthAlert = AlertDialog.Builder(requireContext())
                 monthAlert.setView(monthBinding.root)

@@ -11,11 +11,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(application = application)
 {
+    // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository
 
     init{
@@ -31,42 +34,70 @@ class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(ap
         expenseRepository = ExpenseRepository(expenseDao)
     }
 
+    // Selected Date Variable Initialization
     var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
     var selectedDate : LiveData<String> = _selectedDate
 
     var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
     var selectedDateUi : LiveData<String> = _selectedDateUi
 
+    // Close Report Variable Initialization
+    var _isClosed = MutableLiveData<Boolean>()
+    var isClosed : LiveData<Boolean> = _isClosed
 
-    var _closeReport = MutableLiveData<Boolean>()
-    var closeReport : LiveData<Boolean> = _closeReport
-
+    // ProgressBar Loading Status Variable Initialization
     var _isExportLoading = MutableLiveData<Boolean>(false)
     var isExportLoading : LiveData<Boolean> = _isExportLoading
 
-    var _exportStatus = MutableLiveData<Boolean>()
-    var exportStatus : LiveData<Boolean> = _exportStatus
+    // Export Status Variable Initialization
+    var _exportStatus = MutableLiveData<ResultState1>()
+    var exportStatus : LiveData<ResultState1> = _exportStatus
 
+    // Payment Type List Variable Initialization
     var _paymentTypeList = MutableLiveData<List<PaymentTypeChartModel>>(mutableListOf<PaymentTypeChartModel>())
     var paymentTypeList : LiveData<List<PaymentTypeChartModel>> = _paymentTypeList
 
+    // Cash Variable Initialization
     var _cashAmt = MutableLiveData<Float>(0.00f)
     var cashAmt : LiveData<Float> = _cashAmt
 
+    // Card Amount Variable Initialization
     var _cardAmt = MutableLiveData<Float>(0.00f)
     var cardAmt : LiveData<Float> = _cardAmt
 
+    // Upi Amount Variable Initialization
     var _upiAmt = MutableLiveData<Float>(0.00f)
     var upiAmt : LiveData<Float> = _upiAmt
 
+    // Others Variable Initialization
     var _othersAmt = MutableLiveData<Float>(0.00f)
     var othersAmt : LiveData<Float> = _othersAmt
+
+    val LOG_TAG = "PAYMENT_TYPE_REPORT_VIEW_MODEL"
     
-    fun fnCloseReport(){
-        _closeReport.value = true
+    fun isBack()
+    {
+        try {
+            _isClosed.value = true
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Close The Payment Type Report Screen: ${e.message}")
+        }
     }
 
-    fun fnGetPaymentTypeList(date: String){
+    fun resetCloseState()
+    {
+        try {
+            _isClosed.value = false
+        }
+        catch (e: Exception)
+        {
+            Log.e(LOG_TAG, "Reset Close State: ${e.message}")
+        }
+    }
+
+    fun fnGetPaymentTypeList(date: String)
+    {
         viewModelScope.launch {
             try{
                 _isExportLoading.postValue(true)
@@ -98,22 +129,14 @@ class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(ap
                     }
                     _paymentTypeList.postValue(list)
                 }
-                else{
-//                    list.add(
-//                        PaymentTypeChartModel(
-//                            userId = Global.lUserId,
-//                            paymentType_CashAmt=0.00f,
-//                            paymentType_CardAmt=0.00f,
-//                            paymentType_UpiAmt=0.00f,
-//                            paymentType_OthersAmt=0.00f
-//                        )
-//                    )
+                else
+                {
                     _paymentTypeList.postValue(emptyList<PaymentTypeChartModel>())
                 }
             }
             catch(e : Exception)
             {
-                Log.e("GET PAYMENT TYPE LIST PER DAY","Get Payment Type List Per Day: ${e.message}")
+                Log.e(LOG_TAG,"Get Payment Type List: ${e.message}")
             }
         }
     }
@@ -238,15 +261,23 @@ class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(ap
                     dataCell71.setCellValue("${upiAmt.value}")
                     dataCell71.cellStyle=dataStyle
 
-                    _exportStatus.value = fnExportReportToDownloads(workBook,"PaymentTypeReport_${selectedDate.value}_${Global.fnGetCurrentTime()}.xlsx")
+                    var result = fnExportReportToDownloads(workBook,"PaymentTypeReport_${selectedDate.value}_${Global.fnGetCurrentTime()}.xlsx")
 
-                    Log.i("TIME DIFF","Time Diff: ${Global.fnGetCurrentTime()} ms")
-
+                    if(result)
+                    {
+                        _exportStatus.value = ResultState1.success(R.string.paymentTypeReport_ExportSuccess)
+                    }
+                    else
+                    {
+                        _exportStatus.value = ResultState1.fail(R.string.paymentTypeReport_ExportFailed)
+                    }
                 }
             }
             catch (e : Exception)
             {
-                Log.e("EXPORT CATEGORY LIST AS EXCEL SHEET","Export Category List As Excel Sheet: ${e.message}")
+                _isExportLoading.value = false
+                _exportStatus.value = ResultState1.fail(R.string.paymentTypeReport_ExportFailed)
+                Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
     }
@@ -280,19 +311,23 @@ class PaymentTypeReportViewModel(application: Application) : AndroidViewModel(ap
             true
         }
         catch (e : Exception){
-            Log.e("FN_EXPORT_REPORT_TO_DOWNLOADS","Fn Export Report To Downloads: ${e.message}")
+            Log.e(LOG_TAG,"Export Payment Type Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
     }
 
-    fun fnPreWarmExcelEngine() {
+    fun fnPreWarmExcelEngine()
+    {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
-            } catch (_: Exception) {}
+            }
+            catch (e: Exception) {
+                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+            }
         }
     }
 

@@ -71,7 +71,7 @@
                     android:id="@+id/idCloseBtn"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:onClick="@{() -> paymentTypeReportViewModel.fnCloseReport()}"
+                    android:onClick="@{() -> paymentTypeReportViewModel.isBack()}"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/back"/>
 

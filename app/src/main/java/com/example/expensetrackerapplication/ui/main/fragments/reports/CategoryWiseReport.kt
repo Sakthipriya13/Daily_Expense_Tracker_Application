@@ -2,6 +2,7 @@ package com.example.expensetrackerapplication.ui.main.fragments.reports
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
@@ -16,6 +18,7 @@ import com.example.expensetrackerapplication.databinding.CategoryChartListItemBi
 import com.example.expensetrackerapplication.databinding.CategoryWiseReportBinding
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
 import java.text.SimpleDateFormat
@@ -42,6 +45,8 @@ class CategoryWiseReport : Fragment() {
     
     private lateinit var categoryAdapter : CategoryAdapter
 
+    val LOG_TAG = "CATEGORY_WISE_REPORT"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -65,85 +70,132 @@ class CategoryWiseReport : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         categoryWiseReportViewModel.fnPreWarmExcelEngine()
-        
-        categoryAdapter = CategoryAdapter()
-        categoryWiseReportBinding.idCategoryListView.adapter = categoryAdapter
-        categoryWiseReportBinding.idCategoryListView.layoutManager = LinearLayoutManager(requireContext())
+
+        try {
+            categoryAdapter = CategoryAdapter()
+            categoryWiseReportBinding.idCategoryListView.adapter = categoryAdapter
+            categoryWiseReportBinding.idCategoryListView.layoutManager = LinearLayoutManager(requireContext())
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Set Adapter: ${e.message}")
+        }
 
         categoryWiseReportBinding.idBtnCalendar.setOnClickListener {
-            if(Global.isCalendarSelected==false)
+            try
             {
-                Global.isCalendarSelected=true
-                val caledar = Calendar.getInstance()
-                val day = caledar.get(Calendar.DAY_OF_MONTH)
-                val month = caledar.get(Calendar.MONTH)
-                val year = caledar.get(Calendar.YEAR)
+                if(Global.isCalendarSelected==false)
+                {
+                    Global.isCalendarSelected=true
+                    val caledar = Calendar.getInstance()
+                    val day = caledar.get(Calendar.DAY_OF_MONTH)
+                    val month = caledar.get(Calendar.MONTH)
+                    val year = caledar.get(Calendar.YEAR)
 
-                var datePickerDialog = DatePickerDialog(requireContext(),
-                    { _,y,m,d ->
-                        caledar.set(y,m,d)
-                        val sdf1 = SimpleDateFormat("dd-MM-yyyy", java.util.Locale.US)
-                        val sdf = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                        val date = sdf.format(caledar.time)
-                        val dateUi = sdf1.format(caledar.time)
-                        categoryWiseReportViewModel._selectedDate.value = date
-                        categoryWiseReportViewModel._selectedDateUi.value = date
+                    var datePickerDialog = DatePickerDialog(requireContext(),
+                        { _,y,m,d ->
+                            caledar.set(y,m,d)
+                            val sdf1 = SimpleDateFormat("dd-MM-yyyy", java.util.Locale.US)
+                            val sdf = SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                            val date = sdf.format(caledar.time)
+                            val dateUi = sdf1.format(caledar.time)
+                            categoryWiseReportViewModel._selectedDate.value = date
+                            categoryWiseReportViewModel._selectedDateUi.value = date
 
+                            Global.isCalendarSelected=false
+                        },year,month,day
+                    )
+                    datePickerDialog.setCancelable(false)
+                    datePickerDialog.setCanceledOnTouchOutside(false)
+                    datePickerDialog.setOnCancelListener {
                         Global.isCalendarSelected=false
-                    },year,month,day
-                )
-                datePickerDialog.setCancelable(false)
-                datePickerDialog.setCanceledOnTouchOutside(false)
-                datePickerDialog.setOnCancelListener {
-                    Global.isCalendarSelected=false
-                    datePickerDialog.dismiss()
+                        datePickerDialog.dismiss()
+                    }
+                    datePickerDialog.show()
                 }
-                datePickerDialog.show()
+            }
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Display Calendar: ${e.message}")
             }
         }
 
         categoryWiseReportViewModel.selectedDate.observe(viewLifecycleOwner){ date ->
-            categoryWiseReportViewModel.fnGetCategoryDetailsPerDay(date)
+            try {
+                categoryWiseReportViewModel.fnGetCategoryDetailsPerDay(date)
+            }
+            catch (e: Exception){
+                Log.e(LOG_TAG,"Selected Date Observed: ${e.message}")
+            }
         }
 
         categoryWiseReportViewModel.categoryList.observe(viewLifecycleOwner){ list ->
-            if(list.isNotEmpty()){
-                categoryWiseReportBinding.idScrollView.visibility = View.VISIBLE
-                categoryWiseReportBinding.idNoReportsText.visibility = View.GONE
+            try {
+                if(list.isNotEmpty())
+                {
+                    categoryWiseReportBinding.idScrollView.visibility = View.VISIBLE
+                    categoryWiseReportBinding.idNoReportsText.visibility = View.GONE
 
-                categoryWiseReportViewModel._isExportLoading.value = false
-//                fnRenderPieChart(list)
-                categoryAdapter.fnSubmitList(list)
+                    categoryWiseReportViewModel._isExportLoading.value = false
+                    categoryAdapter.fnSubmitList(list)
+                }
+                else{
+                    categoryWiseReportBinding.idScrollView.visibility = View.GONE
+                    categoryWiseReportBinding.idNoReportsText.visibility = View.VISIBLE
+
+                    categoryWiseReportViewModel._isExportLoading.value = false
+                }
             }
-            else{
-                categoryWiseReportBinding.idScrollView.visibility = View.GONE
-                categoryWiseReportBinding.idNoReportsText.visibility = View.VISIBLE
-
-                categoryWiseReportViewModel._isExportLoading.value = false
+            catch (e: Exception){
+                Log.e(LOG_TAG,"Category List Observed: ${e.message}")
             }
         }
 
-        categoryWiseReportViewModel.closeCategoryReport.observe(viewLifecycleOwner){ status ->
-            if(status){
-                findNavController().navigate(R.id.action_category_wise_report_to_report_menu)
+        categoryWiseReportViewModel.isClosed.observe(viewLifecycleOwner){ status ->
+            try {
+                if(status)
+                {
+                    findNavController().navigate(R.id.action_category_wise_report_to_report_menu)
+                    categoryWiseReportViewModel.resetCloseState()
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
             }
         }
 
-        categoryWiseReportViewModel.isExportLoading.observe(viewLifecycleOwner){ status ->
-            if(status){
-                categoryWiseReportBinding.isExportLoading.visibility = View.VISIBLE
+        categoryWiseReportViewModel.isExportLoading.observe(viewLifecycleOwner){ isLoading ->
+            try {
+                if(isLoading)
+                {
+                    categoryWiseReportBinding.isExportLoading.visibility=View.VISIBLE
+                }
+                else
+                {
+                    categoryWiseReportBinding.isExportLoading.visibility=View.GONE
+                }
             }
-            else{
-                categoryWiseReportBinding.isExportLoading.visibility = View.GONE
+            catch (e: Exception){
+                Log.e(LOG_TAG,"ProgressBar Loading: ${e.message}")
             }
         }
 
         categoryWiseReportViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            if(status){
-                fnShowMessage("Report Successfully Exported",requireContext(),R.drawable.bg_success)
+            try
+            {
+                when(status)
+                {
+                    is ResultState1.success ->{
+                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
+                    }
+                    is ResultState1.fail ->{
+                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
+                    }
+                }
             }
-            else{
-                fnShowMessage("Report Export Failed",requireContext(),R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Export Status: ${e.message}")
             }
         }
     }
@@ -201,8 +253,13 @@ class CategoryAdapter(): RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
     fun fnSubmitList(
         list : List<CategoryChartModel>
     ){
-        categoryList = list
-        notifyDataSetChanged()
+        try {
+            categoryList = list
+            notifyDataSetChanged()
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Submit List: ${e.message}")
+        }
     }
 
     inner class ListViewHolder(val binding : CategoryChartListItemBinding): RecyclerView.ViewHolder(binding.root){

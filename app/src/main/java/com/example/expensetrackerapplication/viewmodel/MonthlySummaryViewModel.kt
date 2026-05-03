@@ -86,7 +86,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         try {
             _isClosed.value = true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Close The Monthly Report Screen: ${e.message}")
         }
     }
@@ -96,7 +97,8 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         try {
             _isClosed.value = false
         }
-        catch (e: Exception) {
+        catch (e: Exception)
+        {
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Reset Close State: ${e.message}")
         }
     }
@@ -373,8 +375,4 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
-
-
-
-
 }
