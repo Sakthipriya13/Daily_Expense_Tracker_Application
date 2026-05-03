@@ -101,7 +101,7 @@ class MonthlySummaryViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun isCalendarSelected(){
+    fun getIsCalendarSelected(){
         try {
             _isCalendarSelected.value = true
         }

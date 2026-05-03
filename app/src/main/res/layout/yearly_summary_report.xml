@@ -91,7 +91,7 @@
                     android:id="@+id/idCloseBtn"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:onClick="@{()->yearlySummaryViewModel.fnCloseReport()}"
+                    android:onClick="@{()->yearlySummaryViewModel.isBack()}"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/back"/>
 
@@ -167,7 +167,9 @@
                 android:src="@drawable/ic_calendar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/idLSelectedYear"
-                app:layout_constraintWidth_percent="0.13"/>
+                app:layout_constraintWidth_percent="0.13"
+                android:onClick="@{()-> yearlySummaryViewModel.getIsCalendarSelected()}"
+                />
 
             <androidx.constraintlayout.helper.widget.Flow
                 android:id="@+id/idFlow1"
@@ -218,7 +220,7 @@
                         android:textStyle="bold"
                         android:text="@string/_income"
                         android:gravity="center"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
@@ -230,7 +232,7 @@
                         app:layout_constraintWidth_percent="0.50"
                         android:textStyle="bold"
                         android:text="@{yearlySummaryViewModel._incomeAmt}"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@id/idIncomeLabel"
@@ -253,7 +255,7 @@
                         android:textStyle="bold"
                         android:text="@string/_expense"
                         android:gravity="center"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         />
                     <TextView
@@ -263,7 +265,7 @@
                         app:layout_constraintWidth_percent="0.50"
                         android:textStyle="bold"
                         android:text="@{yearlySummaryViewModel._expenseAmt}"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         />
                     <androidx.constraintlayout.helper.widget.Flow
@@ -284,7 +286,7 @@
                         android:textStyle="bold"
                         android:text="@string/_balance"
                         android:gravity="center"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         />
                     <TextView
@@ -294,7 +296,7 @@
                         app:layout_constraintWidth_percent="0.50"
                         android:textStyle="bold"
                         android:text="@{yearlySummaryViewModel._balanceAmt}"
-                        android:textSize="@dimen/text_size"
+                        android:textSize="@dimen/sub_header_size"
                         android:textColor="@color/text_color_white"
                         />
                     <androidx.constraintlayout.helper.widget.Flow
@@ -343,15 +345,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         />
+
                     <com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/idBarChart"
                         android:layout_width="match_parent"
                         android:layout_height="400dp"
                         android:layout_margin="16dp"
+                        android:layout_marginStart="16dp"
                         app:chart_barsRadius="10dp"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/idBarChartHeading"
-                        />
+                        app:layout_constraintTop_toBottomOf="@+id/idBarChartHeading" />
+
                     <LinearLayout
                         android:id="@+id/idListHeaderLayout"
                         android:layout_width="match_parent"

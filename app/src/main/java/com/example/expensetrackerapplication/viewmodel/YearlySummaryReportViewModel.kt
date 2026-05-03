@@ -11,11 +11,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,6 +27,7 @@ import kotlin.math.abs
 
 class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(application = application)
 {
+    // Expense And Income Repository Variable Initialization
     val expenseRepository : ExpenseRepository
 
     private var incomeRepository: IncomeRepository
@@ -38,79 +41,74 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
         incomeRepository = IncomeRepository(incomeDao)
     }
 
+    // Income Amount Variable Initialization
     var _incomeAmt = MutableLiveData<String?>("0.00")
     var incomeAmt : LiveData<String?> = _incomeAmt
 
+    // Expense Amount Variable Initialization
     var _expenseAmt = MutableLiveData<String?>("0.00")
     var expenseAmt : LiveData<String?> = _expenseAmt
 
+    // Balance Amount Variable Initialization
     var _balanceAmt = MutableLiveData<String?>("0.00")
     var  balanceAmt : LiveData<String?> = _balanceAmt
-    var _closeReport = MutableLiveData<Boolean>()
-    var closeReport : LiveData<Boolean> = _closeReport
+    
+    // Close The Yearly Report Variable Initialization
+    var _isClosed = MutableLiveData<Boolean>()
+    var isClosed : LiveData<Boolean> = _isClosed
 
+    // Selected Year Variable Initialization
     var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear())
     var selectedYear : LiveData<String> = _selectedYear
 
-    var monthNames = listOf<String>("Jan","Feb","March",
-        "April","May","June","July","Aug","Sep","Oct","Nov","Dec")
-
+    // Yearly Summary List Variable Initialization
     var _yearSummaryList = MutableLiveData<List<ExpenseDetailsPerMonth>>(emptyList<ExpenseDetailsPerMonth>())
     var yearSummaryList : LiveData<List<ExpenseDetailsPerMonth>> = _yearSummaryList
 
-    var _exportStatus = MutableLiveData<Boolean>()
-    var exportStatus : LiveData<Boolean> = _exportStatus
+    // Export Status Variable Initialization
+    var _exportStatus = MutableLiveData<ResultState1>()
+    var exportStatus : LiveData<ResultState1> = _exportStatus
 
+    // ProgressBar Status Variable Initialization
     var _isExportLoading = MutableLiveData<Boolean>(false)
     var isExportLoading : LiveData<Boolean> = _isExportLoading
 
+    // MonthArray Variable Initialization
     var _monthArray = MutableLiveData<Array<String>>()
     var monthArray : LiveData<Array<String>> = _monthArray
 
-//    var _jan = MutableLiveData<String>()
-//    var jan : LiveData<String> = _jan
-//
-//    var _feb = MutableLiveData<String>()
-//    var feb : LiveData<String> = _feb
-//
-//    var _mar = MutableLiveData<String>()
-//    var mar : LiveData<String> = _mar
-//
-//    var _apr = MutableLiveData<String>()
-//    var apr : LiveData<String> = _apr
-//
-//    var _may = MutableLiveData<String>()
-//    var may : LiveData<Boolean> = _may
-//
-//    var _june = MutableLiveData<String>()
-//    var june : LiveData<Boolean> = _june
-//
-//    var _july = MutableLiveData<String>()
-//    var july : LiveData<Boolean> = _july
-//
-//    var _aug = MutableLiveData<String>()
-//    var aug : LiveData<Boolean> = _aug
-//
-//    var _sep = MutableLiveData<String>()
-//    var sep : LiveData<Boolean> = _sep
-//
-//    var _oct = MutableLiveData<String>()
-//    var oct : LiveData<Boolean> = _oct
-//
-//    var _nov = MutableLiveData<String>()
-//    var nov : LiveData<Boolean> = _nov
-//
-//    var _dec = MutableLiveData<String>()
-//    var dec : LiveData<Boolean> = _dec
-    
-    fun fnCloseReport(){
-        _closeReport.value = true
-    }
+    var _isCalendarSelected = MutableLiveData<Boolean>()
+    var isCalendarSelected : LiveData<Boolean> = _isCalendarSelected
 
+    fun isBack()
+    {
+        try {
+            _isClosed.value = true
+        }
+        catch (e: Exception){
+            Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Close The Yearly Summary Report: ${e.message}")
+        }
+    }
+    fun resetCloseState()
+    {
+        try {
+            _isClosed.value = false
+        }
+        catch (e: Exception) {
+            Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL", "Reset Close State: ${e.message}")
+        }
+    }
+    fun getIsCalendarSelected(){
+        try {
+            _isCalendarSelected.value = true
+        }
+        catch (e: Exception) {
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Calendar Selected: ${e.message}")
+        }
+    }
     fun fnGetExpenseDetailsPerYear(year:String){
         viewModelScope.launch {
             try{
-
                 _incomeAmt.postValue("0.00")
                 _expenseAmt.postValue("0.00")
                 _balanceAmt.postValue("0.00")
@@ -119,31 +117,23 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
                 var expense = expenseRepository.fnGetYearSummary(year)
                 var balance = income-expense
 
-                Log.i("INCOME & EXPENSE & BALANCE DETAILS FOR CUR MONTH","Income:$income & Expense:$expense & Balance:$balance")
-
                 if(income != 0.0f){
-                    _incomeAmt.postValue(income.toString())
+                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
                 if(expense != 0.0f){
-                    _expenseAmt.postValue(expense.toString())
+                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
                 }
                 if(balance != 0.0f){
-                    _balanceAmt.postValue(abs(balance).toString())
+                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
                 }
-//                else{
-//                    _balanceAmt.postValue(0.00f.toString())
-//                }
-
 
                 var resList = expenseRepository.fnGetExpenseDetailsPerYear(year)
                 var list : MutableList<ExpenseDetailsPerMonth> = mutableListOf<ExpenseDetailsPerMonth>()
                 if(resList.isNotEmpty())
                 {
-                    Log.i("GET EXPENSE DETAILS PER YEAR","Get Expense Details Per Year: $resList")
                     resList.forEach { ob ->
                         list.add(
                             ExpenseDetailsPerMonth(
-//                                userId = ob.userId,
                                 expenseDate = when(ob.expenseDate) {
                                     "1", "01" -> getMonthName("1",monthArray.value)
                                     "2", "02" ->getMonthName("2",monthArray.value)
@@ -170,17 +160,25 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
                     _yearSummaryList.postValue(emptyList<ExpenseDetailsPerMonth>())
                 }
             }
-            catch (e : Exception){
-                Log.e("GET EXPENSE DETAILS PER YEAR ERROR","Get Expense Details Per Year Error: ${e.message}")
+            catch (e : Exception)
+            {
+                Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Year: ${e.message}")
             }
         }
     }
-    fun getMonthName(monthValue: String, monthArray: Array<String>?): String {
-        val monthIndex = monthValue.toIntOrNull()?.minus(1)
+    fun getMonthName(monthValue: String, monthArray: Array<String>?): String
+    {
+        return try {
+            val monthIndex = monthValue.toIntOrNull()?.minus(1)
 
-        return if (monthIndex != null && monthArray?.indices?.contains(monthIndex) == true) {
-            monthArray?.get(monthIndex) ?: "Invalid"
-        } else {
+             if (monthIndex != null && monthArray?.indices?.contains(monthIndex) == true) {
+                monthArray?.get(monthIndex) ?: "Invalid"
+            } else {
+                "Invalid"
+            }
+        }
+        catch (e: Exception){
+            Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Return Month Name: ${e.message}")
             "Invalid"
         }
     }
@@ -189,14 +187,11 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
         viewModelScope.launch {
             try
             {
-                Log.i("EXPORT LOADING VALUE","Export Loading Value1: ${isExportLoading.value}")
                 if(isExportLoading.value==false)
                 {
                     _isExportLoading.value=true
 
                     delay(1000L)
-
-                    Log.i("EXPORT LOADING VALUE","Export Loading Value2: ${isExportLoading.value}")
 
                     var start = Global.fnGetCurrentTime()
 
@@ -324,19 +319,21 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
 
                     }
 
-                    _exportStatus.value = fnExportReportToDownloads(workBook,"YearlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
+                    var result =  fnExportReportToDownloads(workBook,"YearlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
 
-                    Log.i("EXPORT LOADING VALUE","Export Loading Value3: ${isExportLoading.value}")
-
-                    Log.i("TIME DIFF","Time Diff: ${Global.fnGetCurrentTime()} ms")
-
+                    if(result == true){
+                        _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportSuccess)
+                    }
+                    else{
+                        _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportFailed)
+                    }
                 }
             }
             catch (e : Exception)
             {
                 _isExportLoading.value=false
-                _exportStatus.value = false
-                Log.e("EXPORT REPORT AS EXCEL","Export Report As Excel: ${e.message}")
+                _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportFailed)
+                Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
             }
         }
 
@@ -370,7 +367,7 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
             true
         }
         catch (e : Exception){
-            Log.e("FN_EXPORT_REPORT_TO_DOWNLOADS","Fn Export Report To Downloads: ${e.message}")
+            Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Export Yearly Summary Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
@@ -382,7 +379,10 @@ class YearlySummaryReportViewModel(application: Application) : AndroidViewModel(
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
-            } catch (_: Exception) {}
+            }
+            catch (e: Exception) {
+                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+            }
         }
     }
 

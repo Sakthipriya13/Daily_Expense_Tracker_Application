@@ -160,7 +160,7 @@
                 android:src="@drawable/ic_calendar"
                 app:layout_constraintStart_toEndOf="@+id/idLSelectYear"
                 app:layout_constraintWidth_percent="0.13"
-                android:onClick="@{() -> monthlySummaryViewModel.isCalendarSelected()}"
+                android:onClick="@{() -> monthlySummaryViewModel.getIsCalendarSelected()}"
                 />
 
             <androidx.constraintlayout.helper.widget.Flow
@@ -235,7 +235,7 @@
                             android:textStyle="bold"
                             android:text="@string/income"
                             android:gravity="center"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
@@ -246,7 +246,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.40"
                             android:textStyle="bold"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:text="@{monthlySummaryViewModel._incomeAmt}"
                             android:textColor="@color/text_color_white"
                             android:drawableStart="@drawable/currency_rupee"
@@ -274,7 +274,7 @@
                             android:textStyle="bold"
                             android:text="@string/_expense"
                             android:gravity="center"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             />
                         <TextView
@@ -283,7 +283,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.40"
                             android:textStyle="bold"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:text="@{monthlySummaryViewModel._expenseAmt}"
                             android:drawableStart="@drawable/currency_rupee"
                             android:drawablePadding="5dp"
@@ -307,7 +307,7 @@
                             android:textStyle="bold"
                             android:text="@string/_balance"
                             android:gravity="center"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             />
                         <TextView
@@ -316,7 +316,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.40"
                             android:textStyle="bold"
-                            android:textSize="@dimen/text_size"
+                            android:textSize="@dimen/sub_header_size"
                             android:text="@{monthlySummaryViewModel._balanceAmt}"
                             android:drawableStart="@drawable/currency_rupee"
                             android:drawablePadding="5dp"

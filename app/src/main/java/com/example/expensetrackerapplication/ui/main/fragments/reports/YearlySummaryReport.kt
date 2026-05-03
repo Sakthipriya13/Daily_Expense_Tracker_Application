@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import com.example.expensetrackerapplication.databinding.YearlySummaryReportBind
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 import com.github.mikephil.charting.components.Legend
@@ -52,6 +54,8 @@ class YearlySummaryReport : Fragment() {
 
     private lateinit var adapter : YearlySummaryAdapter
 
+    val LOG_TAG="YEARLY_SUMMARY_REPORT"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -76,169 +80,231 @@ class YearlySummaryReport : Fragment() {
 
         yearlySummaryReportViewModel.fnPreWarmExcelEngine()
 
-        adapter = YearlySummaryAdapter()
-        yearlySummaryReportBinding.idYearlySummaryList.adapter = adapter
-        yearlySummaryReportBinding.idYearlySummaryList.layoutManager = LinearLayoutManager(requireContext())
+        try{
+            adapter = YearlySummaryAdapter()
+            yearlySummaryReportBinding.idYearlySummaryList.adapter = adapter
+            yearlySummaryReportBinding.idYearlySummaryList.layoutManager = LinearLayoutManager(requireContext())
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Set Adapter: ${e.message}")
+        }
 
-        yearlySummaryReportViewModel._monthArray.value = resources.getStringArray(R.array.months)
+        try {
+            yearlySummaryReportViewModel._monthArray.value = resources.getStringArray(R.array.months)
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Assign Month Array: ${e.message}")
+        }
 
-        yearlySummaryReportViewModel.closeReport.observe(viewLifecycleOwner) { status ->
-            if (status) {
-                findNavController().navigate(R.id.action_yearly_report_to_report_menu)
+        yearlySummaryReportViewModel.isClosed.observe(viewLifecycleOwner) { status ->
+            try {
+                if(status)
+                {
+                    findNavController().navigate(R.id.action_yearly_report_to_report_menu)
+                    yearlySummaryReportViewModel.resetCloseState()
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
             }
         }
 
-        yearlySummaryReportBinding.idCalendarButton.setOnClickListener {
-            showYearPicker()
+        yearlySummaryReportViewModel.isCalendarSelected.observe(viewLifecycleOwner){ isSelected ->
+            try {
+                if(isSelected){
+                    showYearPicker()
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Calendar Selected: ${e.message}")
+            }
         }
 
         yearlySummaryReportViewModel.selectedYear.observe(viewLifecycleOwner){ year ->
-            yearlySummaryReportViewModel.fnGetExpenseDetailsPerYear(year)
+            try {
+                yearlySummaryReportViewModel.fnGetExpenseDetailsPerYear(year)
+            }
+            catch (e: Exception){
+                Log.e(LOG_TAG,"Selected Year: ${e.message}")
+            }
         }
         
         yearlySummaryReportViewModel.yearSummaryList.observe(viewLifecycleOwner){ list ->
-            if(list.isNotEmpty()){
-                fnCreateChart(list)
-                adapter.fnSubmitList(list)
+            try {
+                if(list.isNotEmpty())
+                {
+                    fnCreateChart(list)
+                    adapter.fnSubmitList(list)
+
+                }
+            }
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Summary List Observed: ${e.message}")
             }
         }
 
         yearlySummaryReportViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            if(status){
-                fnShowMessage("Report Successfully Exported",requireContext(),R.drawable.bg_success)
+            try {
+                when(status)
+                {
+                    is ResultState1.success ->{
+                        fnShowMessage("Report Successfully Exported",requireContext(),R.drawable.bg_success)
+                    }
+                    is ResultState1.fail ->{
+                        fnShowMessage("Report Export Failed",requireContext(),R.drawable.error_bg)
+                    }
+                }
             }
-            else{
-                fnShowMessage("Report Export Failed",requireContext(),R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Export Status: ${e.message}")
             }
         }
 
         yearlySummaryReportViewModel.isExportLoading.observe(viewLifecycleOwner){ isLoading ->
-            if(isLoading){
-                yearlySummaryReportBinding.isExportLoading.visibility=View.VISIBLE
+            try {
+                if(isLoading)
+                {
+                    yearlySummaryReportBinding.isExportLoading.visibility=View.VISIBLE
+                }
+                else
+                {
+                    yearlySummaryReportBinding.isExportLoading.visibility=View.GONE
+                }
             }
-            else{
-                yearlySummaryReportBinding.isExportLoading.visibility=View.GONE
+            catch (e: Exception)
+            {
+                Log.e(LOG_TAG,"Display ProgressBar: ${e.message}")
             }
         }
     }
 
     fun fnCreateChart(list : List<ExpenseDetailsPerMonth>)
     {
+        try {
+            if (list.isEmpty()) return
+            val ob = list[0]   // assuming single summary row
 
-        if (list.isEmpty()) return
-        val ob = list[0]   // assuming single summary row
-
-        // 🔹 Payment monthlyValues
-        val labels = listOf("Jan","Feb","March",
-            "April","May","June","July","Aug","Sep","Oct","Nov","Dec")
+            // 🔹 Payment monthlyValues
+            val labels = listOf("Jan","Feb","March",
+                "April","May","June","July","Aug","Sep","Oct","Nov","Dec")
 //        val labels = resources.getStringArray(R.array.months)
 
-        val monthlyValues = MutableList(12) {0.0}
-        var indexValue = 0
+            val monthlyValues = MutableList(12) {0.0}
+            var indexValue = 0
 
-        list.forEach { obj ->
-            var index = indexValue
-            monthlyValues[index] = obj.expenseSummaryAmt.toDouble()
-            indexValue++
-        }
+            list.forEach { obj ->
+                var index = indexValue
+                monthlyValues[index] = obj.expenseSummaryAmt.toDouble()
+                indexValue++
+            }
 
-        // 🔹 Bar Entries
-        val entries = ArrayList<BarEntry>()
-        monthlyValues.forEachIndexed { index, value ->
-            entries.add(BarEntry(index.toFloat(), value.toFloat()))
-        }
+            // 🔹 Bar Entries
+            val entries = ArrayList<BarEntry>()
+            monthlyValues.forEachIndexed { index, value ->
+                entries.add(BarEntry(index.toFloat(), value.toFloat()))
+            }
 
-        // 🔹 DataSet
-        val dataSet = BarDataSet(entries, resources.getString(R.string.yearly_overview))
-        dataSet.valueTextSize = 15f  //12
-        dataSet.setDrawValues(true)
-        dataSet.color = MaterialColors.getColor(
-            requireView(),
-            com.google.android.material.R.attr.colorOnPrimary
-        )
+            // 🔹 DataSet
+            val dataSet = BarDataSet(entries, resources.getString(R.string.yearly_overview))
+            dataSet.valueTextSize = 15f  //12
+            dataSet.setDrawValues(true)
+            dataSet.color = MaterialColors.getColor(
+                requireView(),
+                com.google.android.material.R.attr.colorOnPrimary
+            )
 
-        // 🔹 BarData
-        val barData = BarData(dataSet)
-        barData.barWidth = 0.6f
+            // 🔹 BarData
+            val barData = BarData(dataSet)
+            barData.barWidth = 0.6f
 
-        // 🔹 Assign data
-        yearlySummaryReportBinding.idBarChart.data = barData
+            // 🔹 Assign data
+            yearlySummaryReportBinding.idBarChart.data = barData
 
-        // 🔹 X-Axis
-        val xAxis = yearlySummaryReportBinding.idBarChart.xAxis
-        xAxis.position = XAxis.XAxisPosition.BOTTOM
-        xAxis.granularity = 1f
-        xAxis.textSize= 20f
-        xAxis.yOffset=12f
+            // 🔹 X-Axis
+            val xAxis = yearlySummaryReportBinding.idBarChart.xAxis
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.granularity = 1f
+            xAxis.textSize= 20f
+            xAxis.yOffset=12f
 //        xAxis.textColor= ContextCompat.getColor(
 //            requireContext(),
 //            R.color.text_color_black
 //        )
-        xAxis.textColor= MaterialColors.getColor(
-            requireView(),
-            com.google.android.material.R.attr.colorOnPrimary
-        )
-        xAxis.setDrawGridLines(false)
-        xAxis.valueFormatter = IndexAxisValueFormatter(labels)
+            xAxis.textColor= MaterialColors.getColor(
+                requireView(),
+                com.google.android.material.R.attr.colorOnPrimary
+            )
+            xAxis.setDrawGridLines(false)
+            xAxis.valueFormatter = IndexAxisValueFormatter(labels)
 
-        // 🔹 Y-Axis
-        val yAxisLeft = yearlySummaryReportBinding.idBarChart.axisLeft
-        yAxisLeft.textSize = 15f
+            // 🔹 Y-Axis
+            val yAxisLeft = yearlySummaryReportBinding.idBarChart.axisLeft
+            yAxisLeft.textSize = 15f
 //        yAxisLeft.textColor = Color.BLACK
-        yAxisLeft.textColor= MaterialColors.getColor(
-            requireView(),
-            com.google.android.material.R.attr.colorOnPrimary
-        )
+            yAxisLeft.textColor= MaterialColors.getColor(
+                requireView(),
+                com.google.android.material.R.attr.colorOnPrimary
+            )
 
-        yearlySummaryReportBinding.idBarChart.axisRight.isEnabled = false
-        yearlySummaryReportBinding.idBarChart.axisLeft.axisMinimum = 0f
+            yearlySummaryReportBinding.idBarChart.axisRight.isEnabled = false
+            yearlySummaryReportBinding.idBarChart.axisLeft.axisMinimum = 0f
 
-        // Legend
-        val legend = yearlySummaryReportBinding.idBarChart.legend
-        legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-        legend.orientation = Legend.LegendOrientation.HORIZONTAL
-        legend.setDrawInside(false)
-        legend.yOffset = 10f
-        legend.textSize = 15f
-        legend.textColor = MaterialColors.getColor(
-            requireView(),
-            com.google.android.material.R.attr.colorOnPrimary
-        )
+            // Legend
+            val legend = yearlySummaryReportBinding.idBarChart.legend
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+            legend.setDrawInside(false)
+            legend.yOffset = 10f
+            legend.textSize = 15f
+            legend.textColor = MaterialColors.getColor(
+                requireView(),
+                com.google.android.material.R.attr.colorOnPrimary
+            )
 
-        // 🔹 Chart Settings
-        yearlySummaryReportBinding.idBarChart.setExtraOffsets(0f,0f,0f,25f)
-        yearlySummaryReportBinding.idBarChart.description.isEnabled = false
-        yearlySummaryReportBinding.idBarChart.legend.isEnabled = true
-        yearlySummaryReportBinding.idBarChart.setFitBars(true)
-        yearlySummaryReportBinding.idBarChart.animateY(1000)
+            // 🔹 Chart Settings
+            yearlySummaryReportBinding.idBarChart.setExtraOffsets(0f,0f,0f,25f)
+            yearlySummaryReportBinding.idBarChart.description.isEnabled = false
+            yearlySummaryReportBinding.idBarChart.legend.isEnabled = true
+            yearlySummaryReportBinding.idBarChart.setFitBars(true)
+            yearlySummaryReportBinding.idBarChart.animateY(1000)
 
-        yearlySummaryReportBinding.idBarChart.invalidate()
-        
+            yearlySummaryReportBinding.idBarChart.invalidate()
+        }
+        catch (e: Exception){
+            Log.e(LOG_TAG,"Chart Creation: ${e.message}")
+        }
     }
     
     @SuppressLint("SuspiciousIndentation")
-    private fun showYearPicker() {
-        if(Global.isCalendarSelected == false){
-            Global.isCalendarSelected = true
-            val monthBinding = AlertSheetYearBinding.inflate(layoutInflater)
+    private fun showYearPicker()
+    {
+        try {
+            if(Global.isCalendarSelected == false)
+            {
+                Global.isCalendarSelected = true
+                val monthBinding = AlertSheetYearBinding.inflate(layoutInflater)
 
-            val monthAlert = AlertDialog.Builder(requireContext())
-            monthAlert.setView(monthBinding.root)
-            monthAlert.setCancelable(false)
+                val monthAlert = AlertDialog.Builder(requireContext())
+                monthAlert.setView(monthBinding.root)
+                monthAlert.setCancelable(false)
 
-            val dialog = monthAlert.create()
-            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            dialog.show()
+                val dialog = monthAlert.create()
+                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                dialog.show()
 
-            val currentYear = android.icu.util.Calendar.getInstance().get(android.icu.util.Calendar.YEAR)
+                val currentYear = android.icu.util.Calendar.getInstance().get(android.icu.util.Calendar.YEAR)
 
-            monthBinding.idYearPicker.minValue = 2000
-            monthBinding.idYearPicker.maxValue = currentYear + 100
-            monthBinding.idYearPicker.value = currentYear
-            monthBinding.idYearPicker.wrapSelectorWheel = false
+                monthBinding.idYearPicker.minValue = 2000
+                monthBinding.idYearPicker.maxValue = currentYear + 100
+                monthBinding.idYearPicker.value = currentYear
+                monthBinding.idYearPicker.wrapSelectorWheel = false
 
-            monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
+                monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
 
 //            monthBinding.idTextYear.setOnClickListener {
 
@@ -262,11 +328,13 @@ class YearlySummaryReport : Fragment() {
                     dialog.dismiss()
                 }
 //            }
+            }
+        }
+        catch (e: Exception)
+        {
+            Log.e(LOG_TAG,"Display Year Selection Screen: ${e.message}")
         }
     }
-
-
-
 
     companion object {
         /**
