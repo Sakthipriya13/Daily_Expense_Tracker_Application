@@ -33,6 +33,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,6 +61,9 @@ class Profile : Fragment() {
     private val profileViewModel : ProfileViewModel by viewModels{
         appViewModelFactory
     }
+
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG ="PROFILE"
 
 //    private val mainViewModel : MainViewModel by activityViewModels()
 
@@ -202,61 +206,107 @@ class Profile : Fragment() {
 //        }
 
         profileViewModel.isDelAccount.observe(viewLifecycleOwner){ isDelAc ->
-            if(isDelAc){
-                if(Global.isCalendarSelected==false)
+            try
+            {
+                if(isDelAc)
                 {
-                    //Flag Value
-                    Global.isCalendarSelected = true
+                    if(Global.isCalendarSelected==false)
+                    {
+                        //Flag Value
+                        Global.isCalendarSelected = true
 
-                    //Confirmation Binding
-                    val view = ConfirmationPromptBinding.inflate(layoutInflater)
-                    view.tittle = getString(R.string.deleteAccount_Title)
-                    view.message = getString(R.string.deleteAccount_Content)
+                        //Confirmation Binding
+                        val view = ConfirmationPromptBinding.inflate(layoutInflater)
+                        view.tittle = getString(R.string.deleteAccount_Title)
+                        view.message = getString(R.string.deleteAccount_Content)
 
-                    //AlertDialog Screen Variable Initialization
-                    var delAcPrompt = AlertDialog.Builder(requireContext())
-                        .setView(view.root)
-                        .setCancelable(false)
-                        .create()
+                        //AlertDialog Screen Variable Initialization
+                        var delAcPrompt = AlertDialog.Builder(requireContext())
+                            .setView(view.root)
+                            .setCancelable(false)
+                            .create()
 
-                    //Set Transparent Background
-                    delAcPrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        //Set Transparent Background
+                        delAcPrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-                    //On Click Ok Button
-                    view.idBtnOk.setOnClickListener {
-                        Global.isCalendarSelected = false
-                        profileViewModel.fnDeleteUserAccount()
+                        //On Click Ok Button
+                        view.idBtnOk.setOnClickListener {
+                            Global.isCalendarSelected = false
+                            profileViewModel.fnDeleteUserAccount()
+                        }
+
+                        //On Click Cancel Button
+                        view.idBtnCancel.setOnClickListener {
+                            Global.isCalendarSelected = false
+                            delAcPrompt.dismiss()
+                        }
+
+                        //Display Dialog Screen
+                        delAcPrompt.show()
                     }
-
-                    //On Click Cancel Button
-                    view.idBtnCancel.setOnClickListener {
-                        Global.isCalendarSelected = false
-                        delAcPrompt.dismiss()
-                    }
-
-                    //Display Dialog Screen
-                    delAcPrompt.show()
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Delete User Account Prompt Screen: ${e.message}")
             }
         }
 
         profileViewModel.deleteUserAcStatus.observe(viewLifecycleOwner){ isDeleted ->
-            if(isDeleted){
-                fnShowMessage(getString(R.string.deleteAccount_Success),requireContext(),R.drawable.bg_success)
-                var intent = Intent(requireContext(),Auth::class.java)
-                startActivity(intent)
+            try
+            {
+                when(isDeleted)
+                {
+                    is ResultState1.success ->{
+                        fnShowMessage(getString(isDeleted.message),requireContext(),R.drawable.bg_success)
+                        var intent = Intent(requireContext(),Auth::class.java)
+                        startActivity(intent)
+                    }
+
+                    is ResultState1.fail ->{
+                        fnShowMessage(getString(isDeleted.message),requireContext(),R.drawable.bg_success)
+                    }
+                }
             }
-            else{
-                fnShowMessage(getString(R.string.deleteAccount_Failed),requireContext(),R.drawable.bg_success)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Delete User Account Status: ${e.message}")
             }
-    }
+        }
 
         profileViewModel.isChangePassword.observe(viewLifecycleOwner){ status ->
-            if(status){
-                if(Global.isBottomSheetSelected==false) {
-                    Global.isBottomSheetSelected = true
-                    ChangePassword().show(parentFragmentManager, "ChangePasswordBottomSheet")
+            try
+            {
+                if(status)
+                {
+                    if(Global.isBottomSheetSelected==false)
+                    {
+                        Global.isBottomSheetSelected = true
+                        ChangePassword().show(parentFragmentManager, "ChangePasswordBottomSheet")
+                    }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Change Password Screen: ${e.message}")
+            }
+        }
+
+        profileViewModel.isAddIncome.observe(viewLifecycleOwner){ status ->
+            try
+            {
+                if(status)
+                {
+                    if(Global.isBottomSheetSelected==false)
+                    {
+                        Global.isBottomSheetSelected=true
+                        AddIncome().show(parentFragmentManager,"AddIncomeBottomSheet")
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Add Income Screen: ${e.message}")
             }
         }
 
@@ -311,16 +361,6 @@ class Profile : Fragment() {
 //                }
 //            }
 //        }
-
-
-        profileViewModel.isAddIncome.observe(viewLifecycleOwner){ status ->
-            if(status){
-                if(Global.isBottomSheetSelected==false){
-                    Global.isBottomSheetSelected=true
-                    AddIncome().show(parentFragmentManager,"AddIncomeBottomSheet")
-                }
-            }
-        }
 
 //        profileViewModel.profileUri.observe(viewLifecycleOwner){ uri ->
 //            if(uri!=null){
@@ -411,9 +451,21 @@ class Profile : Fragment() {
     }
 }
 
-class ChangePassword : BottomSheetDialogFragment(){
+class ChangePassword : BottomSheetDialogFragment()
+{
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var changePasswordBinding : ChangePasswordBinding
-    private val changePasswordViewModel : ChangePasswordViewModel by viewModels()
+    private val changePasswordViewModel : ChangePasswordViewModel by viewModels {
+        appViewModelFactory
+    }
+
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG = "CHANGE_PASSWORD"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -449,30 +501,46 @@ class ChangePassword : BottomSheetDialogFragment(){
 //        }
 
         changePasswordViewModel.isClosed.observe(viewLifecycleOwner){ isClosed ->
-            if(isClosed){
-                Global.isBottomSheetSelected = false
-                dismiss()
-            }
-        }
-        changePasswordViewModel.changePasswordStatus.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ResultState1.success  -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+            try
+            {
+                if(isClosed)
+                {
                     Global.isBottomSheetSelected = false
                     dismiss()
                 }
-                is ResultState1.fail  -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
-
-                    if(state.message == R.string.cp_NewPasswordFieldEmpty){
-                        changePasswordBinding.idENewPassword.isFocusable = true
-                        changePasswordBinding.idENewPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.cp_PasswordChangeFailed){
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Change Password Screen: ${e.message}")
+            }
+        }
+        changePasswordViewModel.changePasswordStatus.observe(viewLifecycleOwner){ state ->
+            try
+            {
+                when(state)
+                {
+                    is ResultState1.success  -> {
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
                         Global.isBottomSheetSelected = false
                         dismiss()
                     }
+                    is ResultState1.fail  -> {
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+
+                        if(state.message == R.string.cp_NewPasswordFieldEmpty){
+                            changePasswordBinding.idENewPassword.isFocusable = true
+                            changePasswordBinding.idENewPassword.requestFocus()
+                        }
+                        else if(state.message == R.string.cp_PasswordChangeFailed){
+                            Global.isBottomSheetSelected = false
+                            dismiss()
+                        }
+                    }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Change Password Status: ${e.message}")
             }
         }
     }

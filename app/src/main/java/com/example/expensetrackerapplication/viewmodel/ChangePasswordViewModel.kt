@@ -14,7 +14,9 @@ import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class ChangePasswordViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class ChangePasswordViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     //User Repository Variable
     private var userRepository : UserRepository
@@ -47,12 +49,22 @@ class ChangePasswordViewModel(application: Application, logger: FileLogger) : An
 //    var _emailErrorStatus = MutableLiveData<ResultState>()
 //    var emailErrorStatus : LiveData<ResultState> = _emailErrorStatus
 
+    val LOG_TAG ="CHANGE_PASSWORD_VIEW_MODEL"
 
-    fun onClickCancel(){
-        _isClosed.value = true
+    fun onClickCancel()
+    {
+        try
+        {
+            _isClosed.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Change Password Screen: ${e.message}")
+        }
     }
 
-    fun onClickConfirm(){
+    fun onClickConfirm()
+    {
           try{
               when{
                   newPassword.value.isNullOrBlank() -> {
@@ -70,13 +82,16 @@ class ChangePasswordViewModel(application: Application, logger: FileLogger) : An
                   }
               }
           }
-          catch (e : Exception){
+          catch (e : Exception)
+          {
+              logger.logError(LOG_TAG,"On CLick Confirm Button: ${e.message}")
               Log.e("CHANGE_PASSWORD","Change Password: ${e.message}")
               _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
           }
     }
 
-    fun fnChangePassword() {
+    fun fnChangePassword()
+    {
         viewModelScope.launch {
             try{
                 var updateStatus = userRepository.fnUpdateLoginUserPassword(newPassword =newPassword.value, userId =Global.lUserId, currentPassword = currentPassword.value)
@@ -89,14 +104,24 @@ class ChangePasswordViewModel(application: Application, logger: FileLogger) : An
                     _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
 
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Change Password Function: ${e.message}")
                 Log.e("CHANGE_PASSWORD","Change Password: ${e.message}")
                 _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
             }
         }
     }
 
-    fun fnClearAllFields(){
-        _newPassword.value = ""
+    fun fnClearAllFields()
+    {
+        try
+        {
+            _newPassword.value = ""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
     }
 }

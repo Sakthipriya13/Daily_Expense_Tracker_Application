@@ -108,7 +108,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.50"
                             android:textStyle="bold"
-                            android:text="@{dashBoard._incomeAmt}"
+                            android:text="@{dashBoard._income}"
                             android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +141,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.50"
                             android:textStyle="bold"
-                            android:text="@{dashBoard._expenseAmt}"
+                            android:text="@{dashBoard._expense}"
                             android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             />
@@ -174,7 +174,7 @@
                             android:layout_height="wrap_content"
                             app:layout_constraintWidth_percent="0.50"
                             android:textStyle="bold"
-                            android:text="@{dashBoard._balanceAmt}"
+                            android:text="@{dashBoard._balance}"
                             android:textSize="@dimen/sub_header_size"
                             android:textColor="@color/text_color_white"
                             />

@@ -25,7 +25,9 @@ import kotlinx.coroutines.delay
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
-class CategoryWiseReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class CategoryWiseReportViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository
@@ -74,9 +76,11 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
 //    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     val LOG_TAG = "CATEGORY_WISE_REPORT_VIEW_MODEL"
-    fun fnGetCategoryDetailsPerDay(date : String?){
+    fun fnGetCategoryDetailsPerDay(date : String?)
+    {
         viewModelScope.launch {
-            try{
+            try
+            {
                 _isExportLoading.postValue(true)
                 var res = expenseRepository.fnGetCateDetailsPerDay(date)
                 var list : MutableList<CategoryChartModel> = mutableListOf()
@@ -94,31 +98,41 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
                     }
                     _categoryList.postValue(list)
                 }
-                else{
+                else
+                {
                     _categoryList.postValue(mutableListOf<CategoryChartModel>())
                 }
             }
-            catch (ex : Exception){
+            catch (ex : Exception)
+            {
+                logger.logError(LOG_TAG,"Get Category List Per Day: ${ex.message}")
                 Log.e(LOG_TAG,"Get Category List Per Day: ${ex.message}")
             }
         }
     }
 
-    fun isBack(){
-        try {
+    fun isBack()
+    {
+        try
+        {
             _isClosed.value = true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Category Report Screen: ${e.message}")
             Log.e(LOG_TAG,"Close The Category Report Screen: ${e.message}")
         }
     }
 
     fun resetCloseState()
     {
-        try {
+        try
+        {
             _isClosed.value = false
         }
-        catch (e: Exception) {
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Reset Close State: ${e.message}")
             Log.e(LOG_TAG, "Reset Close State: ${e.message}")
         }
     }
@@ -126,7 +140,8 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
     fun fnExportCategoryList()
     {
         viewModelScope.launch {
-            try{
+            try
+            {
                 if(isExportLoading.value==false)
                 {
                     _isExportLoading.postValue(true)
@@ -231,6 +246,7 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
             {
                 _isExportLoading.value = false
                 _exportStatus.value = ResultState1.fail(R.string.cateReport_ExportFailed)
+                logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
                 Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
@@ -239,7 +255,8 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
 
     fun fnExportReportToDownloads(workBook : XSSFWorkbook, fileName : String): Boolean
     {
-        return try {
+        return try
+        {
             var values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE,
@@ -264,21 +281,27 @@ class CategoryWiseReportViewModel(application: Application, logger: FileLogger) 
             _isExportLoading.value=false
             true
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Export Category Wise Report To Internal Storage(Document Path): ${e.message}")
             Log.e(LOG_TAG,"Export Category Wise Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
     }
 
-    fun fnPreWarmExcelEngine() {
+    fun fnPreWarmExcelEngine()
+    {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            try
+            {
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
             }
-            catch (e: Exception) {
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
                 Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
             }
         }

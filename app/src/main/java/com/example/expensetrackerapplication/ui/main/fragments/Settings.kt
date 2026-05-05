@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.ui.main.fragments
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -47,7 +48,8 @@ private const val ARG_PARAM2 = "param2"
  * Use the [Settings.newInstance] factory method to
  * create an instance of this fragment.
  */
-class Settings : Fragment(){
+class Settings : Fragment()
+{
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -58,7 +60,6 @@ class Settings : Fragment(){
             FileLogger(requireContext().applicationContext)
         )
     }
-
     // Binding Variable Declaration
     lateinit var settingsBinding: SettingsBinding
 
@@ -81,6 +82,9 @@ class Settings : Fragment(){
         appViewModelFactory
     }
 
+    val LOG_TAG = "SETTINGS"
+
+    val logger = FileLogger(requireContext().applicationContext)
 
     override fun onResume() {
         super.onResume()
@@ -98,7 +102,8 @@ class Settings : Fragment(){
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View?
+    {
         settingsBinding= DataBindingUtil.inflate(inflater,R.layout.settings, container, false)
         settingsBinding.settingsViewModel=settingsViewModel
         settingsBinding.lifecycleOwner=viewLifecycleOwner
@@ -109,6 +114,7 @@ class Settings : Fragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Datastore Variables Initialization
         loginDataStore= LoginDataStore(requireContext())
         languageDataStore= LanguageDataStore(requireContext())
         themeColorDataStore = ThemeColorDataStore(requireContext())
@@ -116,23 +122,75 @@ class Settings : Fragment(){
 
 //        settingsViewModel.fnGetUnSyncedcategories()
 //        settingsViewModel.fnGetDefaultCategories()
+        try
+        {
+            categoryAdapter = CategoryAdapter(requireContext().applicationContext)
+            settingsBinding.idAddedCategoryList.adapter=categoryAdapter
+            settingsBinding.idAddedCategoryList.layoutManager= LinearLayoutManager(requireContext())
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Set Category Adapter: ${e.message}")
+        }
 
-        settingsViewModel.fnGetAllCategories()
-
+        try
+        {
+            settingsViewModel.fnGetAllCategories()
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Get All Categories: ${e.message}")
+        }
 
         lifecycleScope.launch {
-            loginDataStore.userDatas?.collect { user ->
-                Global.lUserId = user.userId
-                Global.lUserName = user.userName ?:""
-                Global.lUssrEmail = user.userEmail ?:""
-                Global.lUserPassword = user.userPassword ?:""
-                Global.lUserMobileNo = user.userMobileNo ?:""
-                Global.cloudUserId = user.cloudId
+            launch {
+                try
+                {
+                    loginDataStore.userDatas?.collect { user ->
+                        Global.lUserId = user.userId
+                        Global.lUserName = user.userName ?:""
+                        Global.lUssrEmail = user.userEmail ?:""
+                        Global.lUserPassword = user.userPassword ?:""
+                        Global.lUserMobileNo = user.userMobileNo ?:""
+                        Global.cloudUserId = user.cloudId
+                    }
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Store Login User Details: ${e.message}")
+                }
             }
-
-            val themeCode = themeDataStore.fnGetTheme()
-            settingsViewModel._btnThemeCode.value = themeCode
-
+            launch {
+                try
+                {
+                    val themeCode = themeDataStore.fnGetTheme()
+                    settingsViewModel._btnThemeCode.value = themeCode
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Get Theme From Theme DataStore: ${e.message}")
+                }
+            }
+            launch {
+                try
+                {
+                    val lang = languageDataStore.fnGetLanguage()
+                    when(lang){
+                        "en" ->{
+//                    fnShowMessage("Language: English",requireContext(),R.drawable.bg_success)
+                            settingsBinding.idRbEnglish.isChecked = true
+                        }
+                        "ta" -> {
+//                    fnShowMessage("Language: Tamil",requireContext(),R.drawable.bg_success)
+                            settingsBinding.idRbTamil.isChecked = true
+                        }
+                    }
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Get Language From Language DataStore: ${e.message}")
+                }
+            }
         }
 
 //        settingsViewModel.recreateActivity.observe(viewLifecycleOwner){ isRecreate ->
@@ -148,117 +206,159 @@ class Settings : Fragment(){
 
         lifecycleScope.launchWhenStarted {
             settingsViewModel.uiEvent.collect { event ->
-                when(event){
-                    SettingsViewModel.UiEvent.RecreateActivity ->{
-                        requireActivity().recreate()
+                try
+                {
+                    when(event)
+                    {
+                        SettingsViewModel.UiEvent.RecreateActivity ->{
+                            requireActivity().recreate()
+                        }
                     }
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Recreate Activity: ${e.message}")
                 }
             }
         }
 
         settingsViewModel.internetStatus.observe(viewLifecycleOwner) { isAvailable ->
-            when (isAvailable) {
-                is ResultState1.success ->{}
-                is ResultState1.fail ->{
-                    settingsViewModel._isLoading.value = false
-                    fnShowMessage(getString(isAvailable.message),requireContext(),R.drawable.error_bg)
+            try
+            {
+                when (isAvailable)
+                {
+                    is ResultState1.success ->{}
+                    is ResultState1.fail ->{
+                        settingsViewModel._isLoading.value = false
+                        fnShowMessage(getString(isAvailable.message),requireContext(),R.drawable.error_bg)
+                    }
                 }
             }
-
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Internet Status: ${e.message}")
+            }
         }
 
         // In Activity
         settingsViewModel.sendEmailEvent.observe(viewLifecycleOwner) { intent ->
-            intent?.let {
-                settingsViewModel._isLoading.value = false
-                startActivity(intent) // Activity context avoids crashes
+            try
+            {
+                intent?.let {
+                    settingsViewModel._isLoading.value = false
+                    startActivity(intent) // Activity context avoids crashes
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Send Email Event: ${e.message}")
             }
         }
 
 //      settingsViewModel._firestoreCloudId.value = splashViewModel.cloudUserId.value
 
-        categoryAdapter = CategoryAdapter()
-        settingsBinding.idAddedCategoryList.adapter=categoryAdapter
-        settingsBinding.idAddedCategoryList.layoutManager= LinearLayoutManager(requireContext())
-
 
         settingsViewModel.categoryList.observe(viewLifecycleOwner){ list ->
-            var categoryNameList : List<CategoryModel> = list.map { name ->
-                CategoryModel(userId = name.userId,categoryId = name.categoryId,categoryName = name.categoryName)
-            }
-            categoryAdapter.fnSubmitList(categoryNameList, object : CategoryItemClickListener{
-                override fun onRemoveClick(category: CategoryModel) {
-                    fnShowDeletePrompt(category)
+            try
+            {
+                var categoryNameList : List<CategoryModel> = list.map { name ->
+                    CategoryModel(userId = name.userId,categoryId = name.categoryId,categoryName = name.categoryName)
                 }
+                categoryAdapter.fnSubmitList(categoryNameList, object : CategoryItemClickListener{
+                    override fun onRemoveClick(category: CategoryModel) {
+                        fnShowDeletePrompt(category)
+                    }
+                }
+                )
             }
-            )
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Category List Observed: ${e.message}")
+            }
         }
 
         settingsViewModel.insertCategoryStatus.observe(viewLifecycleOwner){ state ->
-            state?.let {
-                when(state){
-                    is ResultState1.success ->
-                    {
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                    }
-                    is ResultState1.fail ->
-                    {
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+            try
+            {
+                state?.let {
+                    when(state){
+                        is ResultState1.success ->
+                        {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                        }
+                        is ResultState1.fail ->
+                        {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
 
-                        if(state.message == R.string.set_NewCategoryFieldEmpty){
-                            settingsBinding.idECat.isFocusable = true
-                            settingsBinding.idECat.requestFocus()
+                            if(state.message == R.string.set_NewCategoryFieldEmpty){
+                                settingsBinding.idECat.isFocusable = true
+                                settingsBinding.idECat.requestFocus()
+                            }
                         }
                     }
                 }
             }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Insert Category Status: ${e.message}")
+            }
         }
 
         settingsViewModel.deleteCategoryStatus.observe(viewLifecycleOwner){ state ->
-            state?.let {
-                when(state){
-                    is ResultState1.success -> {
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                    }
-                    is ResultState1.fail ->
-                    {
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+            try
+            {
+                state?.let {
+                    when(state){
+                        is ResultState1.success -> {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                        }
+                        is ResultState1.fail ->
+                        {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+                        }
                     }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Delete Category Status: ${e.message}")
             }
         }
 
         settingsBinding.idLanGroup.setOnCheckedChangeListener { _,checkedId ->
-            when(checkedId){
-                R.id.idRbEnglish -> {
-                    settingsViewModel.fnUpdateLan("en")
-                }
-                R.id.idRbTamil -> {
-                    settingsViewModel.fnUpdateLan("ta")
+            try
+            {
+                when(checkedId)
+                {
+                    R.id.idRbEnglish -> {
+                        settingsViewModel.fnUpdateLan("en")
+                    }
+                    R.id.idRbTamil -> {
+                        settingsViewModel.fnUpdateLan("ta")
+                    }
                 }
             }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            val lang = languageDataStore.fnGetLanguage()
-            when(lang){
-                "en" ->{
-//                    fnShowMessage("Language: English",requireContext(),R.drawable.bg_success)
-                    settingsBinding.idRbEnglish.isChecked = true
-                }
-                "ta" -> {
-//                    fnShowMessage("Language: Tamil",requireContext(),R.drawable.bg_success)
-                    settingsBinding.idRbTamil.isChecked = true
-                }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Language: ${e.message}")
             }
         }
 
         settingsViewModel.isLoading.observe(viewLifecycleOwner){ status ->
-            if(status){
-                settingsBinding.idLoading.visibility = View.VISIBLE
+            try
+            {
+                if(status)
+                {
+                    settingsBinding.idLoading.visibility = View.VISIBLE
+                }
+                else
+                {
+                    settingsBinding.idLoading.visibility = View.GONE
+                }
             }
-            else{
-                settingsBinding.idLoading.visibility = View.GONE
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display ProgressBar Based On Condition: ${e.message}")
             }
         }
 
@@ -337,41 +437,94 @@ class Settings : Fragment(){
                     }
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Update Theme: ${e.message}")
                 Log.e("UPDATE_THEME","Update Theme From Ui: ${e.message}")
             }
         }
 
         settingsBinding.idColor1.setOnClickListener {
-            settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE1)
+            try {
+                settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE1)
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Select Color1: ${e.message}")
+            }
         }
 
         settingsBinding.idColor2.setOnClickListener {
-            settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE2)
+            try
+            {
+                settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE2)
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Select Color2: ${e.message}")
+            }
         }
 
         settingsBinding.idColor3.setOnClickListener {
-            settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE3)
+            try
+            {
+                settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE3)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Color3: ${e.message}")
+            }
         }
 
         settingsBinding.idColor4.setOnClickListener {
-            settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE4)
+            try
+            {
+                settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE4)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Color4: ${e.message}")
+            }
         }
 
         settingsBinding.idColor5.setOnClickListener {
-            settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE5)
+            try
+            {
+                settingsViewModel.fnUpdateThemeColor(Global.COLOR_CODE5)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Color5: ${e.message}")
+            }
         }
 
 
         settingsBinding.idBtnSysTheme.setOnClickListener {
-            settingsViewModel.fnUpdateTheme(Global.THEME_SYSTEM)
+            try
+            {
+                settingsViewModel.fnUpdateTheme(Global.THEME_SYSTEM)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select System Theme: ${e.message}")
+            }
         }
         settingsBinding.idBtnDarkTheme.setOnClickListener {
-            settingsViewModel.fnUpdateTheme(Global.THEME_DARK)
-
+            try
+            {
+                settingsViewModel.fnUpdateTheme(Global.THEME_DARK)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Dark Theme: ${e.message}")
+            }
         }
         settingsBinding.idBtnLightTheme.setOnClickListener {
-            settingsViewModel.fnUpdateTheme(Global.THEME_LIGHT)
+            try {
+                settingsViewModel.fnUpdateTheme(Global.THEME_LIGHT)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Light Theme: ${e.message}")
+            }
         }
     }
 
@@ -497,7 +650,9 @@ class Settings : Fragment(){
                 deletePrompt.show()
             }
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Display Category Delete Confirmation Prompt: ${e.message}")
             Log.e("DISPLAY_WARNING_DELETE_CATEGORY","Display Warning - Delete Category: ${e.message}")
         }
     }
@@ -522,16 +677,28 @@ class Settings : Fragment(){
     }
 }
 
-class CategoryAdapter() : RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
+class CategoryAdapter(applicationContext: Context) : RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
 {
     private var categoryNameList : List<CategoryModel> = emptyList()
     private lateinit var onCLickRemove : CategoryItemClickListener
+
+    val logger = FileLogger(applicationContext)
+
+    val LOG_TAG = "CATEGORY_ADAPTER"
     fun fnSubmitList(
         list: List<CategoryModel>,
-        listener : CategoryItemClickListener){
-        categoryNameList=list
-        onCLickRemove=listener
-        notifyDataSetChanged()
+        listener : CategoryItemClickListener)
+    {
+        try
+        {
+            categoryNameList=list
+            onCLickRemove=listener
+            notifyDataSetChanged()
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Submit List: ${e.message}")
+        }
     }
 
     inner class ListViewHolder(val binding: CategoryListItemBinding): RecyclerView.ViewHolder(binding.root){

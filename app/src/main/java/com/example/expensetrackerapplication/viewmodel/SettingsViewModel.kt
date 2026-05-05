@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
@@ -35,7 +36,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileWriter
 
-class SettingsViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application)
+class SettingsViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application)
 {
     var categoryRepository : CategoryRepository
     var expenseRepository : ExpenseRepository
@@ -101,6 +104,7 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
     var _btnThemeCode = MutableLiveData<Int>()
     var btnThemeCode : LiveData<Int> = _btnThemeCode
 
+    val LOG_TAG = "SETTINGS_VIEW_MODEL"
 
 //    var _uiEvent = MutableLiveData<UiEvent>()
 //    var uiEvent : LiveData<UiEvent> = _uiEvent
@@ -109,8 +113,16 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
         object RecreateActivity : UiEvent()
     }
 
-    fun fnClearNewCategoryField(){
-        _newCategory.value = ""
+    fun fnClearNewCategoryField()
+    {
+        try
+        {
+            _newCategory.value = ""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear New Category Field Value: ${e.message}")
+        }
     }
 
 //    fun fnGetUnSyncedcategories(){
@@ -123,24 +135,31 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
     fun  fnInsertCategories()
     {
-        try{
+        try
+        {
             when{
-                newCategory.value.isNullOrBlank() ->{
+                newCategory.value.isNullOrBlank() ->
+                {
                     _insertCategoryStatus.value = ResultState1.fail(R.string.set_NewCategoryFieldEmpty)
                 }
-                else ->{
+                else ->
+                {
                     fnInsertNewCategory()
                 }
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"On Click Add Button: ${e.message}")
             Log.e("INSERT_NEW_CATEGORY","Insert New Category1: ${e.message}")
         }
     }
 
-    fun fnInsertNewCategory() {
+    fun fnInsertNewCategory()
+    {
         viewModelScope.launch {
-            try{
+            try
+            {
                 var expenseDate = Global.fnGetCurrentDate()
                 var newCategory = CategoryEntitty(
                     userId = Global.lUserId,
@@ -163,7 +182,9 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
                     _insertCategoryStatus.value = ResultState1.fail(R.string.set_InsertCategoryFailed)
                 }
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Insert New Category: ${e.message}")
                 Log.e("INSERT_NEW_CATEGORY","Insert New Category2: ${e.message}")
             }
 
@@ -189,12 +210,14 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
     fun fnGetAllCategories(){
         viewModelScope.launch {
-            try {
+            try
+            {
                 var category_List=categoryRepository.fnGetAllCategoriesFromDb()
                 _categoryList.value=category_List
             }
             catch (e : Exception)
             {
+                logger.logError(LOG_TAG,"Get All Categories From Db: ${e.message}")
                 Log.e("GET ALL CATEGORIES FROM DB","Get All Categories From Db: ${e.message}")
             }
         }
@@ -214,6 +237,7 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Delete Category: ${e.message}")
                 Log.e("DELETE_CATEGORY","Delete Category: ${e.message}")
             }
         }
@@ -303,13 +327,16 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
             }
             catch (e : Exception)
             {
+                logger.logError(LOG_TAG,"Share Data: ${e.message}")
                 Log.e("SHARE DATA","Share Data: ${e.message}")
                 _shareDataStatus.value = ResultState1.fail(R.string.set_ShareDataFailed)
             }
         }
     }
-    fun fnConvertCateListToCsvFile(list : List<CategoryEntitty>): File? {
-        try {
+    fun fnConvertCateListToCsvFile(list : List<CategoryEntitty>): File?
+    {
+        try
+        {
             val file = File(application.cacheDir,"Category_Data.csv")
 
             var writer = FileWriter(file)
@@ -327,13 +354,16 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
             return file
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Convert Category List To Csv File: ${e.message}")
             Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
             return null
         }
     }
     fun fnConvertExpenseListToCsvFile(list : List<ExpenseEntity>): File? {
-        try {
+        try
+        {
             val file = File(application.cacheDir,"Expense_Data.csv")
 
             var writer = FileWriter(file)
@@ -364,8 +394,10 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
             return file
         }
-        catch (e: Exception){
-            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Convert Expense List To Csv File: ${e.message}")
+            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Expense List To Csv File: ${e.message}")
             return null
         }
     }
@@ -388,14 +420,16 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
             return file
         }
-        catch (e: Exception){
-            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Convert Income List To Csv File: ${e.message}")
+            Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Income List To Csv File: ${e.message}")
             return null
         }
     }
     fun fnSendFilesViaEmail(file: ArrayList<Uri>){
-        try {
-
+        try
+        {
             var isNetworkAvailable = Global.isNetworkAvailable(application)
 
             if(isNetworkAvailable){
@@ -411,11 +445,14 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
                 _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
             }
-            else{
+            else
+            {
                 _internetStatus.value = ResultState1.fail(R.string.noInternet)
             }
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Send Data Via Email: ${e.message}")
             Log.e("SEND_FILE_VIA_EMAIL","Send Via Email: ${e.message}")
         }
     }
@@ -423,7 +460,8 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
     // Update Selected Language
     fun fnUpdateLan(langCode : String){
         viewModelScope.launch {
-            try {
+            try
+            {
                 val currLang = languageDataStore.fnGetLanguage()
 
                 if(currLang == langCode){
@@ -446,11 +484,14 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 //                _recreateActvity.value = true
 
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Update Language: ${e.message}")
                 Log.e("UPDATE_LANGUAGE","Update Language: ${e.message}")
                 _isLoading.value = false
             }
-            finally {
+            finally
+            {
                 _isLoading.value = false
             }
         }
@@ -459,8 +500,8 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
     //Update App Theme
     fun fnUpdateThemeColor(colorCode : Int) {
         viewModelScope.launch {
-            try {
-
+            try
+            {
                 val currColor = themeColorDataStore.fnGetThemeColor()
 
                 if (currColor == colorCode) return@launch
@@ -480,7 +521,9 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 //                _recreateActvity.value = true
 
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Update Theme Color: ${e.message}")
                 Log.e("UPDATE_THEME_COLOR","Update Theme Color: ${e.message}")
                 _isLoading.value = false
             }
@@ -493,7 +536,8 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
     //Update Theme
     fun fnUpdateTheme(themeCode : Int){
         viewModelScope.launch {
-            try {
+            try
+            {
                 val curThemeCode = themeDataStore.fnGetTheme()
 
                 if(curThemeCode == themeCode) return@launch
@@ -523,11 +567,14 @@ class SettingsViewModel(application: Application, logger: FileLogger) : AndroidV
 
                 _isLoading.value = false
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Update Theme: ${e.message}")
                 Log.e("UPDATE_THEME","Update Theme: ${e.message}")
                 _isLoading.value = false
             }
-            finally {
+            finally
+            {
                 _isLoading.value = false
             }
         }

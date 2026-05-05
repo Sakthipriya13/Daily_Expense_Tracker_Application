@@ -18,14 +18,15 @@ import kotlinx.coroutines.launch
 import java.io.File
 import kotlin.math.abs
 
-class DashBoardViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class DashBoardViewModel(
+    application: Application, 
+    private  val logger: FileLogger) : AndroidViewModel(application = application)
 {
 
+    // Expense And Income Repository Variable Initialization
     private var newExpenseRepository : ExpenseRepository
-
     private var incomeRepository: IncomeRepository
-
-
+    
     init{
         val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
         newExpenseRepository = ExpenseRepository(expenseDao)
@@ -34,27 +35,35 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
         incomeRepository = IncomeRepository(incomeDao)
     }
 
-    var _incomeAmt = MutableLiveData<String?>("0.00")
-    var incomeAmt : LiveData<String?> = _incomeAmt
+    // Income Variable Initialization
+    var _income = MutableLiveData<String?>("0.00")
+    var income : LiveData<String?> = _income
 
-    var _expenseAmt = MutableLiveData<String?>("0.00")
-    var expenseAmt : LiveData<String?> = _expenseAmt
+    // Expense Variable Initialization
+    var _expense = MutableLiveData<String?>("0.00")
+    var expense : LiveData<String?> = _expense
 
-    var _balanceAmt = MutableLiveData<String?>("0.00")
-    var  balanceAmt : LiveData<String?> = _balanceAmt
+    // Balance Variable Initialization
+    var _balance = MutableLiveData<String?>("0.00")
+    var  balance : LiveData<String?> = _balance
 
+    // Category Chart List Variable Initialization
     var _categoryChartList = MutableLiveData<List<CategoryChartModel>>(mutableListOf<CategoryChartModel>())
     var categoryChartList : LiveData<List<CategoryChartModel>> = _categoryChartList
 
+    // Payment Type Chart Variable Initialization
     var _paymentTypeChartList = MutableLiveData<List<PaymentTypeChartModel>>(mutableListOf<PaymentTypeChartModel>())
     var paymentTypeChartList : LiveData<List<PaymentTypeChartModel>> = _paymentTypeChartList
 
+    // Click Btn This Month Variable Initialization
     var _clickBtnThisMonth = MutableLiveData<Boolean>()
     val clickBtnThisMonth : LiveData<Boolean> = _clickBtnThisMonth
 
+    // Click Btn This Year Variable Initialization
     var _clickBtnThisYear = MutableLiveData<Boolean>()
     val clickBtnThisYear : LiveData<Boolean> = _clickBtnThisYear
 
+    // Display Progress Bar Status Variable Initialization
     var _isLoading = MutableLiveData<Boolean>()
     var isLoading : LiveData<Boolean> = _isLoading
 
@@ -74,16 +83,16 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
 //        }
 //    }
 
+    val LOG_TAG = "DASHBOARD_VIEW_MODEL"
 
     fun onCLickBtnThisMonth(){
         viewModelScope.launch {
             try{
-
                 _isLoading.postValue(true)
 
-                _incomeAmt.postValue("0.00")
-                _expenseAmt.postValue("0.00")
-                _balanceAmt.postValue("0.00")
+                _income.postValue("0.00")
+                _expense.postValue("0.00")
+                _balance.postValue("0.00")
 
                 _clickBtnThisMonth.postValue(true)
                 _clickBtnThisYear.postValue(false)
@@ -94,16 +103,16 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                 Log.i("INCOME & EXPENSE & BALANCE DETAILS FOR CUR MONTH","Income:$income & Expense:$expense & Balance:$balance")
 
                 if(income != 0.0f){
-                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _income.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
                 if(expense != 0.0f){
-                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense))
                 }
                 if(balance != 0.0f){
-                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
                 }
                 else{
-                    _balanceAmt.postValue(0.00f.toString())
+                    _balance.postValue(0.00f.toString())
                 }
 
 
@@ -127,7 +136,9 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                     _paymentTypeChartList.postValue(mutableListOf<PaymentTypeChartModel>())
                 }
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Get Expense Details Per Month: ${e.message}")
                 Log.e("GET INCOME PER MONTH","Get Income Per Month: ${e.message}")
             }
         }
@@ -136,12 +147,11 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
     fun onClickBtnThisYear(){
         viewModelScope.launch {
             try{
-
                 _isLoading.postValue(true)
 
-                _incomeAmt.postValue("0.00")
-                _expenseAmt.postValue("0.00")
-                _balanceAmt.postValue("0.00")
+                _income.postValue("0.00")
+                _expense.postValue("0.00")
+                _balance.postValue("0.00")
 
                 _clickBtnThisYear.postValue(true)
                 _clickBtnThisMonth.postValue(false)
@@ -149,20 +159,17 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                 val expense = newExpenseRepository.fnGetYearSummary(Global.fnGetCurrentYear())
                 val balance = income-expense
 
-                Log.i("INCOME & EXPENSE & BALANCE DETAILS FOR CUR YEAR","Income:$income & Expense:$expense & Balance:$balance")
-
-
                 if(income != 0.0f){
-                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _income.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
                 if(expense != 0.0f){
-                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense))
                 }
                 if(balance != 0.0f){
-                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
                 }
                 else{
-                    _balanceAmt.postValue(0.00f.toString())
+                    _balance.postValue(0.00f.toString())
                 }
 
                 var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerYear(Global.fnGetCurrentYear())
@@ -185,7 +192,9 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                     _paymentTypeChartList.postValue(mutableListOf<PaymentTypeChartModel>())
                 }
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Get Expense Details Per Year: ${e.message}")
                 Log.e("GET INCOME PER YEAR","Get Income Per Year: ${e.message}")
             }
         }
@@ -198,10 +207,6 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                 var list : MutableList<CategoryChartModel> = mutableListOf()
                 if (res.isNotEmpty()) {
                     res.forEach { ob ->
-                        Log.i(
-                            "CATEGORY DETAILS PER DAY",
-                            "Category Details per Day: Name: ${ob.categoryName} and Amt: ${ob.expenseAmt}"
-                        )
                         list.add(
                             CategoryChartModel(
                                 userId = ob.userId,
@@ -217,7 +222,9 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
                     _categoryChartList.postValue(mutableListOf<CategoryChartModel>())
                 }
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Get Category Details Per Day: ${e.message}")
                 Log.e("GET CATEGORY LIST PER DAY","Get Category Details Per Day: ${e.message}")
             }
         }
@@ -230,13 +237,13 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
 //                var list : MutableList<CategoryChartModel> = mutableListOf()
 ////                if (res.isNotEmpty()){
 ////                    res.forEach { ob ->
-////                        Log.i("CATEGORY DETAILS PER MONTH","Category Details per Month: Name: ${ob.categoryName} and Amt: ${ob.expenseAmt}")
+////                        Log.i("CATEGORY DETAILS PER MONTH","Category Details per Month: Name: ${ob.categoryName} and Amt: ${ob.expense}")
 ////                        list.add(
 ////                            CategoryChartModel(
 ////                                userId = ob.userId,
 ////                                categoryId = ob.categoryId,
 ////                                categoryName = ob.categoryName,
-////                                expenseAmt= ob.expenseAmt
+////                                expense= ob.expense
 ////                            )
 ////                        )
 ////                    }
@@ -249,7 +256,7 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
 //                            1,
 //                            categoryId =1,
 //                            categoryName = "Food $i",
-//                            expenseAmt= (i*100).toFloat()
+//                            expense= (i*100).toFloat()
 //                        )
 //                    )
 //                }
@@ -269,13 +276,13 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
 //                var list : MutableList<CategoryChartModel> = mutableListOf()
 ////                if (res.isNotEmpty()){
 ////                    res.forEach { ob ->
-////                        Log.i("CATEGORY DETAILS PER YEAR","Category Details per Year: Name: ${ob.categoryName} and Amt: ${ob.expenseAmt}")
+////                        Log.i("CATEGORY DETAILS PER YEAR","Category Details per Year: Name: ${ob.categoryName} and Amt: ${ob.expense}")
 ////                        list.add(
 ////                            CategoryChartModel(
 ////                                userId = ob.userId,
 ////                                categoryId = ob.categoryId,
 ////                                categoryName = ob.categoryName,
-////                                expenseAmt= ob.expenseAmt
+////                                expense= ob.expense
 ////                            )
 ////                        )
 ////                    }
@@ -288,7 +295,7 @@ class DashBoardViewModel(application: Application, logger: FileLogger) : Android
 //                            1,
 //                            categoryId =1,
 //                            categoryName = "Food $i",
-//                            expenseAmt= (i*100).toFloat()
+//                            expense= (i*100).toFloat()
 //                        )
 //                    )
 //                }
