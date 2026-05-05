@@ -3,22 +3,33 @@ package com.example.expensetrackerapplication.factory
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.expensetrackerapplication.data.logger.Logger
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport
+import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
+import com.example.expensetrackerapplication.viewmodel.AuthViewModel
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
+import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
 import com.example.expensetrackerapplication.viewmodel.DashBoardViewModel
 import com.example.expensetrackerapplication.viewmodel.DayWiseReportViewModel
+import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
+import com.example.expensetrackerapplication.viewmodel.ForgetViewModel
+import com.example.expensetrackerapplication.viewmodel.LoginViewModel
+import com.example.expensetrackerapplication.viewmodel.MainViewModel
 import com.example.expensetrackerapplication.viewmodel.MonthlySummaryViewModel
 import com.example.expensetrackerapplication.viewmodel.NewExpenseViewModel
+import com.example.expensetrackerapplication.viewmodel.ParentReportViewModel
 import com.example.expensetrackerapplication.viewmodel.PaymentTypeReportViewModel
 import com.example.expensetrackerapplication.viewmodel.ProfileViewModel
 import com.example.expensetrackerapplication.viewmodel.ReportMenuViewModel
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
+import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
+import com.example.expensetrackerapplication.viewmodel.SplashViewModel
+import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 
 class AppViewModelFactory(
     private val application: Application,
-    private val logger : Logger
+    private val logger: FileLogger
 ) : ViewModelProvider.Factory
 {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -52,6 +63,39 @@ class AppViewModelFactory(
             }
             modelClass.isAssignableFrom(PaymentTypeReportViewModel::class.java) ->{
                 PaymentTypeReportViewModel(application, logger) as T
+            }
+            modelClass.isAssignableFrom(LoginViewModel::class.java) ->{
+                LoginViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(SignUpViewModel::class.java) ->{
+                SignUpViewModel(application, logger) as T
+            }
+            modelClass.isAssignableFrom(SplashViewModel::class.java) ->{
+                SplashViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(AddInComeViewModel::class.java)->{
+                AddInComeViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(AuthViewModel::class.java) ->{
+                AuthViewModel(application, logger) as T
+            }
+            modelClass.isAssignableFrom(ChangePasswordViewModel::class.java)->{
+                ChangePasswordViewModel(application, logger) as T
+            }
+            modelClass.isAssignableFrom(EditExpenseViewModel::class.java) ->{
+                EditExpenseViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(ForgetViewModel::class.java) ->{
+                ForgetViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(MainViewModel::class.java) ->{
+                MainViewModel(application, logger) as T
+            }
+            modelClass.isAssignableFrom(PaymentTypeReportViewModel::class.java) ->{
+                ParentReportViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(SplitViewModel::class.java) ->{
+                SplitViewModel(application,logger) as T
             }
             else ->{
                 throw IllegalArgumentException(

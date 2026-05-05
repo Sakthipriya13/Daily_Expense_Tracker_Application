@@ -10,7 +10,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.SignUpBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
@@ -30,10 +32,19 @@ class SignUp : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+    val signUpViewModel : SignUpViewModel by viewModels{
+        appViewModelFactory
+    }
 
-    val signUpViewModel : SignUpViewModel by viewModels()
-
-    val splashViewModel : SplashViewModel by viewModels()
+    val splashViewModel : SplashViewModel by viewModels{
+        appViewModelFactory
+    }
 
     private lateinit var signUpDataBinding : SignUpBinding
 

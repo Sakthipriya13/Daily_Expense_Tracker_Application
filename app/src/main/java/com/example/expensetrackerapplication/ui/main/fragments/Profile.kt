@@ -15,10 +15,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.AddIncomeBinding
 import com.example.expensetrackerapplication.databinding.ChangePasswordBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.ProfileBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
@@ -28,6 +30,7 @@ import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
 import com.example.expensetrackerapplication.viewmodel.ProfileViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -48,7 +51,15 @@ class Profile : Fragment() {
 
     private lateinit var profileBinding: ProfileBinding
 
-    private val profileViewModel : ProfileViewModel by viewModels()
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+    private val profileViewModel : ProfileViewModel by viewModels{
+        appViewModelFactory
+    }
 
 //    private val mainViewModel : MainViewModel by activityViewModels()
 
@@ -467,13 +478,25 @@ class ChangePassword : BottomSheetDialogFragment(){
     }
 }
 
-class AddIncome : BottomSheetDialogFragment(){
-
+class AddIncome : BottomSheetDialogFragment()
+{
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var addIncomeBinding : AddIncomeBinding
-    val addIncomeViewModel : AddInComeViewModel by viewModels()
+    val addIncomeViewModel : AddInComeViewModel by viewModels{
+        appViewModelFactory
+    }
 
-    val splashViewModel : SplashViewModel by viewModels()
+    val splashViewModel : SplashViewModel by viewModels{
+        appViewModelFactory
+    }
 
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG = "ADD_INCOME"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -496,70 +519,87 @@ class AddIncome : BottomSheetDialogFragment(){
         super.onViewCreated(view, savedInstanceState)
 
         addIncomeBinding.idBtnCalendar.setOnClickListener {
-            if(Global.isCalendarSelected==false)
+            try
             {
-                Global.isCalendarSelected=true
-                var calendar = Calendar.getInstance()
-                val year = calendar.get(Calendar.YEAR)
-                val month = calendar.get(Calendar.MONTH)
-                val day = calendar.get(Calendar.DAY_OF_MONTH)
+                if(Global.isCalendarSelected==false)
+                {
+                    Global.isCalendarSelected=true
+                    var calendar = Calendar.getInstance()
+                    val year = calendar.get(Calendar.YEAR)
+                    val month = calendar.get(Calendar.MONTH)
+                    val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-                val datePickerDialog = DatePickerDialog(
-                    requireContext(), { _,y,m,d ->
-                        calendar.set(y,m,d)
-                        val sdf1 = SimpleDateFormat("dd-MM-yyyy", Locale.US)
-                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                    val datePickerDialog = DatePickerDialog(
+                        requireContext(), { _,y,m,d ->
+                            calendar.set(y,m,d)
+                            val sdf1 = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
-                        var date = sdf.format(calendar.time)
-                        var dateUi = sdf1.format(calendar.time)
+                            var date = sdf.format(calendar.time)
+                            var dateUi = sdf1.format(calendar.time)
 
-                        addIncomeViewModel._selectedDate.value=date
-                        addIncomeViewModel._selectedDateUi.value=dateUi
+                            addIncomeViewModel._selectedDate.value=date
+                            addIncomeViewModel._selectedDateUi.value=dateUi
 
+                            Global.isCalendarSelected=false
+                        },year,month,day
+                    )
+
+                    datePickerDialog.setCancelable(false)
+                    datePickerDialog.setCanceledOnTouchOutside(false)
+                    datePickerDialog.setOnCancelListener {
                         Global.isCalendarSelected=false
-                    },year,month,day
-                )
-
-                datePickerDialog.setCancelable(false)
-                datePickerDialog.setCanceledOnTouchOutside(false)
-                datePickerDialog.setOnCancelListener {
-                    Global.isCalendarSelected=false
-                    datePickerDialog.dismiss()
+                        datePickerDialog.dismiss()
+                    }
+                    datePickerDialog.show()
                 }
-                datePickerDialog.show()
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Calendar: ${e.message}")
             }
         }
 
-
-//        lifecycleScope.launch {
-//            addIncomeViewModel._firestoreCloudId.value = splashViewModel.cloudUserId.value
-//        }
-
         addIncomeViewModel.isClosed.observe(viewLifecycleOwner){ isClosed ->
-            if(isClosed){
-                Global.isBottomSheetSelected=false
-                dismiss()
+            try
+            {
+                if(isClosed)
+                {
+                    Global.isBottomSheetSelected=false
+                    dismiss()
+                }
+            }
+            catch(e : Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Add Income Screen: ${e.message}")
             }
         }
 
         addIncomeViewModel.insertStatus.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ResultState1.success -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                    Global.isBottomSheetSelected=false
-                    dismiss()
-                }
+            try {
+                when(state)
+                {
+                    is ResultState1.success -> {
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                        Global.isBottomSheetSelected=false
+                        dismiss()
+                    }
 
-                is ResultState1.fail -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
-                    Global.isBottomSheetSelected=false
-                    dismiss()
-                    if(state.message == R.string.income_IncomeFieldEmpty)
-                    {
-                        addIncomeBinding.idEIncome.isFocusable = true
-                        addIncomeBinding.idEIncome.requestFocus()
+                    is ResultState1.fail -> {
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+                        Global.isBottomSheetSelected=false
+                        dismiss()
+                        if(state.message == R.string.income_IncomeFieldEmpty)
+                        {
+                            addIncomeBinding.idEIncome.isFocusable = true
+                            addIncomeBinding.idEIncome.requestFocus()
+                        }
                     }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Income Insert Status Observed: ${e.message}")
             }
         }
     }

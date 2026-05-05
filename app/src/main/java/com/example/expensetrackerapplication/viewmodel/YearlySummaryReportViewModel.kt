@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
@@ -27,7 +28,7 @@ import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import kotlin.math.abs
 
-class YearlySummaryReportViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
+class YearlySummaryReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense And Income Repository Variable Initialization
     val expenseRepository : ExpenseRepository

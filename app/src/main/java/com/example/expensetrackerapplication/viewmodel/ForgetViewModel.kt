@@ -8,12 +8,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class ForgetViewModel(application: Application) : AndroidViewModel(application = application)
+class ForgetViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
 {
     var userRepository : UserRepository
 

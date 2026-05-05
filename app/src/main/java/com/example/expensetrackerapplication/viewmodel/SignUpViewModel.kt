@@ -11,13 +11,14 @@ import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.data.entity.UserEntity
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.CategoryRepository
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class SignUpViewModel(application: Application) : AndroidViewModel(application) {
+class SignUpViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application) {
 
     var userRepository: UserRepository
     var categoryRepository : CategoryRepository

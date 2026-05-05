@@ -18,6 +18,8 @@ import android.view.WindowInsetsController
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.work.WorkManager
+import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.reusefiles.BaseActivity
 import com.example.expensetrackerapplication.utils.fnShowMessage
@@ -26,8 +28,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class Main : BaseActivity() {
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            this.application,
+            FileLogger(this.applicationContext)
+        )
+    }
     lateinit var mainDataBinding: MainBinding
-    val mainViewModel : MainViewModel by viewModels()
+    val mainViewModel : MainViewModel by viewModels{
+        appViewModelFactory
+    }
     var isExpanded = false
     val fromBottomFabAnim : Animation by lazy {
         AnimationUtils.loadAnimation(this,R.anim.from_bottom_fab)

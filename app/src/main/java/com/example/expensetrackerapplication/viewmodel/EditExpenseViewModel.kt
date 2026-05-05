@@ -9,16 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
-class EditExpenseViewModel(application: Application) : AndroidViewModel(application = application)
+class EditExpenseViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
 {
     var expenseRepository : ExpenseRepository
 

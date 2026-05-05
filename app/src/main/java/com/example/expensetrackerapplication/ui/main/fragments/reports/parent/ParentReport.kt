@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ParentReportBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.viewmodel.ParentReportViewModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -27,9 +29,18 @@ class ParentReport : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+
     private lateinit var parentReportBinding: ParentReportBinding
 
-    val parentReportViewModel : ParentReportViewModel by viewModels()
+    val parentReportViewModel : ParentReportViewModel by viewModels{
+        appViewModelFactory
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

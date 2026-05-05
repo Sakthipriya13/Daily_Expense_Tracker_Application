@@ -15,8 +15,10 @@ import com.anychart.AnyChart
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 //import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.databinding.DashboardBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.`object`.Global
@@ -48,7 +50,15 @@ class Dashboard : Fragment() {
 
     private lateinit var dashBoardBinding : DashboardBinding
 
-    val dashBoardViewModel : DashBoardViewModel by viewModels()
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+    val dashBoardViewModel : DashBoardViewModel by viewModels{
+        appViewModelFactory
+    }
 
     val months = listOf("Jan","Feb","March")
     val earnings = listOf(500,400,300)

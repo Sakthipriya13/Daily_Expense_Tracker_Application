@@ -16,6 +16,7 @@ import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.CategoryRepository
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
@@ -34,7 +35,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileWriter
 
-class SettingsViewModel(application: Application, logger: Logger) : AndroidViewModel(application)
+class SettingsViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application)
 {
     var categoryRepository : CategoryRepository
     var expenseRepository : ExpenseRepository

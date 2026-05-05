@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.CategoryListItemBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.SettingsBinding
@@ -25,6 +26,7 @@ import com.example.expensetrackerapplication.datastore.LanguageDataStore
 import com.example.expensetrackerapplication.datastore.LoginDataStore
 import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.datastore.ThemeDataStore
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryModel
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
@@ -50,11 +52,20 @@ class Settings : Fragment(){
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+
     // Binding Variable Declaration
     lateinit var settingsBinding: SettingsBinding
 
     // ViewModel Variable Declaration
-    val settingsViewModel : SettingsViewModel by viewModels()
+    val settingsViewModel : SettingsViewModel by viewModels{
+        appViewModelFactory
+    }
 
     //Adapter Of Category
     lateinit  var categoryAdapter : CategoryAdapter
@@ -66,7 +77,9 @@ class Settings : Fragment(){
     private lateinit var loginDataStore : LoginDataStore
 
     // Splash Viewmodel Variable Initialization
-    val splashViewModel : SplashViewModel by viewModels()
+    val splashViewModel : SplashViewModel by viewModels{
+        appViewModelFactory
+    }
 
 
     override fun onResume() {

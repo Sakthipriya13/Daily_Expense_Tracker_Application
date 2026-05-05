@@ -14,8 +14,10 @@ import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.CategoryChartListItemBinding
 import com.example.expensetrackerapplication.databinding.CategoryWiseReportBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -39,9 +41,17 @@ class CategoryWiseReport : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var categoryWiseReportBinding : CategoryWiseReportBinding
 
-    private val categoryWiseReportViewModel : CategoryWiseReportViewModel by viewModels()
+    private val categoryWiseReportViewModel : CategoryWiseReportViewModel by viewModels{
+        appViewModelFactory
+    }
     
     private lateinit var categoryAdapter : CategoryAdapter
 

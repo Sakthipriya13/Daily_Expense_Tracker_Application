@@ -17,9 +17,11 @@ import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.YearCalendarBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -50,9 +52,17 @@ class YearlySummaryReport : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var yearlySummaryReportBinding : YearlySummaryReportBinding
 
-    private val yearlySummaryReportViewModel : YearlySummaryReportViewModel by viewModels()
+    private val yearlySummaryReportViewModel : YearlySummaryReportViewModel by viewModels{
+        appViewModelFactory
+    }
 
     private lateinit var adapter : YearlySummaryAdapter
 

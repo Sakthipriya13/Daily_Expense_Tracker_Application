@@ -15,7 +15,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.SplashScreenBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -36,8 +38,16 @@ class SplashScreen : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
 
-    private val viewModel: SplashViewModel by viewModels()
+    private val viewModel: SplashViewModel by viewModels{
+        appViewModelFactory
+    }
     private lateinit var splashDataBinding: SplashScreenBinding
 
     private lateinit var topAnimation : Animation

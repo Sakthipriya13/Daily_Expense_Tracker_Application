@@ -11,8 +11,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ForgetPasswordBinding
 import com.example.expensetrackerapplication.databinding.LoginBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.main.Main
@@ -35,8 +37,15 @@ class Login : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
-    val loginViewModel : LoginViewModel by viewModels()
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+    val loginViewModel : LoginViewModel by viewModels{
+        appViewModelFactory
+    }
     private lateinit var loginDataBinding : LoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

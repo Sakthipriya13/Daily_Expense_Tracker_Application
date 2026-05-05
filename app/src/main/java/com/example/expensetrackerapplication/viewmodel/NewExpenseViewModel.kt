@@ -19,7 +19,8 @@ import kotlinx.coroutines.launch
 
 class NewExpenseViewModel(
     application: Application,
-    logger: Logger) : AndroidViewModel(application)
+    logger: FileLogger
+) : AndroidViewModel(application)
 {
     //Expense Repository Variable
     var expenseRepository : ExpenseRepository

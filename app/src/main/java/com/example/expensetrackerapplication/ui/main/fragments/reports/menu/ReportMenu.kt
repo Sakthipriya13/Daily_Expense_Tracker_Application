@@ -10,7 +10,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ReportMenuBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.utils.Report_Menu
 import com.example.expensetrackerapplication.viewmodel.ReportMenuViewModel
 
@@ -28,8 +30,16 @@ open class ReportMenu : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var reportMenuBinding: ReportMenuBinding
-    val reportMenuViewModel : ReportMenuViewModel by viewModels()
+    val reportMenuViewModel : ReportMenuViewModel by viewModels{
+        appViewModelFactory
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -17,10 +17,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.MonthCalendarBinding
 import com.example.expensetrackerapplication.databinding.MonthYearDialogItemBinding
 import com.example.expensetrackerapplication.databinding.MonthlyReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -46,9 +48,18 @@ class MonthlyReport : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+
     private lateinit var monthlySummaryBinding : MonthlyReportBinding
 
-    private val monthlySummaryViewModel : MonthlySummaryViewModel by viewModels()
+    private val monthlySummaryViewModel : MonthlySummaryViewModel by viewModels{
+        appViewModelFactory
+    }
 
     private var selectedYearMonth : YearMonth = YearMonth.now()
 

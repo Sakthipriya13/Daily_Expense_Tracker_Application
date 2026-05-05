@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.ui.main.fragments
 
 import android.app.AlertDialog
+import android.app.Application
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -21,8 +22,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.NewExpenseBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
@@ -51,14 +54,31 @@ class NewExpense : Fragment() {
     private var param2: String? = null
 
     private lateinit var newExpenseBinding : NewExpenseBinding
-    val newExpenseViewModel : NewExpenseViewModel by viewModels()
-    val settingsViewModel : SettingsViewModel by activityViewModels()
     var categoryList =emptyList<CategoryEntitty>()
-
-    val splashViewModel : SplashViewModel by viewModels()
     private lateinit var splitBinding : SplitDialogueBinding
-    val splitViewModel : SplitViewModel by viewModels()
     var splitDialog : AlertDialog? = null
+
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
+
+    val newExpenseViewModel : NewExpenseViewModel by viewModels{
+        appViewModelFactory
+    }
+    val settingsViewModel : SettingsViewModel by activityViewModels{
+        appViewModelFactory
+    }
+
+    val splashViewModel : SplashViewModel by viewModels{
+        appViewModelFactory
+    }
+    val splitViewModel : SplitViewModel by viewModels{
+        appViewModelFactory
+    }
+
 
     override fun onResume() {
         super.onResume()

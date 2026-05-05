@@ -6,12 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
-import com.example.expensetrackerapplication.model.PaymentType
-import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 
-class SplitViewModel(application: Application) : AndroidViewModel(application = application) {
+class SplitViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application) {
     var expenseRepository : ExpenseRepository
 
     init {

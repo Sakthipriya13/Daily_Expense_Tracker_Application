@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.application
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,7 @@ import kotlinx.coroutines.delay
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
-class CategoryWiseReportViewModel(application: Application, logger: Logger) : AndroidViewModel(application = application)
+class CategoryWiseReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository

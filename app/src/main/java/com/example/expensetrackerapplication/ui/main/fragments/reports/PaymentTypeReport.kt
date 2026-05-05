@@ -12,7 +12,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.PaymentTypeReportBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -42,9 +44,17 @@ class PaymentTypeReport : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var paymentTypeReportBinding: PaymentTypeReportBinding
 
-    private val paymentTypeReportViewModel : PaymentTypeReportViewModel by viewModels()
+    private val paymentTypeReportViewModel : PaymentTypeReportViewModel by viewModels{
+        appViewModelFactory
+    }
 
     val LOG_TAG = "PAYMENT_TYPE_REPORT"
 

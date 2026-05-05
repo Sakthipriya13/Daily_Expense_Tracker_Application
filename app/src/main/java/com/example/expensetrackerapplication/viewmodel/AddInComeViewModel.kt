@@ -9,12 +9,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
-class AddInComeViewModel(application : Application) : AndroidViewModel(application)
+class AddInComeViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application)
 {
     val incomeRepository : IncomeRepository
 
@@ -45,31 +49,48 @@ class AddInComeViewModel(application : Application) : AndroidViewModel(applicati
 //    var _firestoreCloudId = MutableLiveData<String>()
 //    var firestoreCloudId : LiveData<String> = _firestoreCloudId
 
-    fun onClickCancel(){
-        _isClosed.value = true
+    val LOG_TAG ="ADD_INCOME_VIEW_MODEL"
+
+    fun onClickCancel()
+    {
+        try {
+            _isClosed.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Add Income Screen: ${e.message}")
+            Log.e(LOG_TAG,"Close The Add Income Screen: ${e.message}")
+        }
     }
 
-    fun onClickSubmit(){
-
-        when{
-            selectedDate.value.isNullOrBlank() && income.value.isNullOrBlank() -> {
-                _insertStatus.value= ResultState1.fail(R.string.newEx_AllFieldsAreEmpty)
+    fun onClickSubmit()
+    {
+        try {
+            when{
+                selectedDate.value.isNullOrBlank() && income.value.isNullOrBlank() -> {
+                    _insertStatus.value= ResultState1.fail(R.string.newEx_AllFieldsAreEmpty)
+                }
+                selectedDateUi.value.isNullOrBlank() ->{
+                    _insertStatus.value= ResultState1.fail(R.string.newEx_DateMissing)
+                }
+                income.value.isNullOrBlank() -> {
+                    _insertStatus.value= ResultState1.fail(R.string.income_IncomeFieldEmpty)
+                }
+                else -> {
+                    fnInsertIncome()
+                }
             }
-            selectedDateUi.value.isNullOrBlank() ->{
-                _insertStatus.value= ResultState1.fail(R.string.newEx_DateMissing)
-            }
-            income.value.isNullOrBlank() -> {
-                _insertStatus.value= ResultState1.fail(R.string.income_IncomeFieldEmpty)
-            }
-            else -> {
-                fnInsertIncome()
-            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"On Click Submit Button: ${e.message}")
         }
     }
 
     fun fnInsertIncome(){
         viewModelScope.launch {
-            try {
+            try
+            {
                 if(!selectedDate.value.isNullOrBlank() && !income.value.isNullOrBlank()){
                     var income = IncomeEntity(
                         incomeId = 0,
@@ -86,15 +107,25 @@ class AddInComeViewModel(application : Application) : AndroidViewModel(applicati
                         _insertStatus.postValue(ResultState1.fail(R.string.income_InsertIncomeFailed))
                 }
             }
-            catch (e : Exception){
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Insert Income Status: ${e.message}")
                 Log.e("INSERT INCOME STATUS","Insert Income Status: ${e.message}")
             }
         }
     }
 
-    fun fnClearAllFields(){
-        _selectedDate.value = Global.fnGetCurrentDate()
-        _selectedDateUi.value = Global.fnGetCurrentDateUi()
-        _income.value =""
+    fun fnClearAllFields()
+    {
+        try{
+
+            _selectedDate.value = Global.fnGetCurrentDate()
+            _selectedDateUi.value = Global.fnGetCurrentDateUi()
+            _income.value =""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
     }
 }

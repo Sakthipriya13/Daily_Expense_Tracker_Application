@@ -21,11 +21,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
+import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.DayWiseReportBinding
 import com.example.expensetrackerapplication.databinding.DayWiseReportListItemBinding
 import com.example.expensetrackerapplication.databinding.EditExpenseBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CurrentDayReportModel
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.`object`.Global
@@ -56,9 +58,16 @@ class DayWiseReport : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     public lateinit var DayWiseReportBinding : DayWiseReportBinding
-    public val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels()
+    public val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels{
+        appViewModelFactory
+    }
 
 //    val reportMenuViewModel : ReportMenuViewModel by activityViewModels()
 
