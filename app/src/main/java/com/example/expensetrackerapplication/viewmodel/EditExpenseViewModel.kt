@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
@@ -16,7 +17,9 @@ import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class EditExpenseViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class EditExpenseViewModel(
+    application: Application,
+    private  val logger: FileLogger) : AndroidViewModel(application = application)
 {
     var expenseRepository : ExpenseRepository
 
@@ -131,12 +134,16 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
     var _expenseInsertStatus = MutableLiveData<ResultState1>()
     var expenseInsertStatus : LiveData<ResultState1> = _expenseInsertStatus
 
+    val LOG_TAG = "EDIT_EXPENSE_VIEW_MODEL"
     fun onClickEdit(){
         viewModelScope.launch {
-            try {
+            try
+            {
                 fnDeleteExpense(editedExpenseId.value,editedExpenseDate.value)
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Delete Expense1: ${e.message}")
                 Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense1: ${e.message}")
             }
         }
@@ -189,6 +196,7 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Insert Expense: ${e.message}")
             _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Insert Expense: ${e.message}")
         }
@@ -196,10 +204,13 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
 
     fun onClickBack()
     {
-        try {
+        try
+        {
             _isClosed.value = true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"CLose Edit Expense Screen: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","CLose Edit Expense Screen: ${e.message}")
         }
     }
@@ -233,13 +244,16 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             _selectedPaymentTypeAmt.value =  paymentType
 
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Clear All Fields Value: ${e.message}")
         }
     }
 
     fun fnCashPayment(){
-        try {
+        try
+        {
             _selectedPaymentType.value= R.id.idCashPayment
             val paymentType = PaymentType(
                 cash = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull() ?:0.0f,
@@ -249,12 +263,15 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Cash Payment: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Cash Payment: ${e.message}")
         }
     }
     fun fnSplitPayment(){
-        try {
+        try
+        {
             if(expenseAmt.value.isNullOrBlank())
             {
                 _showSplitDialog.value = false
@@ -266,12 +283,15 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
                 _showSplitDialog.value = true
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Split Payment: ${e.message}")
             Log.e("SPLIT_PAYMENT","Split Payment: ${e.message}")
         }
     }
     fun fnCardPayment(){
-        try {
+        try
+        {
             _selectedPaymentType.value= R.id.idCashPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
@@ -281,7 +301,9 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Card Payment: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Card Payment: ${e.message}")
         }
     }
@@ -297,12 +319,15 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Upi Payment: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Upi Payment: ${e.message}")
         }
     }
 
-    fun fnOtherPayment(){
+    fun fnOtherPayment()
+    {
         try {
             _selectedPaymentType.value= R.id.idCashPayment
             val paymentType = PaymentType(
@@ -313,7 +338,9 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Other Payment: ${e.message}")
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Other Payment: ${e.message}")
         }
     }
@@ -335,9 +362,9 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
             }
             catch(e : Exception)
             {
+                logger.logError(LOG_TAG,"Get Expense Details Per Id: ${e.message}")
                 Log.e("EDIT_EXPENSE_VIEW_MODEL","Get Expense Details Per Id: ${e.message}")
             }
-
         }
     }
     fun fnDeleteExpense(expenseId: Int?,expenseDate: String?)
@@ -381,11 +408,13 @@ class EditExpenseViewModel(application: Application, logger: FileLogger) : Andro
                 }
                 else
                 {
+                    logger.logError(LOG_TAG,"Delete Expense Failed")
                     Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense Failed")
                 }
             }
             catch(e : Exception)
             {
+                logger.logError(LOG_TAG,"Delete Expense2: ${e.message}")
                 Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense2: ${e.message}")
             }
         }

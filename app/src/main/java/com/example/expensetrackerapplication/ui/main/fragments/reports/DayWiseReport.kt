@@ -2,6 +2,7 @@ package com.example.expensetrackerapplication.ui.main.fragments.reports
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.icu.util.Calendar
@@ -12,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -64,17 +66,19 @@ class DayWiseReport : Fragment() {
             FileLogger(requireContext().applicationContext)
         )
     }
-    public lateinit var DayWiseReportBinding : DayWiseReportBinding
-    public val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels{
+    lateinit var DayWiseReportBinding : DayWiseReportBinding
+    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels{
         appViewModelFactory
     }
-
-//    val reportMenuViewModel : ReportMenuViewModel by activityViewModels()
-
-//    val mainViewModel : MainViewModel by activityViewModels()
+//   val reportMenuViewModel : ReportMenuViewModel by activityViewModels()
+//   val mainViewModel : MainViewModel by activityViewModels()
     lateinit var listAdapter : ListAdapter
 
 //    private lateinit var mainViewBinding : MainBinding
+
+    val logger = FileLogger(requireContext().applicationContext)
+
+    val LOG_TAG = "DAY_WISE_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,19 +105,29 @@ class DayWiseReport : Fragment() {
 
         DayWiseReportViewModel.fnPreWarmExcelEngine()
 
-        listAdapter = ListAdapter()
-        DayWiseReportBinding.idDayWiseReportView.adapter = listAdapter
-        DayWiseReportBinding.idDayWiseReportView.layoutManager = LinearLayoutManager(requireContext())
+        try
+        {
+            listAdapter = ListAdapter(requireContext().applicationContext)
+            DayWiseReportBinding.idDayWiseReportView.adapter = listAdapter
+            DayWiseReportBinding.idDayWiseReportView.layoutManager = LinearLayoutManager(requireContext())
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"List Adapter Initialization: ${e.message}")
+        }
 
         DayWiseReportViewModel.isClosed.observe(viewLifecycleOwner){ isClose ->
-            try {
+            try
+            {
                 if(isClose==true)
                 {
                     findNavController().navigate(R.id.action_day_wise_report_to_report_menu)
                     DayWiseReportViewModel.resetCloseState()
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Day Wise Report: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Close The Day Wise Report: ${e.message}")
             }
         }
@@ -152,17 +166,22 @@ class DayWiseReport : Fragment() {
                     datePickerDialog.show()
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Show The Calendar Prompt: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Show The Calendar Prompt: ${e.message}")
             }
         }
 
         DayWiseReportViewModel.selectedDate.observe(viewLifecycleOwner){ date ->
-            try {
+            try
+            {
                 DayWiseReportViewModel.fnClearAllFields()
                 DayWiseReportViewModel.fnGetExpenseDetails(date)
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Date: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Select Date: ${e.message}")
             }
         }
@@ -209,13 +228,16 @@ class DayWiseReport : Fragment() {
                     DayWiseReportBinding.idContentLayout.visibility = View.GONE
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Expense List Observed: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Expense List Observed: ${e.message}")
             }
         }
 
         DayWiseReportViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            try {
+            try
+            {
                 when(status)
                 {
                     is ResultState1.success ->{
@@ -228,6 +250,7 @@ class DayWiseReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Export Status: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Export Status: ${e.message}")
             }
         }
@@ -244,7 +267,9 @@ class DayWiseReport : Fragment() {
                     }
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Expense Delete Status: ${e.message}")
                 Log.e("DAY_WISE_REPORT","Expense Delete Status: ${e.message}")
             }
         }
@@ -260,7 +285,9 @@ class DayWiseReport : Fragment() {
                     DayWiseReportBinding.isExportLoading.visibility=View.GONE
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Progress Bar : ${e.message}")
                 Log.e("DAY_WISE_REPORT","Display Progress Bar : ${e.message}")
             }
         }
@@ -298,6 +325,7 @@ class DayWiseReport : Fragment() {
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Show Delete Prompt: ${e.message}")
             Log.e("DAY_WISE_REPORT","Show Delete Prompt: ${e.message}")
         }
     }
@@ -325,13 +353,16 @@ class DayWiseReport : Fragment() {
 }
 
 // RecyclerView Adapter
-class ListAdapter() : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
+class ListAdapter(applicationContext: Context) : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
 {
     // Expense List Variable Initialization
     private  var expenseList : List<CurrentDayReportModel> = emptyList()
     // Day-Wise Report Click Listener Variable Initialization
     lateinit var deleteClickListener : DayWiseReportClickListener
 
+    val logger = FileLogger(applicationContext)
+
+    val LOG_TAG = "LIST_ADAPTER"
     // SubmitList Function Definition
     fun fnSubmitList(
         list: List<CurrentDayReportModel>,
@@ -342,7 +373,9 @@ class ListAdapter() : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
             deleteClickListener = listener
             notifyDataSetChanged()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"SubmitList Function: ${e.message}")
             Log.e("DAY_WISE_REPORT","List Adapter_SubmitList Function: ${e.message}")
         }
     }
@@ -356,7 +389,9 @@ class ListAdapter() : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
                 binding.deleteClickListener=deleteClickListener
                 binding.executePendingBindings()
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"bind: ${e.message}")
                 Log.e("DAY_WISE_REPORT","bind: ${e.message}")
             }
         }
@@ -385,28 +420,44 @@ class ListAdapter() : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
     override fun getItemCount(): Int {
        return expenseList.size
     }
-
 }
 
 class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragment()
 {
+    val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+            FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var editExpenseBinding : EditExpenseBinding
-    val editExpenseViewModel : EditExpenseViewModel by viewModels()
+    val editExpenseViewModel : EditExpenseViewModel by viewModels{
+        appViewModelFactory
+    }
 
-    val settingsViewModel : SettingsViewModel by activityViewModels()
+    val settingsViewModel : SettingsViewModel by activityViewModels{
+        appViewModelFactory
+    }
 
     var categoryList =emptyList<CategoryEntitty>()
 
     private lateinit var splitBinding : SplitDialogueBinding
 
-    val splitViewModel : SplitViewModel by viewModels()
+    val splitViewModel : SplitViewModel by viewModels{
+        appViewModelFactory
+    }
 
     var splitDialog : AlertDialog? = null
 
     var selectedCategoryId : Int =-1
 
-    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels ()
+    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels {
+        appViewModelFactory
+    }
 
+    val logger = FileLogger(requireContext().applicationContext)
+
+    val LOG_TAG = "EDIT_EXPENSE"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -430,10 +481,13 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
         super.onViewCreated(view, savedInstanceState)
 
         lifecycleScope.launch {
-            try {
+            try
+            {
                 editExpenseViewModel.fnGetExpenseDetailsPerId(expense.expenseId)
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Get Expense Details Per Id: ${e.message}")
                 Log.e("EDIT_EXPENSE","Get Expense Details Per Id: ${e.message}")
             }
         }
@@ -504,7 +558,9 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     settingsViewModel.fnGetAllCategories()
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Expense List Observed: ${e.message}")
                 Log.e("EDIT_EXPENSE","Expense List Observed: ${e.message}")
             }
         }
@@ -532,7 +588,9 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     }
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Category List Observed: ${e.message}")
                 Log.e("EDIT_EXPENSE","Category List Observed: ${e.message}")
             }
         }
@@ -547,6 +605,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To New Expense Field: ${e.message}")
                 Log.e("EDIT_EXPENSE","Clear All Fields Value And Set Focus To New Expense Field: ${e.message}")
             }
         }
@@ -561,6 +620,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Close Edit Expense Screen: ${e.message}")
                 Log.e("EDIT_EXPENSE","Close Edit Expense Screen: ${e.message}")
             }
         }
@@ -601,6 +661,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Show Calendar: ${e.message}")
                 Log.e("EDIT_EXPENSE","Show Calendar: ${e.message}")
             }
         }
@@ -614,6 +675,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Select Category: ${e.message}")
                 Log.e("EDIT_EXPENSE","Select Category: ${e.message}")
             }
         }
@@ -632,6 +694,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Cash: ${e.message}")
                 Log.e("EDIT_EXPENSE","Amount In Cash: ${e.message}")
             }
         }
@@ -650,6 +713,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Card: ${e.message}")
                 Log.e("EDIT_EXPENSE","Amount In Card: ${e.message}")
             }
         }
@@ -666,6 +730,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Upi: ${e.message}")
                 Log.e("EDIT_EXPENSE","Amount In Upi: ${e.message}")
             }
         }
@@ -682,18 +747,23 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     }
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Split Status: ${e.message}")
                 Log.e("EDIT_EXPENSE","Split Status: ${e.message}")
             }
         }
 
         splitViewModel.okSplit.observe(viewLifecycleOwner){ amt ->
-            try {
+            try
+            {
                 editExpenseBinding.idERemarks.requestFocus()
                 editExpenseBinding.idERemarks.isFocusable=true
                 splitDialog?.dismiss()
             }
-            catch (e: Exception) {
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Ok Split: ${e.message}")
                 Log.e("EDIT_EXPENSE", "Ok Split: ${e.message}")
             }
         }
@@ -707,7 +777,9 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     splitDialog?.dismiss()
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Split Screen: ${e.message}")
                 Log.e("EDIT_EXPENSE","Close The Split Screen: ${e.message}")
             }
         }
@@ -727,6 +799,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Show Split Dialog: ${e.message}")
                 Log.e("EDIT_EXPENSE","Show Split Dialog: ${e.message}")
             }
         }
@@ -754,6 +827,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Expense Insert Expense: ${e.message}")
                 Log.e("EDIT_EXPENSE","Expense Insert Expense: ${e.message}")
             }
         }
@@ -805,7 +879,9 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                 }
             }
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
             Log.e("EDIT_EXPENSE","Show Split Screen: ${e.message}")
         }
     }

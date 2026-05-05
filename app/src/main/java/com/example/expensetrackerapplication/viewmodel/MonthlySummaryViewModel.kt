@@ -28,7 +28,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.time.YearMonth
 import kotlin.math.abs
 
-class MonthlySummaryViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class MonthlySummaryViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Declaration
     val expenseRepository : ExpenseRepository
@@ -76,39 +78,51 @@ class MonthlySummaryViewModel(application: Application, logger: FileLogger) : An
     var _exportStatus = MutableLiveData<ResultState1>()
     var exportStatus : LiveData<ResultState1> = _exportStatus
 
-    // Display Progressbar Status Variable
+    // Display Progressbar Status Variable Initialization
     var _isExportLoading = MutableLiveData<Boolean>(false)
     var isExportLoading : LiveData<Boolean> = _isExportLoading
 
+    // Is calendar Selected Variable Initialization
     var _isCalendarSelected = MutableLiveData<Boolean>()
     var isCalendarSelected : LiveData<Boolean> = _isCalendarSelected
 
-    fun isBack(){
-        try {
+    val LOG_TAG = "MONTHLY_SUMMARY_VIEW_MODEL"
+
+    fun isBack()
+    {
+        try
+        {
             _isClosed.value = true
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Close The Monthly Report Screen: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Close The Monthly Report Screen: ${e.message}")
         }
     }
 
     fun resetCloseState()
     {
-        try {
+        try
+        {
             _isClosed.value = false
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Reset Close State: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Reset Close State: ${e.message}")
         }
     }
 
-    fun getIsCalendarSelected(){
-        try {
+    fun getIsCalendarSelected()
+    {
+        try
+        {
             _isCalendarSelected.value = true
         }
-        catch (e: Exception) {
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Calendar Selected: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Calendar Selected: ${e.message}")
         }
     }
@@ -167,6 +181,7 @@ class MonthlySummaryViewModel(application: Application, logger: FileLogger) : An
             }
             catch(e : Exception)
             {
+                logger.logError(LOG_TAG,"Get Expense Details Per Month: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Month: ${e.message}")
             }
 
@@ -325,6 +340,7 @@ class MonthlySummaryViewModel(application: Application, logger: FileLogger) : An
                 _isExportLoading.value=false
                 _exportStatus.value = ResultState1.fail(R.string.monthlyReport_ExportFailed)
                 Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
+                logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
 
@@ -357,21 +373,27 @@ class MonthlySummaryViewModel(application: Application, logger: FileLogger) : An
             _isExportLoading.value=false
             true
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
     }
 
-    fun fnPreWarmExcelEngine() {
+    fun fnPreWarmExcelEngine()
+    {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            try
+            {
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
             }
-            catch (e: Exception) {
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
             }
         }

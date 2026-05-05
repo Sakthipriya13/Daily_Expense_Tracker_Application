@@ -41,6 +41,10 @@ open class ReportMenu : Fragment() {
         appViewModelFactory
     }
 
+    val logger = FileLogger(requireContext().applicationContext)
+
+    val LOG_TAG = "REPORT_MENU"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -92,6 +96,7 @@ open class ReportMenu : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Selected Report Type: ${e.message}")
                 Log.e("REPORT_MENU","Selected Report Type: ${e.message}")
             }
         }

@@ -2,6 +2,7 @@ package com.example.expensetrackerapplication.ui.main.fragments.reports
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -66,6 +67,8 @@ class YearlySummaryReport : Fragment() {
 
     private lateinit var adapter : YearlySummaryAdapter
 
+    val logger = FileLogger(requireContext().applicationContext)
+
     val LOG_TAG="YEARLY_SUMMARY_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,18 +96,22 @@ class YearlySummaryReport : Fragment() {
         yearlySummaryReportViewModel.fnPreWarmExcelEngine()
 
         try{
-            adapter = YearlySummaryAdapter()
+            adapter = YearlySummaryAdapter(requireContext().applicationContext)
             yearlySummaryReportBinding.idYearlySummaryList.adapter = adapter
             yearlySummaryReportBinding.idYearlySummaryList.layoutManager = LinearLayoutManager(requireContext())
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Set Adapter: ${e.message}")
             Log.e(LOG_TAG,"Set Adapter: ${e.message}")
         }
 
         try {
             yearlySummaryReportViewModel._monthArray.value = resources.getStringArray(R.array.months)
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Assign Month Array: ${e.message}")
             Log.e(LOG_TAG,"Assign Month Array: ${e.message}")
         }
 
@@ -118,6 +125,7 @@ class YearlySummaryReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
                 Log.e(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
             }
         }
@@ -130,6 +138,7 @@ class YearlySummaryReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Calendar Selected: ${e.message}")
                 Log.e(LOG_TAG,"Calendar Selected: ${e.message}")
             }
         }
@@ -139,6 +148,7 @@ class YearlySummaryReport : Fragment() {
                 yearlySummaryReportViewModel.fnGetExpenseDetailsPerYear(year)
             }
             catch (e: Exception){
+                logger.logError(LOG_TAG,"Selected Year: ${e.message}")
                 Log.e(LOG_TAG,"Selected Year: ${e.message}")
             }
         }
@@ -149,11 +159,11 @@ class YearlySummaryReport : Fragment() {
                 {
                     fnCreateChart(list)
                     adapter.fnSubmitList(list)
-
                 }
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Summary List Observed: ${e.message}")
                 Log.e(LOG_TAG,"Summary List Observed: ${e.message}")
             }
         }
@@ -172,6 +182,7 @@ class YearlySummaryReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Export Status: ${e.message}")
                 Log.e(LOG_TAG,"Export Status: ${e.message}")
             }
         }
@@ -189,6 +200,7 @@ class YearlySummaryReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Display ProgressBar: ${e.message}")
                 Log.e(LOG_TAG,"Display ProgressBar: ${e.message}")
             }
         }
@@ -288,6 +300,7 @@ class YearlySummaryReport : Fragment() {
             yearlySummaryReportBinding.idBarChart.invalidate()
         }
         catch (e: Exception){
+            logger.logError(LOG_TAG,"Chart Creation: ${e.message}")
             Log.e(LOG_TAG,"Chart Creation: ${e.message}")
         }
     }
@@ -346,6 +359,7 @@ class YearlySummaryReport : Fragment() {
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Display Year Selection Screen: ${e.message}")
             Log.e(LOG_TAG,"Display Year Selection Screen: ${e.message}")
         }
     }
@@ -372,17 +386,20 @@ class YearlySummaryReport : Fragment() {
 }
 
 
-class YearlySummaryAdapter : RecyclerView.Adapter<YearlySummaryAdapter.ListViewHolder>(){
+class YearlySummaryAdapter(applicationContext: Context) : RecyclerView.Adapter<YearlySummaryAdapter.ListViewHolder>(){
 
     var expenseList : List<ExpenseDetailsPerMonth> = emptyList<ExpenseDetailsPerMonth>()
-
+    val LOG_TAG = "YEARLY_SUMMARY_ADAPTER"
+    val logger = FileLogger(applicationContext)
     fun fnSubmitList(list : List<ExpenseDetailsPerMonth>)
     {
         try {
             expenseList = list
             notifyDataSetChanged()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Submit List: ${e.message}")
             Log.e(LOG_TAG,"Submit List: ${e.message}")
         }
     }
@@ -392,8 +409,13 @@ class YearlySummaryAdapter : RecyclerView.Adapter<YearlySummaryAdapter.ListViewH
 
         fun bind(ob : ExpenseDetailsPerMonth)
         {
-            binding.expense = ob
-            binding.executePendingBindings()
+            try {
+                binding.expense = ob
+                binding.executePendingBindings()
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"bind: ${e.message}")
+            }
         }
     }
 

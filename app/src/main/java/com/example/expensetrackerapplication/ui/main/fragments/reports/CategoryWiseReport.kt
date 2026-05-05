@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.ui.main.fragments.reports
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -57,6 +58,8 @@ class CategoryWiseReport : Fragment() {
 
     val LOG_TAG = "CATEGORY_WISE_REPORT"
 
+    val logger = FileLogger(requireContext().applicationContext)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -82,11 +85,13 @@ class CategoryWiseReport : Fragment() {
         categoryWiseReportViewModel.fnPreWarmExcelEngine()
 
         try {
-            categoryAdapter = CategoryAdapter()
+            categoryAdapter = CategoryAdapter(requireContext().applicationContext)
             categoryWiseReportBinding.idCategoryListView.adapter = categoryAdapter
             categoryWiseReportBinding.idCategoryListView.layoutManager = LinearLayoutManager(requireContext())
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Set Adapter: ${e.message}")
             Log.e(LOG_TAG,"Set Adapter: ${e.message}")
         }
 
@@ -125,6 +130,7 @@ class CategoryWiseReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Display Calendar: ${e.message}")
                 Log.e(LOG_TAG,"Display Calendar: ${e.message}")
             }
         }
@@ -134,6 +140,7 @@ class CategoryWiseReport : Fragment() {
                 categoryWiseReportViewModel.fnGetCategoryDetailsPerDay(date)
             }
             catch (e: Exception){
+                logger.logError(LOG_TAG,"Selected Date Observed: ${e.message}")
                 Log.e(LOG_TAG,"Selected Date Observed: ${e.message}")
             }
         }
@@ -156,6 +163,7 @@ class CategoryWiseReport : Fragment() {
                 }
             }
             catch (e: Exception){
+                logger.logError(LOG_TAG,"Category List Observed: ${e.message}")
                 Log.e(LOG_TAG,"Category List Observed: ${e.message}")
             }
         }
@@ -170,6 +178,7 @@ class CategoryWiseReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
                 Log.e(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
             }
         }
@@ -186,6 +195,7 @@ class CategoryWiseReport : Fragment() {
                 }
             }
             catch (e: Exception){
+                logger.logError(LOG_TAG,"ProgressBar Loading: ${e.message}")
                 Log.e(LOG_TAG,"ProgressBar Loading: ${e.message}")
             }
         }
@@ -205,6 +215,7 @@ class CategoryWiseReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Export Status: ${e.message}")
                 Log.e(LOG_TAG,"Export Status: ${e.message}")
             }
         }
@@ -256,10 +267,12 @@ class CategoryWiseReport : Fragment() {
     }
 }
 
-class CategoryAdapter(): RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
+class CategoryAdapter(applicationContext: Context): RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
 {
     private var categoryList : List<CategoryChartModel> = emptyList()
 
+    val LOG_TAG = "CATEGORY_ADAPTER"
+    val logger = FileLogger(applicationContext)
     fun fnSubmitList(
         list : List<CategoryChartModel>
     ){
@@ -268,14 +281,21 @@ class CategoryAdapter(): RecyclerView.Adapter<CategoryAdapter.ListViewHolder>()
             notifyDataSetChanged()
         }
         catch (e: Exception){
+            logger.logError(LOG_TAG,"Submit List: ${e.message}")
             Log.e(LOG_TAG,"Submit List: ${e.message}")
         }
     }
 
     inner class ListViewHolder(val binding : CategoryChartListItemBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(item: CategoryChartModel){
-            binding.category=item
-            binding.executePendingBindings()
+        fun bind(item: CategoryChartModel)
+        {
+            try {
+                binding.category=item
+                binding.executePendingBindings()
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"bind: ${e.message}")
+            }
         }
     }
 

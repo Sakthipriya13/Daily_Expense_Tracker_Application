@@ -28,7 +28,9 @@ import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import kotlin.math.abs
 
-class YearlySummaryReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class YearlySummaryReportViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense And Income Repository Variable Initialization
     val expenseRepository : ExpenseRepository
@@ -83,12 +85,17 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
     var _isCalendarSelected = MutableLiveData<Boolean>()
     var isCalendarSelected : LiveData<Boolean> = _isCalendarSelected
 
+    val LOG_TAG = "YEARLY_SUMMARY_REPORT_VIEW_MODEL"
+
     fun isBack()
     {
-        try {
+        try
+        {
             _isClosed.value = true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Yearly Summary Report: ${e.message}")
             Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Close The Yearly Summary Report: ${e.message}")
         }
     }
@@ -98,6 +105,7 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
             _isClosed.value = false
         }
         catch (e: Exception) {
+            logger.logError(LOG_TAG,"Reset Close State: ${e.message}")
             Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL", "Reset Close State: ${e.message}")
         }
     }
@@ -106,6 +114,7 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
             _isCalendarSelected.value = true
         }
         catch (e: Exception) {
+            logger.logError(LOG_TAG,"Calendar Selected: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL", "Calendar Selected: ${e.message}")
         }
     }
@@ -159,12 +168,14 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
                     }
                     _yearSummaryList.postValue(list)
                 }
-                else{
+                else
+                {
                     _yearSummaryList.postValue(emptyList<ExpenseDetailsPerMonth>())
                 }
             }
             catch (e : Exception)
             {
+                logger.logError(LOG_TAG,"Get Expense Details Per Year: ${e.message}")
                 Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Year: ${e.message}")
             }
         }
@@ -176,11 +187,14 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
 
              if (monthIndex != null && monthArray?.indices?.contains(monthIndex) == true) {
                 monthArray?.get(monthIndex) ?: "Invalid"
-            } else {
-                "Invalid"
+            }
+             else {
+                 logger.logError(LOG_TAG,"Return Month Name: Invalid")
+                 "Invalid"
             }
         }
         catch (e: Exception){
+            logger.logError(LOG_TAG,"Return Month Name: ${e.message}")
             Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Return Month Name: ${e.message}")
             "Invalid"
         }
@@ -340,6 +354,7 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
                 _isExportLoading.value=false
                 _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportFailed)
                 Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
+                logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
 
@@ -374,13 +389,15 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
         }
         catch (e : Exception)
         {
+            logger.logError(LOG_TAG,"Export Yearly Summary Report To Internal Storage(Document Path): ${e.message}")
             Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Export Yearly Summary Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
     }
 
-    fun fnPreWarmExcelEngine() {
+    fun fnPreWarmExcelEngine()
+    {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val wb = XSSFWorkbook()
@@ -388,6 +405,7 @@ class YearlySummaryReportViewModel(application: Application, logger: FileLogger)
                 wb.close()
             }
             catch (e: Exception) {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
             }
         }

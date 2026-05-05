@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.ui.main.fragments.reports
 
 import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.icu.util.Calendar
@@ -13,6 +14,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,16 +56,16 @@ class MonthlyReport : Fragment() {
             FileLogger(requireContext().applicationContext)
         )
     }
-
     private lateinit var monthlySummaryBinding : MonthlyReportBinding
-
     private val monthlySummaryViewModel : MonthlySummaryViewModel by viewModels{
         appViewModelFactory
     }
-
     private var selectedYearMonth : YearMonth = YearMonth.now()
-
     private lateinit var monthlySummaryReportAdapter : MonthlySummaryReportAdapter
+
+    val LOG_TAG = "MONTHLY_SUMMARY_REPORT"
+
+    val logger = FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,28 +92,35 @@ class MonthlyReport : Fragment() {
 
         monthlySummaryViewModel.fnPreWarmExcelEngine()
 
-        try {
-            monthlySummaryReportAdapter = MonthlySummaryReportAdapter()
+        try
+        {
+            monthlySummaryReportAdapter = MonthlySummaryReportAdapter(requireContext().applicationContext)
             monthlySummaryBinding.idMonthlySummaryReportView.adapter = monthlySummaryReportAdapter
             monthlySummaryBinding.idMonthlySummaryReportView.layoutManager = LinearLayoutManager(requireContext())
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Set Adapter: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT","Set Adapter: ${e.message}")
         }
 
         monthlySummaryViewModel.isCalendarSelected.observe(viewLifecycleOwner){ isSelected ->
-            try {
-                if(isSelected){
+            try
+            {
+                if(isSelected)
+                {
                     showMonthPicker()
                 }
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Calendar Selected: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","Calendar Selected: ${e.message}")
             }
         }
         monthlySummaryViewModel.isClosed.observe(viewLifecycleOwner){ status ->
-            try {
+            try
+            {
                 if(status)
                 {
                     findNavController().navigate(R.id.action_monthly_summary_report_to_report_menu)
@@ -120,18 +129,22 @@ class MonthlyReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Close The Monthly Summary Report: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","Close The Monthly Summary Report: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.selectedMonthAndYear.observe(viewLifecycleOwner){ monthAndYear ->
-            try {
+            try
+            {
                 monthlySummaryViewModel.fnGetExpenseDetailsPerMonth(
                     monthlySummaryViewModel.selectedMonth.value ?:"",
                     monthlySummaryViewModel.selectedYear.value ?:""
                 )
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Month And Year Observed: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","Month And Year Observed: ${e.message}")
             }
         }
@@ -151,12 +164,14 @@ class MonthlyReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Monthly Summary Report List Observed: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","Monthly Summary Report List Observed: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            try {
+            try
+            {
                 when(status) {
                     is ResultState1.success -> {
                         fnShowMessage(
@@ -170,13 +185,16 @@ class MonthlyReport : Fragment() {
                     }
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Export Status: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","Export Status: ${e.message}")
             }
         }
 
         monthlySummaryViewModel.isExportLoading.observe(viewLifecycleOwner){ isLoading ->
-            try {
+            try
+            {
                 if(isLoading)
                 {
                     monthlySummaryBinding.isExportLoading.visibility=View.VISIBLE
@@ -186,7 +204,9 @@ class MonthlyReport : Fragment() {
                     monthlySummaryBinding.isExportLoading.visibility=View.GONE
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"ProgressBar Loading: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT","ProgressBar Loading: ${e.message}")
             }
         }
@@ -210,7 +230,7 @@ class MonthlyReport : Fragment() {
                 dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
                 dialog.show()
 
-                val monthAdapter = MonthAdapter { month ->
+                val monthAdapter = MonthAdapter ({ month ->
                     selectedYearMonth = selectedYearMonth.withMonth(month)
                     Log.i("SELECTED MONTH","Selected Month: ${selectedYearMonth.monthValue}&${ monthBinding.idTextYear.text}")
                     var selectedMonth = if (month < 10) "0$month" else "$month"
@@ -219,7 +239,7 @@ class MonthlyReport : Fragment() {
                     monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
                     dialog.dismiss()
                     Global.isCalendarSelected = false
-                }
+                },requireContext().applicationContext)
 
                 monthBinding.idMonthPicker.apply {
                     layoutManager = GridLayoutManager(requireContext(),3)
@@ -276,6 +296,7 @@ class MonthlyReport : Fragment() {
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Show Monthly Calendar: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT","Show Monthly Calendar: ${e.message}")
         }
     }
@@ -302,17 +323,23 @@ class MonthlyReport : Fragment() {
     }
 }
 
-class MonthlySummaryReportAdapter : RecyclerView.Adapter<MonthlySummaryReportAdapter.ListViewHolder>()
+class MonthlySummaryReportAdapter(applicationContext: Context) : RecyclerView.Adapter<MonthlySummaryReportAdapter.ListViewHolder>()
 {
     var monthlySummaryList : List<ExpenseDetailsPerMonth> = emptyList()
 
+    val logger = FileLogger(applicationContext)
+
+    val LOG_TAG ="MONTHLY_SUMMARY_REPORT_ADAPTER"
     fun fnSubmitList(list  : List<ExpenseDetailsPerMonth>)
     {
-        try {
+        try
+        {
             monthlySummaryList = list
             notifyDataSetChanged()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Submit List: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT","Submit List: ${e.message}")
         }
     }
@@ -345,20 +372,26 @@ class MonthlySummaryReportAdapter : RecyclerView.Adapter<MonthlySummaryReportAda
 }
 
 class MonthAdapter(
-    private val onClick:(Int)-> Unit
+    private val onClick:(Int)-> Unit,
+    applicationContext: Context
 ) : RecyclerView.Adapter<MonthAdapter.VH>() {
 
     private var selectedYearMonth: YearMonth = YearMonth.now()
 
     private val months = Month.values()
 
+    val logger = FileLogger(applicationContext)
+
+    val LOG_TAG = "MONTH_ADAPTER"
     fun submitYearMonth(yearMonth: YearMonth)
     {
         try {
             selectedYearMonth = yearMonth
             notifyDataSetChanged()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Submit Year And Month: ${e.message}")
             Log.e("MONTHLY_SUMMARY_REPORT","Submit Year And Month: ${e.message}")
         }
     }
@@ -366,17 +399,22 @@ class MonthAdapter(
     inner class VH(val binding: MonthYearDialogItemBinding)
         : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(month: Month) {
+        fun bind(month: Month)
+        {
+            try {
+                binding.txtMonth.text = month.getDisplayName(TextStyle.SHORT,Locale.getDefault())
 
-            binding.txtMonth.text = month.getDisplayName(TextStyle.SHORT,Locale.getDefault())
+                val isSelected =
+                    month.value == selectedYearMonth.monthValue
 
-            val isSelected =
-                month.value == selectedYearMonth.monthValue
+                binding.root.isSelected = isSelected
 
-            binding.root.isSelected = isSelected
-
-            binding.root.setOnClickListener {
-                onClick(month.value)
+                binding.root.setOnClickListener {
+                    onClick(month.value)
+                }
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"bind: ${e.message}")
             }
         }
     }

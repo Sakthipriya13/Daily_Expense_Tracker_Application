@@ -35,12 +35,14 @@ class ParentReport : Fragment() {
             FileLogger(requireContext().applicationContext)
         )
     }
-
     private lateinit var parentReportBinding: ParentReportBinding
 
     val parentReportViewModel : ParentReportViewModel by viewModels{
         appViewModelFactory
     }
+
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG = "PARENT_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

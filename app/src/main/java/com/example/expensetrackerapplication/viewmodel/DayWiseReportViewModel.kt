@@ -26,8 +26,11 @@ import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 
-class DayWiseReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class DayWiseReportViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
+    // Expense Repository Variable Initialization
     val expenseRepository : ExpenseRepository
     init {
          val dao = AppDatabase.getdatabase(application).ExpenseDao()
@@ -72,35 +75,45 @@ class DayWiseReportViewModel(application: Application, logger: FileLogger) : And
     var _expenseDeleteStatus = MutableLiveData<ResultState1>()
     var expenseDeleteStatus : LiveData<ResultState1> = _expenseDeleteStatus
 
+    val LOG_TAG = "DAY_WISE_REPORT_VIEW_MODEL"
 
     fun isBack()
     {
-        try {
+        try
+        {
             _isClosed.value=true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Day-Wise Report: ${e.message}")
             Log.e("DAY_WISE_REPORT_VIEW_MODEL","Close The Day-Wise Report: ${e.message}")
         }
     }
 
     fun resetCloseState()
     {
-        try {
+        try
+        {
             _isClosed.value = false
         }
-        catch (e: Exception) {
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Reset Close State: ${e.message}")
             Log.e("DAY_WISE_REPORT", "Reset Close State: ${e.message}")
         }
     }
 
     fun fnClearAllFields(){
-        try {
+        try
+        {
             _totalExpenseSummary.value="0.00"
             _addedExpenseSummary.value="0.00"
             _deletedExpenseSummary.value="0.00"
             _expenseList.value = emptyList<CurrentDayReportModel>()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields: ${e.message}")
             Log.e("DAY_WISE_REPORT_VIEW_MODEL","Clear All Fields: ${e.message}")
         }
     }
@@ -166,11 +179,11 @@ class DayWiseReportViewModel(application: Application, logger: FileLogger) : And
                 else
                 {
                     _expenseList.postValue(emptyList<CurrentDayReportModel>())
-                    Log.i("DAY_WISE_REPORT_VIEW_MODEL","Assign Empty List")
                 }
             }
             catch (e : Exception)
             {
+                logger.logError(LOG_TAG,"Get Expense Details Per Date: ${e.message}")
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","Get Expense Details Per Date: ${e.message}")
             }
         }
@@ -194,6 +207,7 @@ class DayWiseReportViewModel(application: Application, logger: FileLogger) : And
             }
             catch(e : Exception)
             {
+                logger.logError(LOG_TAG,"Delete Expense: ${e.message}")
                 _expenseDeleteStatus.value = ResultState1.fail(R.string.dayWiseReport_DeleteExpenseFailed)
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","Delete Expense: ${e.message}")
             }
@@ -374,6 +388,7 @@ class DayWiseReportViewModel(application: Application, logger: FileLogger) : And
                 _isExportLoading.value=false
                 _exportStatus.value = ResultState1.fail(R.string.dayWiseReport_ExportFailed)
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
+                logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
 
@@ -406,21 +421,27 @@ class DayWiseReportViewModel(application: Application, logger: FileLogger) : And
             _isExportLoading.value=false
             true
         }
-        catch (e : Exception){
-            Log.e("DAY_WISE_REPORT_VIEW_MODEL","Day-Wise Report To Internal Storage(Document Path): ${e.message}")
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Export Day-Wise Report To Internal Storage(Document Path): ${e.message}")
+            Log.e("DAY_WISE_REPORT_VIEW_MODEL","Export Day-Wise Report To Internal Storage(Document Path): ${e.message}")
             false
         }
 
     }
 
-    fun fnPreWarmExcelEngine() {
+    fun fnPreWarmExcelEngine()
+    {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            try
+            {
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
             } 
-            catch (e: Exception) {
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
             }
         }

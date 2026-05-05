@@ -37,6 +37,7 @@ import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -79,6 +80,9 @@ class NewExpense : Fragment() {
         appViewModelFactory
     }
 
+    val logger = FileLogger(requireContext().applicationContext)
+
+    val LOG_TAG ="NEW_EXPENSE"
 
     override fun onResume() {
         super.onResume()
@@ -120,6 +124,7 @@ class NewExpense : Fragment() {
                 }
                 catch (e : Exception)
                 {
+                    logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
                     Log.e("CLEAR_ALL_FIELDS","Clear_All_Fields: ${e.message}")
                 }
             }
@@ -133,6 +138,7 @@ class NewExpense : Fragment() {
                 }
                 catch (e: Exception)
                 {
+                    logger.logError(LOG_TAG,"Get All Categories: ${e.message}")
                     Log.e("GET_ALL_CATEGORIES","Get All Categories: ${e.message}")
                 }
             }
@@ -174,6 +180,7 @@ class NewExpense : Fragment() {
             }
             catch (e : Exception)
             {
+                logger.logError(LOG_TAG,"Show Calendar: ${e.message}")
                 Log.e("SHOW_CALENDAR","Show Calendar: ${e.message}")
             }
         }
@@ -193,6 +200,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Set Category Adapter: ${e.message}")
                 Log.e("SET_CATEGORY_ADAPTER","Set Category Adapter: ${e.message}")
             }
         }
@@ -205,6 +213,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Select Category From List: ${e.message}")
                 Log.e("SELECT_CATEGORY_FROM_LIST","Select Category From List: ${e.message}")
             }
         }
@@ -223,6 +232,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Cash: ${e.message}")
                 Log.e("AMOUNT_IN_CASH","Amount In Cash: ${e.message}")
             }
         }
@@ -241,6 +251,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Card: ${e.message}")
                 Log.e("AMOUNT_IN_CARD","Amount In Card: ${e.message}")
             }
         }
@@ -257,6 +268,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Amount In Upi: ${e.message}")
                 Log.e("AMOUNT_IN_UPI","Amount In Upi: ${e.message}")
             }
         }
@@ -264,7 +276,8 @@ class NewExpense : Fragment() {
         splitViewModel.splitStatus.observe(viewLifecycleOwner){ status ->
             try
             {
-                when(status){
+                when(status)
+                {
                     is ResultState1.success -> {}
                     is ResultState1.fail -> {
                         fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
@@ -275,18 +288,21 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Split Status: ${e.message}")
                 Log.e("SPLIT_STATUS","Split Status: ${e.message}")
             }
         }
 
         splitViewModel.okSplit.observe(viewLifecycleOwner){ amt ->
-            try {
+            try
+            {
                 newExpenseBinding.idERemarks.requestFocus()
                 newExpenseBinding.idERemarks.isFocusable=true
                 splitDialog?.dismiss()
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Split: ${e.message}")
                 Log.e("SPLIT","Split: ${e.message}")
             }
         }
@@ -302,6 +318,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Close Split Dialog: ${e.message}")
                 Log.e("CLOSE_SPLIT_DIALOG","Close Split Dialog: ${e.message}")
             }
         }
@@ -321,9 +338,9 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
                 Log.e("SHOW_SPLIT_DIALOG","Show Split Dialog: ${e.message}")
             }
-
 //            {
 //                val view = layoutInflater.inflate(R.layout.split_dialogue,null)
 //                var amtInCash = view.findViewById<TextInputEditText>(R.id.idEAmtInCash)
@@ -409,6 +426,7 @@ class NewExpense : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Expense Insert Expense: ${e.message}")
                 Log.e("EXPENSE_INSERT_STATUS","Expense Insert Expense: ${e.message}")
             }
         }
@@ -464,7 +482,8 @@ class NewExpense : Fragment() {
         }
         catch (e : Exception)
         {
-            Log.e("SHOW_SPLIT_DIALOG","Show Split Dialog: ${e.message}")
+            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
+            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
         }
     }
     companion object {
@@ -483,8 +502,8 @@ class NewExpense : Fragment() {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
-                }
             }
+        }
     }
 }
 

@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class NewExpenseViewModel(
     application: Application,
-    logger: FileLogger
+    private val logger: FileLogger
 ) : AndroidViewModel(application)
 {
     //Expense Repository Variable
@@ -118,6 +118,7 @@ class NewExpenseViewModel(
 //    var _fireStoreCloudId = MutableLiveData<String>()
 //    var fireStoreCloudId : LiveData<String> = _fireStoreCloudId
 
+    val LOG_TAG = "NEW_EXPENSE_VIEW_MODEL"
     fun fnClearAllFieldsValue()
     {
         try {
@@ -146,7 +147,9 @@ class NewExpenseViewModel(
             )
             _selectedPaymentTypeAmt.value =  paymentType
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
             Log.e("CLEAR_ALL_FIELDS","Clear All Fields: ${e.message}")
         }
     }
@@ -188,7 +191,9 @@ class NewExpenseViewModel(
                 }
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Function Add New Expense To Db: ${e.message}")
             Log.e("ADD_EXPENSE_TO_DB","Add Expense To Db: ${e.message}")
         }
     }
@@ -240,9 +245,11 @@ class NewExpenseViewModel(
                 }
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
             _newExpenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
             Log.e("INSERT_EXPENSE","Insert_Expense: ${e.message}")
+            logger.logError(LOG_TAG,"Insert Expense: ${e.message}")
         }
     }
 
@@ -254,7 +261,8 @@ class NewExpenseViewModel(
 //        }
 //    }
 
-    fun fnCashPayment(){
+    fun fnCashPayment()
+    {
 //        _paymentType.value=Global.PAYMENT_TYPE_CASH
 //        _amtInCash.value = expenseAmt.value?.toFloatOrNull() ?:0.0f
 //        Log.v("PAYMENT TYPE","Payment Type: CASH")
@@ -269,13 +277,16 @@ class NewExpenseViewModel(
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Cash Payment: ${e.message}")
             Log.e("CASH_PAYMENT","Cash Payment: ${e.message}")
         }
     }
     fun fnSplitPayment(){
 //        _paymentType.value=Global.PAYMENT_TYPE_SPLIT
-        try {
+        try
+        {
             if(expenseAmt.value.isNullOrBlank())
             {
                 _showSplitDialog.value = false
@@ -287,7 +298,9 @@ class NewExpenseViewModel(
                 _showSplitDialog.value = true
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Split Payment: ${e.message}")
             Log.e("SPLIT_PAYMENT","Split Payment: ${e.message}")
         }
     }
@@ -295,7 +308,8 @@ class NewExpenseViewModel(
 //        _paymentType.value=Global.PAYMENT_TYPE_CARD
 //        _amtInCard.value =expenseAmt.value?.toFloatOrNull() ?:0.0f
 //        Log.v("PAYMENT TYPE","Payment Type: CARD")
-        try {
+        try
+        {
             _selectedPaymentType.value= R.id.idCardPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
@@ -305,16 +319,20 @@ class NewExpenseViewModel(
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Card Payment: ${e.message}")
             Log.e("CARD_PAYMENT","Card Payment: ${e.message}")
         }
     }
 
-    fun fnUpiPayment(){
+    fun fnUpiPayment()
+    {
 //        _paymentType.value=Global.PAYMENT_TYPE_UPI
 //        _amtInUpi.value =expenseAmt.value?.toFloatOrNull() ?:0.0f
 //        Log.v("PAYMENT TYPE","Payment Type: UPI")
-        try {
+        try
+        {
             _selectedPaymentType.value= R.id.idUpiPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
@@ -324,16 +342,20 @@ class NewExpenseViewModel(
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Upi Payment: ${e.message}")
             Log.e("UPI_PAYMENT","Upi Payment: ${e.message}")
         }
     }
 
-    fun fnOtherPayment(){
+    fun fnOtherPayment()
+    {
 //         _paymentType.value=Global.PAYMENT_TYPE_OTHER
 //        _amtInOthers.value =expenseAmt.value?.toFloatOrNull() ?:0.0f
 //        Log.v("PAYMENT TYPE","Payment Type: OTHER")
-        try {
+        try
+        {
             _selectedPaymentType.value= R.id.idOthersPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
@@ -343,7 +365,9 @@ class NewExpenseViewModel(
             )
             _selectedPaymentTypeAmt.value = paymentType
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Other Payment: ${e.message}")
             Log.e("OTHER_PAYMENT","Other Payment: ${e.message}")
         }
     }
