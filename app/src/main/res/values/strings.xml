@@ -277,6 +277,10 @@
     <string name="select_year">SELECT YEAR</string>
     <string name="select_month">SELECT MONTH</string>
 
-
+    <string name="main_AlreadyInProfile">Already You Are In Profile</string>
+    <string name="main_AlreadyInSettings">Already You Are In Settings</string>
+    <string name="main_AlreadyInNewExpense">Already You Are In Add Expense</string>
+    <string name="main_AlreadyInReport">Already You Are In Report</string>
+    <string name="main_AlreadyInDashboard">Already You Are In Dashboard</string>
 
 </resources>

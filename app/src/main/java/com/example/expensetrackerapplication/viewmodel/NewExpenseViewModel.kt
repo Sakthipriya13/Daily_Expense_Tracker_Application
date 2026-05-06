@@ -236,12 +236,14 @@ class NewExpenseViewModel(
                     _insertFlag.value = 0
                     _newExpenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
                     fnClearAllFieldsValue()
+                    logger.logError(LOG_TAG,"Expense successfully stored")
                 }
                 else
                 {
                     _insertFlag.value = 0
                     _newExpenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
                     fnClearAllFieldsValue()
+                    logger.logError(LOG_TAG,"Store Expense Failed")
                 }
             }
         }

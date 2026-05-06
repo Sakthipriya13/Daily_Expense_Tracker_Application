@@ -48,6 +48,10 @@ class SignUp : Fragment() {
 
     private lateinit var signUpDataBinding : SignUpBinding
 
+    val logger = FileLogger(requireContext().applicationContext)
+
+    val LOG_TAG = "SIGN_UP"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -83,17 +87,34 @@ class SignUp : Fragment() {
 //            }
 //        }
         signUpViewModel.isLoading.observe(viewLifecycleOwner){ status ->
-            if(status){
-                signUpDataBinding.isExportLoading.visibility = View.VISIBLE
+            try
+            {
+                if(status)
+                {
+                    signUpDataBinding.isExportLoading.visibility = View.VISIBLE
+                }
+                else
+                {
+                    signUpDataBinding.isExportLoading.visibility = View.GONE
+                }
             }
-            else{
-                signUpDataBinding.isExportLoading.visibility = View.GONE
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Is Loading Value Observed: ${e.message}")
             }
         }
         signUpViewModel.clearAllFields.observe(viewLifecycleOwner){ ob ->
-            if(ob){
-                signUpDataBinding.idUserName.isFocusable=true
-                signUpDataBinding.idUserName.requestFocus()
+            try
+            {
+                if(ob)
+                {
+                    signUpDataBinding.idUserName.isFocusable=true
+                    signUpDataBinding.idUserName.requestFocus()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To User Name: ${e.message}")
             }
         }
 
@@ -144,67 +165,83 @@ class SignUp : Fragment() {
 //            }
 //        }
         signUpViewModel.insertStatus.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ResultState1.success -> {
-                    Log.d("DATA_INSERT_STATUS", "Data Successfully Inserted")
-                    findNavController().navigate(R.id.action_signup_to_login)
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                }
-                is ResultState1.fail -> {
-                    Log.d("DATA_INSERT_STATUS", "Data Insterted Failed")
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+            try
+            {
+                when(state)
+                {
+                    is ResultState1.success -> {
+                        Log.d("DATA_INSERT_STATUS", "Data Successfully Inserted")
+                        findNavController().navigate(R.id.action_signup_to_login)
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                    }
+                    is ResultState1.fail -> {
+                        Log.d("DATA_INSERT_STATUS", "Data Insterted Failed")
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
 
-                    if(state.message == R.string.signup_AllFieldsEmpty){
-                        signUpDataBinding.idUserName.isFocusable=true
-                        signUpDataBinding.idUserName.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_nameFieldEmpty){
-                        signUpDataBinding.idUserName.isFocusable = true
-                        signUpDataBinding.idUserName.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_PasswordFieldEmpty){
-                        signUpDataBinding.idPassword.isFocusable = true
-                        signUpDataBinding.idPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.passwordAtleast6Chars){
-                        signUpDataBinding.idPassword.isFocusable = true
-                        signUpDataBinding.idPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_EmailFieldEmpty){
-                        signUpDataBinding.idEmail.isFocusable = true
-                        signUpDataBinding.idEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_InvalidEmail){
-                        signUpDataBinding.idEmail.isFocusable = true
-                        signUpDataBinding.idEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_AlreadyEmailWasUsed){
-                        signUpDataBinding.idEmail.isFocusable = true
-                        signUpDataBinding.idEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_MobileNoFieldEmpty){
-                        signUpDataBinding.idMobileNo.isFocusable = true
-                        signUpDataBinding.idMobileNo.requestFocus()
-                    }
-                    else if(state.message == R.string.signup_MobileNoMustBe10Chars){
-                        signUpDataBinding.idMobileNo.isFocusable = true
-                        signUpDataBinding.idMobileNo.requestFocus()
-                    }
+                        if(state.message == R.string.signup_AllFieldsEmpty){
+                            signUpDataBinding.idUserName.isFocusable=true
+                            signUpDataBinding.idUserName.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_nameFieldEmpty){
+                            signUpDataBinding.idUserName.isFocusable = true
+                            signUpDataBinding.idUserName.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_PasswordFieldEmpty){
+                            signUpDataBinding.idPassword.isFocusable = true
+                            signUpDataBinding.idPassword.requestFocus()
+                        }
+                        else if(state.message == R.string.passwordAtleast6Chars){
+                            signUpDataBinding.idPassword.isFocusable = true
+                            signUpDataBinding.idPassword.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_EmailFieldEmpty){
+                            signUpDataBinding.idEmail.isFocusable = true
+                            signUpDataBinding.idEmail.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_InvalidEmail){
+                            signUpDataBinding.idEmail.isFocusable = true
+                            signUpDataBinding.idEmail.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_AlreadyEmailWasUsed){
+                            signUpDataBinding.idEmail.isFocusable = true
+                            signUpDataBinding.idEmail.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_MobileNoFieldEmpty){
+                            signUpDataBinding.idMobileNo.isFocusable = true
+                            signUpDataBinding.idMobileNo.requestFocus()
+                        }
+                        else if(state.message == R.string.signup_MobileNoMustBe10Chars){
+                            signUpDataBinding.idMobileNo.isFocusable = true
+                            signUpDataBinding.idMobileNo.requestFocus()
+                        }
 //                    else if(state.message == R.string.signup_NewUserCreationFailed){
 //
 //                    }
-                    else if(state.message == R.string.signup_MayBeTheEmailAlreadyUsed){
-                        signUpDataBinding.idEmail.isFocusable = true
-                        signUpDataBinding.idEmail.requestFocus()
-                    }
+                        else if(state.message == R.string.signup_MayBeTheEmailAlreadyUsed){
+                            signUpDataBinding.idEmail.isFocusable = true
+                            signUpDataBinding.idEmail.requestFocus()
+                        }
 
+                    }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Insert Status Value Observed: ${e.message}")
             }
         }
 
         signUpViewModel.navigateToLogin.observe(viewLifecycleOwner){ ob ->
-            if(ob){
-                findNavController().navigate(R.id.action_signup_to_login)
+            try
+            {
+                if(ob)
+                {
+                    findNavController().navigate(R.id.action_signup_to_login)
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Navigate To Login: ${e.message}")
             }
         }
     }

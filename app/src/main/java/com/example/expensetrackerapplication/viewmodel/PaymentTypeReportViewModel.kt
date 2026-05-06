@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import androidx.collection.longListOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -25,7 +26,9 @@ import kotlinx.coroutines.launch
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
-class PaymentTypeReportViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class PaymentTypeReportViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
     private var expenseRepository : ExpenseRepository
@@ -78,21 +81,26 @@ class PaymentTypeReportViewModel(application: Application, logger: FileLogger) :
     
     fun isBack()
     {
-        try {
+        try
+        {
             _isClosed.value = true
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Close The Payment Type Report Screen: ${e.message}")
             Log.e(LOG_TAG,"Close The Payment Type Report Screen: ${e.message}")
         }
     }
 
     fun resetCloseState()
     {
-        try {
+        try
+        {
             _isClosed.value = false
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Reset Close State: ${e.message}")
             Log.e(LOG_TAG, "Reset Close State: ${e.message}")
         }
     }
@@ -137,6 +145,7 @@ class PaymentTypeReportViewModel(application: Application, logger: FileLogger) :
             }
             catch(e : Exception)
             {
+                logger.logError(LOG_TAG,"Get Payment Type List: ${e.message}")
                 Log.e(LOG_TAG,"Get Payment Type List: ${e.message}")
             }
         }
@@ -279,6 +288,7 @@ class PaymentTypeReportViewModel(application: Application, logger: FileLogger) :
                 _isExportLoading.value = false
                 _exportStatus.value = ResultState1.fail(R.string.paymentTypeReport_ExportFailed)
                 Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
+                logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
         }
     }
@@ -311,7 +321,9 @@ class PaymentTypeReportViewModel(application: Application, logger: FileLogger) :
             _isExportLoading.value=false
             true
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Export Payment Type Report To Internal Storage(Document Path): ${e.message}")
             Log.e(LOG_TAG,"Export Payment Type Report To Internal Storage(Document Path): ${e.message}")
             false
         }
@@ -321,12 +333,15 @@ class PaymentTypeReportViewModel(application: Application, logger: FileLogger) :
     fun fnPreWarmExcelEngine()
     {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            try
+            {
                 val wb = XSSFWorkbook()
                 wb.createSheet("warmup")
                 wb.close()
             }
-            catch (e: Exception) {
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
                 Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
             }
         }

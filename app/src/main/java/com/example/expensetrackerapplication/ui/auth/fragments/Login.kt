@@ -48,6 +48,9 @@ class Login : Fragment() {
     }
     private lateinit var loginDataBinding : LoginBinding
 
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG = "LOGIN"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -73,9 +76,17 @@ class Login : Fragment() {
 
 
         loginViewModel.clearAllFields.observe(viewLifecycleOwner){ob ->
-            if(ob){
-                loginDataBinding.idUserName.isFocusable=true
-                loginDataBinding.idUserName.requestFocus()
+            try
+            {
+                if(ob)
+                {
+                    loginDataBinding.idUserName.isFocusable=true
+                    loginDataBinding.idUserName.requestFocus()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To UserName: ${e.message}")
             }
         }
 
@@ -117,64 +128,81 @@ class Login : Fragment() {
 //        }
 
         loginViewModel.loginStatus.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ResultState1.success -> {
-                    loginViewModel._isLoading.value = false
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                    var intent = Intent(requireContext(), Main::class.java)
-                    startActivity(intent)
-                    requireActivity().finish()
+            try
+            {
+                when(state)
+                {
+                    is ResultState1.success -> {
+                        loginViewModel._isLoading.value = false
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                        var intent = Intent(requireContext(), Main::class.java)
+                        startActivity(intent)
+                        requireActivity().finish()
 
+                    }
+
+                    is ResultState1.fail -> {
+                        loginViewModel._isLoading.value = false
+                        Log.e("LOGIN STATUS", "Login Status Value Was False")
+                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+
+                        if(state.message == R.string.login_BothFieldsEmpty){
+                            loginViewModel._userName.value=""
+                            loginViewModel._userPassword.value=""
+                            loginDataBinding.idUserName.isFocusable=true
+                            loginDataBinding.idUserName.requestFocus()
+                        }
+                        else if(state.message == R.string.login_UserNameFieldEmpty){
+                            loginViewModel._userName.value=""
+                            loginDataBinding.idUserName.isFocusable=true
+                            loginDataBinding.idUserName.requestFocus()
+                        }
+                        else if(state.message == R.string.login_PasswordFieldEmpty){
+                            loginViewModel._userPassword.value=""
+                            loginDataBinding.idPassword.isFocusable=true
+                            loginDataBinding.idPassword.requestFocus()
+                        }
+                        else if(state.message == R.string.passwordAtleast6Chars){
+                            loginViewModel._userPassword.value=""
+                            loginDataBinding.idPassword.isFocusable=true
+                            loginDataBinding.idPassword.requestFocus()
+                        }
+                        else if(state.message == R.string.login_UserNotFound){
+                            loginViewModel._userName.value=""
+                            loginViewModel._userPassword.value=""
+                            loginDataBinding.idUserName.isFocusable=true
+                            loginDataBinding.idUserName.requestFocus()
+                        }
+                        else if(state.message == R.string.login_UserOrPasswordWrong){
+                            loginViewModel._userName.value=""
+                            loginViewModel._userPassword.value=""
+                            loginDataBinding.idUserName.isFocusable=true
+                            loginDataBinding.idUserName.requestFocus()
+                        }
+                    }
                 }
-
-                is ResultState1.fail -> {
-                    loginViewModel._isLoading.value = false
-                    Log.e("LOGIN STATUS", "Login Status Value Was False")
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
-
-                    if(state.message == R.string.login_BothFieldsEmpty){
-                        loginViewModel._userName.value=""
-                        loginViewModel._userPassword.value=""
-                        loginDataBinding.idUserName.isFocusable=true
-                        loginDataBinding.idUserName.requestFocus()
-                    }
-                    else if(state.message == R.string.login_UserNameFieldEmpty){
-                        loginViewModel._userName.value=""
-                        loginDataBinding.idUserName.isFocusable=true
-                        loginDataBinding.idUserName.requestFocus()
-                    }
-                    else if(state.message == R.string.login_PasswordFieldEmpty){
-                        loginViewModel._userPassword.value=""
-                        loginDataBinding.idPassword.isFocusable=true
-                        loginDataBinding.idPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.passwordAtleast6Chars){
-                        loginViewModel._userPassword.value=""
-                        loginDataBinding.idPassword.isFocusable=true
-                        loginDataBinding.idPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.login_UserNotFound){
-                        loginViewModel._userName.value=""
-                        loginViewModel._userPassword.value=""
-                        loginDataBinding.idUserName.isFocusable=true
-                        loginDataBinding.idUserName.requestFocus()
-                    }
-                    else if(state.message == R.string.login_UserOrPasswordWrong){
-                        loginViewModel._userName.value=""
-                        loginViewModel._userPassword.value=""
-                        loginDataBinding.idUserName.isFocusable=true
-                        loginDataBinding.idUserName.requestFocus()
-                    }
-                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Login Status Value Observed: ${e.message}")
             }
         }
 
         loginViewModel.isLoading.observe(viewLifecycleOwner){ status ->
-            if(status){
-                loginDataBinding.isExportLoading.visibility = View.VISIBLE
+            try
+            {
+                if(status)
+                {
+                    loginDataBinding.isExportLoading.visibility = View.VISIBLE
+                }
+                else
+                {
+                    loginDataBinding.isExportLoading.visibility = View.GONE
+                }
             }
-            else{
-                loginDataBinding.isExportLoading.visibility = View.GONE
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Is Loading Value Observed: ${e.message}")
             }
         }
 
@@ -202,22 +230,36 @@ class Login : Fragment() {
 //        }
 
         loginViewModel.navigateToSignUp.observe(viewLifecycleOwner){ ob ->
-            if(ob)
-            {
-                findNavController().navigate(R.id.action_login_to_signup)
+            try {
+                if(ob)
+                {
+                    findNavController().navigate(R.id.action_login_to_signup)
+                }
+                else
+                {
+                    Log.e("GO TO SIGNUP", "Go To SignUp Value Was False")
+                }
             }
-            else
+            catch (e: Exception)
             {
-                Log.e("GO TO SIGNUP", "Go To SignUp Value Was False")
+                logger.logError(LOG_TAG,"Navigate To Signup: ${e.message}")
             }
         }
 
         loginViewModel.isPasswordForget.observe(viewLifecycleOwner){ status ->
-            if(status){
-                if(Global.isBottomSheetSelected == false){
-                    Global.isBottomSheetSelected = true
-                    ForgetPassword().show(parentFragmentManager,"ForgetBottomSheet")
+            try
+            {
+                if(status)
+                {
+                    if(Global.isBottomSheetSelected == false){
+                        Global.isBottomSheetSelected = true
+                        ForgetPassword().show(parentFragmentManager,"ForgetBottomSheet")
+                    }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Forget Password Screen: ${e.message}")
             }
         }
     }
@@ -261,9 +303,21 @@ class Login : Fragment() {
     }
 }
 
-class ForgetPassword : BottomSheetDialogFragment(){
+class ForgetPassword : BottomSheetDialogFragment()
+{
+    val appViewModelFactory : AppViewModelFactory by lazy {
+        AppViewModelFactory(
+            requireActivity().application,
+        FileLogger(requireContext().applicationContext)
+        )
+    }
     private lateinit var forgetBinding : ForgetPasswordBinding
-    private val forgetViewModel : ForgetViewModel by viewModels()
+    private val forgetViewModel : ForgetViewModel by viewModels{
+        appViewModelFactory
+    }
+    val LOG_TAG = "FORGET_PASSWORD"
+
+    val logger = FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -285,9 +339,19 @@ class ForgetPassword : BottomSheetDialogFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        forgetViewModel.isCancel.observe(viewLifecycleOwner){
-            Global.isBottomSheetSelected = false
-            dismiss()
+        forgetViewModel.isCancel.observe(viewLifecycleOwner){ isCancelable ->
+            try
+            {
+                if(isCancelable)
+                {
+                    Global.isBottomSheetSelected = false
+                    dismiss()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Forget Password Screen: ${e.message}")
+            }
         }
 
 //        forgetViewModel.emailErrorStatus.observe(viewLifecycleOwner){ state ->
@@ -312,50 +376,60 @@ class ForgetPassword : BottomSheetDialogFragment(){
 //            }
 //        }
 
-        forgetViewModel.resetStatus.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ResultState1.success -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
-                    Global.isBottomSheetSelected=false
-                    dismiss()
+        forgetViewModel.resetStatus.observe(viewLifecycleOwner) { state ->
+            try {
+                when (state) {
+                    is ResultState1.success -> {
+                        fnShowMessage(
+                            getString(state.message),
+                            requireContext(),
+                            R.drawable.bg_success
+                        )
+                        Global.isBottomSheetSelected = false
+                        dismiss()
+                    }
+
+                    is ResultState1.fail -> {
+                        fnShowMessage(
+                            getString(state.message),
+                            requireContext(),
+                            R.drawable.error_bg
+                        )
+
+                        if (state.message == R.string.forget_EmailFieldEmpty) {
+                            forgetViewModel._email.value = ""
+                            forgetBinding.idEEmail.isFocusable = true
+                            forgetBinding.idEEmail.requestFocus()
+                        } else if (state.message == R.string.forget_InvalidEmail) {
+                            forgetViewModel._email.value = ""
+                            forgetBinding.idEEmail.isFocusable = true
+                            forgetBinding.idEEmail.requestFocus()
+                        } else if (state.message == R.string.forget_PasswordFieldEmpty) {
+                            forgetViewModel._newPassword.value = ""
+                            forgetBinding.idENewPassword.isFocusable = true
+                            forgetBinding.idENewPassword.requestFocus()
+                        } else if (state.message == R.string.passwordAtleast6Chars) {
+                            forgetViewModel._newPassword.value = ""
+                            forgetBinding.idENewPassword.isFocusable = true
+                            forgetBinding.idENewPassword.requestFocus()
+                        } else if (state.message == R.string.forget_PasswordResetFailed) {
+                            forgetViewModel._email.value = ""
+                            forgetViewModel._newPassword.value = ""
+                            forgetBinding.idEEmail.isFocusable = true
+                            forgetBinding.idEEmail.requestFocus()
+                        } else if (state.message == R.string.bothFieldsEmpty) {
+                            forgetBinding.idEEmail.isFocusable = true
+                            forgetBinding.idEEmail.requestFocus()
+                        }
+                    }
                 }
 
-                is ResultState1.fail -> {
-                    fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
-
-                    if(state.message == R.string.forget_EmailFieldEmpty){
-                        forgetViewModel._email.value = ""
-                        forgetBinding.idEEmail.isFocusable = true
-                        forgetBinding.idEEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.forget_InvalidEmail){
-                        forgetViewModel._email.value = ""
-                        forgetBinding.idEEmail.isFocusable = true
-                        forgetBinding.idEEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.forget_PasswordFieldEmpty){
-                        forgetViewModel._newPassword.value = ""
-                        forgetBinding.idENewPassword.isFocusable = true
-                        forgetBinding.idENewPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.passwordAtleast6Chars){
-                        forgetViewModel._newPassword.value = ""
-                        forgetBinding.idENewPassword.isFocusable = true
-                        forgetBinding.idENewPassword.requestFocus()
-                    }
-                    else if(state.message == R.string.forget_PasswordResetFailed){
-                        forgetViewModel._email.value = ""
-                        forgetViewModel._newPassword.value = ""
-                        forgetBinding.idEEmail.isFocusable = true
-                        forgetBinding.idEEmail.requestFocus()
-                    }
-                    else if(state.message == R.string.bothFieldsEmpty){
-                        forgetBinding.idEEmail.isFocusable = true
-                        forgetBinding.idEEmail.requestFocus()
-                    }
-                }
             }
-        }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG, "Reset Status Value Observed: ${e.message}")
+            }
 
+        }
     }
 }

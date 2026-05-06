@@ -66,9 +66,13 @@ class Main : BaseActivity() {
 
     private lateinit var navController : NavController
 
+    val logger = FileLogger(this.applicationContext)
+    val LOG_TAG = "MAIN"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         mainDataBinding= MainBinding.inflate(layoutInflater)
         mainDataBinding.mainViewModel=mainViewModel
         mainDataBinding.lifecycleOwner=this
@@ -76,18 +80,17 @@ class Main : BaseActivity() {
 
         hideSystemUI()
 
-
         setSupportActionBar(mainDataBinding.idToolBar)
 
-        WorkManager.getInstance(this)
-            .getWorkInfosForUniqueWorkLiveData("SYNC_WORK")
-            .observe(this) { list ->
-                list.forEach {
-                    Log.i("SYNC_DEBUG", "Work State: ${it.state}")
-                }
-            }
-
-
+//        =====================
+//        WorkManager.getInstance(this)
+//            .getWorkInfosForUniqueWorkLiveData("SYNC_WORK")
+//            .observe(this) { list ->
+//                list.forEach {
+//                    Log.i("SYNC_DEBUG", "Work State: ${it.state}")
+//                }
+//            }
+//        =======================
 
 //        mainViewModel.triggerProfile.observe(this){ isTrigger ->
 //            if(isTrigger){
@@ -158,186 +161,275 @@ class Main : BaseActivity() {
         fnShrinkFab()
 
         mainViewModel.logoutStatus.observe(this) { isLoggedOut ->
-            if(isLoggedOut){
-                Global.lUserId =-1
-                Global.lUserName=""
-                Global.lUserPassword=""
-                Global.lUserMobileNo=""
-                Global.lUssrEmail=""
-                val intent = Intent(this, Auth::class.java)
-                startActivity(intent)
-                finish()
+            try
+            {
+                if(isLoggedOut)
+                {
+                    Global.lUserId =-1
+                    Global.lUserName=""
+                    Global.lUserPassword=""
+                    Global.lUserMobileNo=""
+                    Global.lUssrEmail=""
+                    val intent = Intent(this, Auth::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Logout Status: ${e.message}")
             }
         }
 
         mainDataBinding.idMenuFab.setOnClickListener {
-            if(isExpanded){
-                fnExpandFab()
+            try
+            {
+                if(isExpanded)
+                {
+                    fnExpandFab()
+                }
+                else
+                {
+                    fnShrinkFab()
+                }
             }
-            else{
-                fnShrinkFab()
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Menu Fab: ${e.message}")
             }
         }
         mainDataBinding.idReportFab.setOnClickListener {
-            navController = findNavController(R.id.idContainer)
-            if (navController.currentDestination?.id != R.id.idParentReport) {
-                fnShrinkFab()
-                findNavController(R.id.idContainer).navigate(R.id.idParentReport)
+            try
+            {
+                navController = findNavController(R.id.idContainer)
+                if (navController.currentDestination?.id != R.id.idParentReport) {
+                    fnShrinkFab()
+                    findNavController(R.id.idContainer).navigate(R.id.idParentReport)
+                }
+                else {
+                    fnShowMessage(getString(R.string.main_AlreadyInReport),this,R.drawable.error_bg)
+                }
             }
-            else {
-                fnShowMessage("Already You Are In Report",this,R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Report: ${e.message}")
             }
         }
 
         mainDataBinding.idDashboardFab.setOnClickListener {
-            navController = findNavController(R.id.idContainer)
-            if(navController.currentDestination?.id != R.id.idDashBoard) {
-                fnShrinkFab()
-                findNavController(R.id.idContainer).navigate(R.id.idDashBoard)
+            try
+            {
+                navController = findNavController(R.id.idContainer)
+                if(navController.currentDestination?.id != R.id.idDashBoard)
+                {
+                    fnShrinkFab()
+                    findNavController(R.id.idContainer).navigate(R.id.idDashBoard)
+                }
+                else
+                {
+                    fnShowMessage(getString(R.string.main_AlreadyInDashboard),this,R.drawable.error_bg)
+                }
             }
-            else {
-                fnShowMessage("Already You Are In Dashboard",this,R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Dashboard: ${e.message}")
             }
         }
 
         mainDataBinding.idAddExpenseFab.setOnClickListener {
-            navController = findNavController(R.id.idContainer)
-            if(navController.currentDestination?.id != R.id.idNewExpense) {
-                lifecycleScope.launch {
-                    fnShrinkFab()
-                    delay(200)
-                    findNavController(R.id.idContainer).navigate(R.id.idNewExpense)
+            try
+            {
+                navController = findNavController(R.id.idContainer)
+                if(navController.currentDestination?.id != R.id.idNewExpense)
+                {
+                    lifecycleScope.launch {
+                        fnShrinkFab()
+                        delay(200)
+                        findNavController(R.id.idContainer).navigate(R.id.idNewExpense)
+                    }
+                }
+                else
+                {
+                    fnShowMessage(getString(R.string.main_AlreadyInNewExpense),this,R.drawable.error_bg)
                 }
             }
-            else{
-                fnShowMessage("Already You Are In Add Expense",this,R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select New Expense: ${e.message}")
             }
-
         }
 
         mainDataBinding.idSettingsFab.setOnClickListener {
-            navController = findNavController(R.id.idContainer)
-            if(navController.currentDestination?.id != R.id.idSettings) {
-                fnShrinkFab()
-                findNavController(R.id.idContainer).navigate(R.id.idSettings)
+            try
+            {
+                navController = findNavController(R.id.idContainer)
+                if(navController.currentDestination?.id != R.id.idSettings)
+                {
+                    fnShrinkFab()
+                    findNavController(R.id.idContainer).navigate(R.id.idSettings)
+                }
+                else
+                {
+                    fnShowMessage(getString(R.string.main_AlreadyInSettings),this,R.drawable.error_bg)
+                }
             }
-            else{
-                fnShowMessage("Already You Are In Settings",this,R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Settings: ${e.message}")
             }
         }
 
         mainDataBinding.idProfileFab.setOnClickListener {
-            navController = findNavController(R.id.idContainer)
-            if(navController.currentDestination?.id != R.id.idProfile) {
-                fnShrinkFab()
-                findNavController(R.id.idContainer).navigate(R.id.idProfile)
+            try
+            {
+                navController = findNavController(R.id.idContainer)
+                if(navController.currentDestination?.id != R.id.idProfile)
+                {
+                    fnShrinkFab()
+                    findNavController(R.id.idContainer).navigate(R.id.idProfile)
+                }
+                else
+                {
+                    fnShowMessage(getString(R.string.main_AlreadyInProfile),this,R.drawable.error_bg)
+                }
             }
-            else{
-                fnShowMessage("Already You Are In Profile",this,R.drawable.error_bg)
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Select Profile: ${e.message}")
             }
         }
 
         mainViewModel.displayTransparentBg.observe(this){ isDisplay ->
-            if(isDisplay)
-                mainDataBinding.idTransparentBg.visibility=View.VISIBLE
+            try
+            {
+                if(isDisplay)
+                    mainDataBinding.idTransparentBg.visibility=View.VISIBLE
+                else
+                    mainDataBinding.idTransparentBg.visibility=View.GONE
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Transparent Background: ${e.message}")
+            }
+        }
+    }
+    private fun hideSystemUI()
+    {
+        try
+        {
+            // Android 11 and above
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+                window.insetsController?.hide(
+                    WindowInsets.Type.navigationBars() or
+                            WindowInsets.Type.statusBars()
+                )
+                window.insetsController?.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+            // Android 10 and below
             else
-                mainDataBinding.idTransparentBg.visibility=View.GONE
+            {
+                window.decorView.systemUiVisibility =
+                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                            View.SYSTEM_UI_FLAG_FULLSCREEN
+            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Hide System Ui: ${e.message}")
         }
     }
-    private fun hideSystemUI() {
-        // Android 11 and above
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-            window.insetsController?.hide(
-                WindowInsets.Type.navigationBars() or
-                        WindowInsets.Type.statusBars()
-            )
-            window.insetsController?.systemBarsBehavior =
-                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    fun fnExpandFab()
+    {
+        try
+        {
+            mainDataBinding.idDashboardFab.visibility=View.INVISIBLE
+            mainDataBinding.idReportFab.visibility=View.INVISIBLE
+            mainDataBinding.idAddExpenseFab.visibility=View.INVISIBLE
+            mainDataBinding.idSettingsFab.visibility=View.INVISIBLE
+            mainDataBinding.idProfileFab.visibility=View.INVISIBLE
+
+            mainDataBinding.idHomeText.visibility=View.INVISIBLE
+            mainDataBinding.idReportText.visibility=View.INVISIBLE
+            mainDataBinding.idAddText.visibility=View.INVISIBLE
+            mainDataBinding.idSettingsText.visibility=View.INVISIBLE
+            mainDataBinding.idProfileText.visibility=View.INVISIBLE
+
+            mainDataBinding.idTransparentBg.visibility=View.INVISIBLE
+
+            mainDataBinding.idTransparentBg.startAnimation(fromBottomAnim)
+
+            mainDataBinding.idMenuFab.startAnimation(rotateClockWiseFabAnim)
+
+            mainDataBinding.idMenuFab.setImageResource(R.drawable.add)
+
+
+            mainDataBinding.idDashboardFab.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idReportFab.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idAddExpenseFab.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idSettingsFab.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idProfileFab.startAnimation(fromBottomFabAnim)
+
+            mainDataBinding.idHomeText.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idReportText.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idAddText.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idSettingsText.startAnimation(fromBottomFabAnim)
+            mainDataBinding.idProfileText.startAnimation(fromBottomFabAnim)
+
+            isExpanded = !isExpanded
+
         }
-        // Android 10 and below
-        else {
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_FULLSCREEN
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Function Expand Fab: ${e.message}")
         }
-    }
-    fun fnExpandFab() {
 
-        mainDataBinding.idDashboardFab.visibility=View.INVISIBLE
-        mainDataBinding.idReportFab.visibility=View.INVISIBLE
-        mainDataBinding.idAddExpenseFab.visibility=View.INVISIBLE
-        mainDataBinding.idSettingsFab.visibility=View.INVISIBLE
-        mainDataBinding.idProfileFab.visibility=View.INVISIBLE
-
-        mainDataBinding.idHomeText.visibility=View.INVISIBLE
-        mainDataBinding.idReportText.visibility=View.INVISIBLE
-        mainDataBinding.idAddText.visibility=View.INVISIBLE
-        mainDataBinding.idSettingsText.visibility=View.INVISIBLE
-        mainDataBinding.idProfileText.visibility=View.INVISIBLE
-
-        mainDataBinding.idTransparentBg.visibility=View.INVISIBLE
-
-        mainDataBinding.idTransparentBg.startAnimation(fromBottomAnim)
-
-        mainDataBinding.idMenuFab.startAnimation(rotateClockWiseFabAnim)
-
-        mainDataBinding.idMenuFab.setImageResource(R.drawable.add)
-
-
-        mainDataBinding.idDashboardFab.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idReportFab.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idAddExpenseFab.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idSettingsFab.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idProfileFab.startAnimation(fromBottomFabAnim)
-
-        mainDataBinding.idHomeText.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idReportText.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idAddText.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idSettingsText.startAnimation(fromBottomFabAnim)
-        mainDataBinding.idProfileText.startAnimation(fromBottomFabAnim)
-
-        isExpanded = !isExpanded
     }
 
     fun fnShrinkFab()
     {
+        try
+        {
+            mainDataBinding.idTransparentBg.startAnimation(toBottomAnim)
+            mainDataBinding.idMenuFab.startAnimation(rotateAntiClockWiseFabAnim)
 
-        mainDataBinding.idTransparentBg.startAnimation(toBottomAnim)
-        mainDataBinding.idMenuFab.startAnimation(rotateAntiClockWiseFabAnim)
+            mainDataBinding.idMenuFab.setImageResource(R.drawable.menu1)
 
-        mainDataBinding.idMenuFab.setImageResource(R.drawable.menu1)
+            mainDataBinding.idDashboardFab.startAnimation(toBottomFabAnim)
+            mainDataBinding.idAddExpenseFab.startAnimation(toBottomFabAnim)
+            mainDataBinding.idReportFab.startAnimation(toBottomFabAnim)
+            mainDataBinding.idSettingsFab.startAnimation(toBottomFabAnim)
+            mainDataBinding.idProfileFab.startAnimation(toBottomFabAnim)
 
-        mainDataBinding.idDashboardFab.startAnimation(toBottomFabAnim)
-        mainDataBinding.idAddExpenseFab.startAnimation(toBottomFabAnim)
-        mainDataBinding.idReportFab.startAnimation(toBottomFabAnim)
-        mainDataBinding.idSettingsFab.startAnimation(toBottomFabAnim)
-        mainDataBinding.idProfileFab.startAnimation(toBottomFabAnim)
+            mainDataBinding.idHomeText.startAnimation(toBottomFabAnim)
+            mainDataBinding.idAddText.startAnimation(toBottomFabAnim)
+            mainDataBinding.idReportText.startAnimation(toBottomFabAnim)
+            mainDataBinding.idSettingsText.startAnimation(toBottomFabAnim)
+            mainDataBinding.idProfileText.startAnimation(toBottomFabAnim)
 
-        mainDataBinding.idHomeText.startAnimation(toBottomFabAnim)
-        mainDataBinding.idAddText.startAnimation(toBottomFabAnim)
-        mainDataBinding.idReportText.startAnimation(toBottomFabAnim)
-        mainDataBinding.idSettingsText.startAnimation(toBottomFabAnim)
-        mainDataBinding.idProfileText.startAnimation(toBottomFabAnim)
-
-        isExpanded = !isExpanded
-
-
-        mainDataBinding.idDashboardFab.visibility=View.GONE
-        mainDataBinding.idReportFab.visibility=View.GONE
-        mainDataBinding.idAddExpenseFab.visibility=View.GONE
-        mainDataBinding.idSettingsFab.visibility=View.GONE
-        mainDataBinding.idProfileFab.visibility=View.GONE
-
-        mainDataBinding.idHomeText.visibility=View.GONE
-        mainDataBinding.idReportText.visibility=View.GONE
-        mainDataBinding.idAddText.visibility=View.GONE
-        mainDataBinding.idSettingsText.visibility=View.GONE
-        mainDataBinding.idProfileText.visibility=View.GONE
-
-        mainDataBinding.idTransparentBg.visibility=View.GONE
+            isExpanded = !isExpanded
 
 
+            mainDataBinding.idDashboardFab.visibility=View.GONE
+            mainDataBinding.idReportFab.visibility=View.GONE
+            mainDataBinding.idAddExpenseFab.visibility=View.GONE
+            mainDataBinding.idSettingsFab.visibility=View.GONE
+            mainDataBinding.idProfileFab.visibility=View.GONE
+
+            mainDataBinding.idHomeText.visibility=View.GONE
+            mainDataBinding.idReportText.visibility=View.GONE
+            mainDataBinding.idAddText.visibility=View.GONE
+            mainDataBinding.idSettingsText.visibility=View.GONE
+            mainDataBinding.idProfileText.visibility=View.GONE
+
+            mainDataBinding.idTransparentBg.visibility=View.GONE
+
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Function Shrink Fab: ${e.message}")
+        }
     }
 }
 

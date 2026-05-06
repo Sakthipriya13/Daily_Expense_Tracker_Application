@@ -18,8 +18,10 @@ import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class SignUpViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application) {
-
+class SignUpViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application)
+{
     var userRepository: UserRepository
     var categoryRepository : CategoryRepository
 
@@ -63,83 +65,110 @@ class SignUpViewModel(application: Application, logger: FileLogger) : AndroidVie
     var _isLoading = MutableLiveData<Boolean>(false)
     var isLoading : LiveData<Boolean> = _isLoading
 
+    val LOG_TAG = "SIGN_UP_VIEW_MODEL"
+
     fun fnClearAllFields()
     {
-        _clearAllFields.value=true
-        _name.value="";
-        _mobileNo.value="";
-        _password.value="";
-        _email.value="";
+        try
+        {
+            _clearAllFields.value=true
+            _name.value=""
+            _mobileNo.value=""
+            _password.value=""
+            _email.value=""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
+
     }
 
     fun fnNavigateToLogin()
     {
-        _navigateToLogin.value = true
+        try
+        {
+            _navigateToLogin.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Navigate To Login: ${e.message}")
+        }
     }
 
     fun clickSignupButton()
     {
         viewModelScope.launch {
-            when {
-                name.value.isNullOrBlank() &&
-                        mobileNo.value.isNullOrBlank() &&
-                        email.value.isNullOrBlank() &&
-                        password.value.isNullOrBlank() -> {
-                    _insertStatus.value = ResultState1.fail(R.string.signup_AllFieldsEmpty)
-                }
-
-                name.value.isNullOrBlank() -> {
-                    _insertStatus.value = ResultState1.fail(R.string.signup_nameFieldEmpty)
-                }
-
-                mobileNo.value.isNullOrBlank() -> {
-                    _insertStatus.value = ResultState1.fail(R.string.signup_MobileNoFieldEmpty)
-                }
-
-                mobileNo.value?.length != 10 ->{
-                    _mobileNo.value=""
-                    _insertStatus.value = ResultState1.fail(R.string.signup_MobileNoMustBe10Chars)
-                }
-
-                email.value.isNullOrBlank()  -> {
-                    _insertStatus.value = ResultState1.fail(R.string.signup_EmailFieldEmpty)
-                }
-
-                Global.fnIsEmailValid(email.value) == false -> {
-                    _email.value = ""
-                    _insertStatus.value = ResultState1.fail(R.string.signup_InvalidEmail)
-                }
-
-
-                isEmailExists(email.value) == true ->{
-                    _email.value = ""
-                    _insertStatus.value = ResultState1.fail(R.string.signup_AlreadyEmailWasUsed)
-                }
-
-                password.value.isNullOrBlank() -> {
-                    _insertStatus.value = ResultState1.fail(R.string.signup_PasswordFieldEmpty)
-                }
-
-                password.value?.length !=6 ->{
-                    _password.value = ""
-                    _insertStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
-                }
-
-                else -> {
-                    _isLoading.value=true
-                    val isNetworkAvail = Global.isNetworkAvailable(application)
-                    if(isNetworkAvail)
-                    {
-                        Log.i("INTERNET","Internet was connected, User Creation Started")
-                        fnInsert()
-                    }
-                    else{
-                        _insertStatus.value = ResultState1.fail(R.string.noInternet)
-                        Log.i("INTERNET","Internet Is Needed")
-                        _isLoading.value=false
+            try
+            {
+                when {
+                    name.value.isNullOrBlank() &&
+                            mobileNo.value.isNullOrBlank() &&
+                            email.value.isNullOrBlank() &&
+                            password.value.isNullOrBlank() -> {
+                        _insertStatus.value = ResultState1.fail(R.string.signup_AllFieldsEmpty)
                     }
 
+                    name.value.isNullOrBlank() -> {
+                        _insertStatus.value = ResultState1.fail(R.string.signup_nameFieldEmpty)
+                    }
+
+                    mobileNo.value.isNullOrBlank() -> {
+                        _insertStatus.value = ResultState1.fail(R.string.signup_MobileNoFieldEmpty)
+                    }
+
+                    mobileNo.value?.length != 10 ->{
+                        _mobileNo.value=""
+                        _insertStatus.value = ResultState1.fail(R.string.signup_MobileNoMustBe10Chars)
+                    }
+
+                    email.value.isNullOrBlank()  -> {
+                        _insertStatus.value = ResultState1.fail(R.string.signup_EmailFieldEmpty)
+                    }
+
+                    Global.fnIsEmailValid(email.value) == false -> {
+                        _email.value = ""
+                        _insertStatus.value = ResultState1.fail(R.string.signup_InvalidEmail)
+                    }
+
+
+                    isEmailExists(email.value) == true ->{
+                        _email.value = ""
+                        _insertStatus.value = ResultState1.fail(R.string.signup_AlreadyEmailWasUsed)
+                    }
+
+                    password.value.isNullOrBlank() -> {
+                        _insertStatus.value = ResultState1.fail(R.string.signup_PasswordFieldEmpty)
+                    }
+
+                    password.value?.length !=6 ->{
+                        _password.value = ""
+                        _insertStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
+                    }
+
+                    else -> {
+                        _isLoading.value=true
+                        val isNetworkAvail = Global.isNetworkAvailable(application)
+                        if(isNetworkAvail)
+                        {
+                            Log.i("INTERNET","Internet was connected, User Creation Started")
+                            logger.logInfo(LOG_TAG,"Internet was connected, User Creation Started")
+                            fnInsert()
+                        }
+                        else
+                        {
+                            _insertStatus.value = ResultState1.fail(R.string.noInternet)
+                            Log.i("INTERNET","Internet Is Needed")
+                            logger.logInfo(LOG_TAG,"Internet Is Needed")
+                            _isLoading.value=false
+                        }
+
+                    }
                 }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG, "Click Signup Button: ${e.message}")
             }
         }
     }
@@ -190,22 +219,30 @@ class SignUpViewModel(application: Application, logger: FileLogger) : AndroidVie
                         var categoryInsertStatus =
                             categoryRepository.fnInsertDefaultCategoriesToDb(categoryEntities)
 
-                        if (categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it > 0 }) {
+                        if (categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it > 0 })
+                        {
+                            logger.logError(LOG_TAG,"New User Creation: Success")
                             _insertStatus.value = ResultState1.success(R.string.signup_NewUserAccountCreated)
                             _isLoading.value=false
                         }
-                        else {
+                        else
+                        {
+                            logger.logError(LOG_TAG,"New User Creation: Failed1")
                             _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
                             _isLoading.value=false
                         }
                     }
-                    else {
+                    else
+                    {
+                        logger.logError(LOG_TAG,"New User Creation: Failed2")
                         _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
                         _isLoading.value=false
                     }
                 }
             }
-            catch(e : Exception){
+            catch(e : Exception)
+            {
+                logger.logError(LOG_TAG,"New User Creation: ${e.message}")
                 Log.e("NEW USER CREATION","New User Creation: ${e.message}")
                 _insertStatus.value = ResultState1.fail(R.string.signup_MayBeTheEmailAlreadyUsed)
                 _isLoading.value=false
@@ -214,10 +251,13 @@ class SignUpViewModel(application: Application, logger: FileLogger) : AndroidVie
     }
 
     suspend fun isEmailExists(email: String?): Boolean {
-        return try{
+        return try
+        {
             return userRepository.isEmailExistsFun(email)
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Is Email Exists: ${e.message}")
             Log.e("IS EMAIL EXISTS","Is Email Exists: ${e.message}")
             false
         }

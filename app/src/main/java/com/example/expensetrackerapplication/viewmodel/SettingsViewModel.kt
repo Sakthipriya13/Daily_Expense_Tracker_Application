@@ -177,9 +177,11 @@ class SettingsViewModel(
                     fnGetAllCategories()
                     fnClearNewCategoryField()
                     _insertCategoryStatus.value = ResultState1.success(R.string.set_InsertCategorySuccess)
+                    logger.logError(LOG_TAG,"Category successfully stored")
                 }
                 else{
                     _insertCategoryStatus.value = ResultState1.fail(R.string.set_InsertCategoryFailed)
+                    logger.logError(LOG_TAG,"Store Category Failed")
                 }
             }
             catch (e : Exception)

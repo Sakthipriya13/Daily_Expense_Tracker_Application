@@ -16,7 +16,9 @@ import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class LoginViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application)
+class LoginViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application)
 {
     var userRepository : UserRepository
     init {
@@ -58,94 +60,110 @@ class LoginViewModel(application: Application, logger: FileLogger) : AndroidView
 
     var loginDataStore : LoginDataStore = LoginDataStore(application)
 
-    fun fnIsForgetPassword(){
-        _isPasswordForget.value = true
+    val LOG_TAG = "LOGIN_VIEW_MODEL"
+
+    fun fnIsForgetPassword()
+    {
+        try
+        {
+            _isPasswordForget.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"IS Forget Password: ${e.message}")
+        }
     }
 
     fun clickLoginButton()
     {
         viewModelScope.launch {
-            when{
-
-                userName.value.isNullOrBlank() &&  userPassword.value.isNullOrBlank() -> {
-                    _userName.value=""
-                    _loginStatus.value=ResultState1.fail(R.string.login_BothFieldsEmpty)
-                }
-
-                userName.value.isNullOrBlank()-> {
-                    _userName.value=""
-                    _loginStatus.value= ResultState1.fail(R.string.login_UserNameFieldEmpty)
-                }
-
-                userPassword.value.isNullOrBlank()-> {
-                    _userPassword.value = ""
-                    _loginStatus.value= ResultState1.fail(R.string.login_PasswordFieldEmpty)
-                }
-                userPassword.value?.length !=6 ->{
-                    _userPassword.value = ""
-                    _loginStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
-                }
-
-                else -> {
-                    _isLoading.value=true
-                    _userDetailList.value=userRepository.fnGetUserDetailsBasedOnUserName(userName.value,userPassword.value)
-                    var result= _userDetailList.value?.isNotEmpty()
-                    Log.v("USER DETAILS","User Details: ${userDetailList.value}")
-                    if(result==false)
-                    {
-                        var res = userRepository.fnLoginCloudAccount(userName.value,userPassword.value)
-                        if(res.isSuccess){
-                            _loginStatus.postValue(ResultState1.success(R.string.login_Success))
-                        }
-                        else{
-                            Global.lUserId =-1
-                            Global.lUserName=""
-                            Global.lUserPassword=""
-                            Global.lUserMobileNo=""
-                            Global.lUssrEmail=""
-                            _loginStatus.postValue(ResultState1.fail(R.string.login_UserNotFound))
-                        }
-
+            try
+            {
+                when{
+                    userName.value.isNullOrBlank() &&  userPassword.value.isNullOrBlank() -> {
+                        _userName.value=""
+                        _loginStatus.value=ResultState1.fail(R.string.login_BothFieldsEmpty)
                     }
-                    else
-                    {
-                        if((userName.value?.equals(userDetailList.value?.firstOrNull()?.userName ?: "") == true)
-                            && (userPassword.value?.equals(userDetailList.value?.firstOrNull()?.userPassword ?: "") == true))
+
+                    userName.value.isNullOrBlank()-> {
+                        _userName.value=""
+                        _loginStatus.value= ResultState1.fail(R.string.login_UserNameFieldEmpty)
+                    }
+
+                    userPassword.value.isNullOrBlank()-> {
+                        _userPassword.value = ""
+                        _loginStatus.value= ResultState1.fail(R.string.login_PasswordFieldEmpty)
+                    }
+                    userPassword.value?.length !=6 ->{
+                        _userPassword.value = ""
+                        _loginStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
+                    }
+
+                    else -> {
+                        _isLoading.value=true
+                        _userDetailList.value=userRepository.fnGetUserDetailsBasedOnUserName(userName.value,userPassword.value)
+                        var result= _userDetailList.value?.isNotEmpty()
+                        if(result==false)
                         {
-                            Global.lUserId = userDetailList.value?.firstOrNull()?.userId ?: -1
-                            Global.lUserName= userDetailList.value?.firstOrNull()?.userName ?: ""
-                            Global.lUserPassword= userDetailList.value?.firstOrNull()?.userPassword ?: ""
-                            Global.lUserMobileNo= userDetailList.value?.firstOrNull()?.userMobileNo ?: ""
-                            Global.lUssrEmail= userDetailList.value?.firstOrNull()?.userEmail ?: ""
-                            Global.cloudUserId= userDetailList.value?.firstOrNull()?.cloudId ?: ""
+                            var res = userRepository.fnLoginCloudAccount(userName.value,userPassword.value)
+                            if(res.isSuccess){
+                                _loginStatus.postValue(ResultState1.success(R.string.login_Success))
+                            }
+                            else{
+                                Global.lUserId =-1
+                                Global.lUserName=""
+                                Global.lUserPassword=""
+                                Global.lUserMobileNo=""
+                                Global.lUssrEmail=""
+                                _loginStatus.postValue(ResultState1.fail(R.string.login_UserNotFound))
+                            }
 
-                            loginDataStore.fnSaveUser(
-                                userDetailList.value?.firstOrNull()?.userId ?: -1,
-                                userDetailList.value?.firstOrNull()?.userName ?: "",
-                                userDetailList.value?.firstOrNull()?.userMobileNo ?: "",
-                                userDetailList.value?.firstOrNull()?.userEmail ?: "",
-                                userDetailList.value?.firstOrNull()?.userPassword ?: "",
-                                userDetailList.value?.firstOrNull()?.cloudId ?: "",
-                                1,
-                                userDetailList.value?.firstOrNull()?.signUpDate ?:""
-                            )
-
-                            _loginStatus.postValue(ResultState1.success(R.string.login_Success))
                         }
                         else
                         {
-                            Global.lUserId =-1
-                            Global.lUserName=""
-                            Global.lUserPassword=""
-                            Global.lUserMobileNo=""
-                            Global.lUssrEmail=""
+                            if((userName.value?.equals(userDetailList.value?.firstOrNull()?.userName ?: "") == true)
+                                && (userPassword.value?.equals(userDetailList.value?.firstOrNull()?.userPassword ?: "") == true))
+                            {
+                                Global.lUserId = userDetailList.value?.firstOrNull()?.userId ?: -1
+                                Global.lUserName= userDetailList.value?.firstOrNull()?.userName ?: ""
+                                Global.lUserPassword= userDetailList.value?.firstOrNull()?.userPassword ?: ""
+                                Global.lUserMobileNo= userDetailList.value?.firstOrNull()?.userMobileNo ?: ""
+                                Global.lUssrEmail= userDetailList.value?.firstOrNull()?.userEmail ?: ""
+                                Global.cloudUserId= userDetailList.value?.firstOrNull()?.cloudId ?: ""
 
-                            _loginStatus.postValue(ResultState1.fail(R.string.login_UserOrPasswordWrong))
+                                loginDataStore.fnSaveUser(
+                                    userDetailList.value?.firstOrNull()?.userId ?: -1,
+                                    userDetailList.value?.firstOrNull()?.userName ?: "",
+                                    userDetailList.value?.firstOrNull()?.userMobileNo ?: "",
+                                    userDetailList.value?.firstOrNull()?.userEmail ?: "",
+                                    userDetailList.value?.firstOrNull()?.userPassword ?: "",
+                                    userDetailList.value?.firstOrNull()?.cloudId ?: "",
+                                    1,
+                                    userDetailList.value?.firstOrNull()?.signUpDate ?:""
+                                )
 
+                                _loginStatus.postValue(ResultState1.success(R.string.login_Success))
+                            }
+                            else
+                            {
+                                Global.lUserId =-1
+                                Global.lUserName=""
+                                Global.lUserPassword=""
+                                Global.lUserMobileNo=""
+                                Global.lUssrEmail=""
+
+                                _loginStatus.postValue(ResultState1.fail(R.string.login_UserOrPasswordWrong))
+
+                            }
                         }
                     }
+
                 }
 
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG, "On Click Login Button Operation: ${e.message}")
             }
 
         }
@@ -153,15 +171,29 @@ class LoginViewModel(application: Application, logger: FileLogger) : AndroidView
 
     fun fnClearAllFields()
     {
-        _clearAllFields.value=true
-        _userName.value=""
-        _userPassword.value=""
+        try
+        {
+            _clearAllFields.value=true
+            _userName.value=""
+            _userPassword.value=""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
     }
 
 
     fun fnNavigateToSignUp()
     {
-        _navigateToSignUp.value=true
+        try
+        {
+            _navigateToSignUp.value=true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Navigate To Signup: ${e.message}")
+        }
     }
 
 }

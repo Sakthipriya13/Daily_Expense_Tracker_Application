@@ -14,7 +14,9 @@ import com.example.expensetrackerapplication.`object`.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
-class ForgetViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application)
+class ForgetViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     var userRepository : UserRepository
 
@@ -44,50 +46,60 @@ class ForgetViewModel(application: Application, logger: FileLogger) : AndroidVie
 //    var _emailErrorStatus = MutableLiveData<ResultState>()
 //    var emailErrorStatus : LiveData<ResultState> = _emailErrorStatus
 
-    fun onClickCancel(){
-       _isCancel.value = true
+    val LOG_TAG = "FORGET_VIEW_MODEL"
+
+    fun onClickCancel()
+    {
+        try
+        {
+            _isCancel.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"On Click Cancel: ${e.message}")
+        }
     }
 
-    fun onClickReset(){
-            try{
-                Log.e("PASSWORD RESET","Email: ${email.value} And New Password: ${newPassword.value}")
+    fun onClickReset()
+    {
+        try{
+            when{
+                email.value.isNullOrBlank() && newPassword.value.isNullOrBlank() ->{
+                    _email.value = ""
+                    _newPassword.value = ""
+                    _resetStatus.value = ResultState1.fail(R.string.bothFieldsEmpty)
+                }
 
-                when{
-                    email.value.isNullOrBlank() && newPassword.value.isNullOrBlank() ->{
-                        _email.value = ""
-                        _newPassword.value = ""
-                        _resetStatus.value = ResultState1.fail(R.string.bothFieldsEmpty)
-                    }
+                email.value.isNullOrBlank()  -> {
+                    _email.value = ""
+                    _resetStatus.value=ResultState1.fail(R.string.forget_EmailFieldEmpty)
+                }
 
-                    email.value.isNullOrBlank()  -> {
-                        _email.value = ""
-                        _resetStatus.value=ResultState1.fail(R.string.forget_EmailFieldEmpty)
-                    }
+                Global.fnIsEmailValid(email.value) == false -> {
+                    _email.value = ""
+                    _resetStatus.value = ResultState1.fail(R.string.forget_InvalidEmail)
+                }
 
-                    Global.fnIsEmailValid(email.value) == false -> {
-                        _email.value = ""
-                        _resetStatus.value = ResultState1.fail(R.string.forget_InvalidEmail)
-                    }
+                newPassword.value.isNullOrBlank() -> {
+                    _newPassword.value = ""
+                    _resetStatus.value= ResultState1.fail(R.string.forget_PasswordFieldEmpty)
+                }
 
-                    newPassword.value.isNullOrBlank() -> {
-                        _newPassword.value = ""
-                        _resetStatus.value= ResultState1.fail(R.string.forget_PasswordFieldEmpty)
-                    }
+                newPassword.value?.length !=6 ->{
+                    _newPassword.value = ""
+                    _resetStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
+                }
 
-                    newPassword.value?.length !=6 ->{
-                        _newPassword.value = ""
-                        _resetStatus.value= ResultState1.fail(R.string.passwordAtleast6Chars)
-                    }
-
-                    else -> {
-                        fnReset()
-                    }
+                else -> {
+                    fnReset()
                 }
             }
-            catch (e : Exception){
-                Log.e("PASSWORD RESET","Password Reset: ${e.message}")
-                _resetStatus.postValue(ResultState1.fail(R.string.forget_PasswordResetFailed))
-            }
+        }
+        catch (e : Exception){
+            Log.e("PASSWORD RESET","Password Reset: ${e.message}")
+            logger.logError(LOG_TAG,"On Click Reset: ${e.message}")
+            _resetStatus.postValue(ResultState1.fail(R.string.forget_PasswordResetFailed))
+        }
     }
 
     private fun fnReset()
@@ -103,6 +115,7 @@ class ForgetViewModel(application: Application, logger: FileLogger) : AndroidVie
             }
             catch (e : Exception){
                 Log.e("PASSWORD RESET","Password Reset: ${e.message}")
+                logger.logError(LOG_TAG,"Reset Password: ${e.message}")
                 _resetStatus.postValue(ResultState1.fail(R.string.forget_PasswordResetFailed))
             }
         }

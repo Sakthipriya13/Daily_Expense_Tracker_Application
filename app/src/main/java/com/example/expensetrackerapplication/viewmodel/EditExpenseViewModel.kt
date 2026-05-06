@@ -185,12 +185,14 @@ class EditExpenseViewModel(
                     _insertFlag.value = 0
                     _expenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
                     onClickClear()
+                    logger.logError(LOG_TAG,"Expense successfully Stored")
                 }
                 else
                 {
                     _insertFlag.value = 0
                     _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
                     onClickClear()
+                    logger.logError(LOG_TAG,"Store Expense Failed")
                 }
             }
         }

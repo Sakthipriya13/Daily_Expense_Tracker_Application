@@ -10,7 +10,9 @@ import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.utils.ResultState1
 
-class SplitViewModel(application: Application, logger: FileLogger) : AndroidViewModel(application = application) {
+class SplitViewModel(
+    application: Application,
+    private val logger: FileLogger) : AndroidViewModel(application = application) {
     var expenseRepository : ExpenseRepository
 
     init {
@@ -53,49 +55,78 @@ class SplitViewModel(application: Application, logger: FileLogger) : AndroidView
     var splitStatus : LiveData<ResultState1> = _splitStatus
 
 
+    val LOG_TAG ="SPLIT_VIEW_MODEL"
+
     fun onClickCancel()
     {
-        _isClosed.value = true
+        try
+        {
+            _isClosed.value = true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"On Click Cancel: ${e.message}")
+        }
     }
 
     fun onClickOk()
     {
-        val cashAmt = amtInCash.value?.toFloatOrNull() ?: 0f
-        val cardAmt = amtInCard.value?.toFloatOrNull() ?: 0f
-        val upiAmt  = amtInUpi.value?.toFloatOrNull() ?: 0f
-
-        val amt = cashAmt + cardAmt + upiAmt
-
-        if(amt != (totAmt.value?.toFloatOrNull() ?:0f))
+        try
         {
-            _splitStatus.value = ResultState1.fail(R.string.split_TotalAmtMissMatch)
+            val cashAmt = amtInCash.value?.toFloatOrNull() ?: 0f
+            val cardAmt = amtInCard.value?.toFloatOrNull() ?: 0f
+            val upiAmt  = amtInUpi.value?.toFloatOrNull() ?: 0f
+
+            val amt = cashAmt + cardAmt + upiAmt
+
+            if(amt != (totAmt.value?.toFloatOrNull() ?:0f))
+            {
+                _splitStatus.value = ResultState1.fail(R.string.split_TotalAmtMissMatch)
+            }
+
+            _okSplit.value = totAmt.toString()
+
         }
-
-        _okSplit.value = totAmt.toString()
-
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"On Click Ok: ${e.message}")
+        }
     }
 
-    fun fnUpdateFromCash()
+    fun fnUpdateTotalAmtFromCash()
     {
+        try
+        {
+            val total = totAmt.value?.toFloatOrNull() ?: 0f
+            val cash = amtInCash.value?.toFloatOrNull() ?: 0f
 
-        val total = totAmt.value?.toFloatOrNull() ?: 0f
-        val cash = amtInCash.value?.toFloatOrNull() ?: 0f
+            val remaining = total - cash
 
-        val remaining = total - cash
+            _amtInCard.value = if (remaining > 0) remaining.toString() else "0.00"
 
-        _amtInCard.value = if (remaining > 0) remaining.toString() else "0.00"
-
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Update Total Amount From Cash; ${e.message}")
+        }
     }
 
-    fun fnUpdateFromCard()
+    fun fnUpdateTotalAmtFromCard()
     {
-        val total = totAmt.value?.toFloatOrNull() ?: 0f
-        val cash = amtInCash.value?.toFloatOrNull() ?: 0f
-        val card = amtInCard.value?.toFloatOrNull() ?: 0f
+        try
+        {
+            val total = totAmt.value?.toFloatOrNull() ?: 0f
+            val cash = amtInCash.value?.toFloatOrNull() ?: 0f
+            val card = amtInCard.value?.toFloatOrNull() ?: 0f
 
-        var remaining = total-cash-card
+            var remaining = total-cash-card
 
-        _amtInUpi.value = if (remaining > 0) remaining.toString() else "0.00"
+            _amtInUpi.value = if (remaining > 0) remaining.toString() else "0.00"
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Update Total Amount From Card: ${e.message}")
+        }
     }
 
 

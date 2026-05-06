@@ -690,7 +690,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     currentPaymentType.copy(
                         cash = amt?.toFloat() ?: 0f
                     )
-                splitViewModel.fnUpdateFromCash()
+                splitViewModel.fnUpdateTotalAmtFromCash()
             }
             catch (e: Exception)
             {
@@ -709,7 +709,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
                     currentPaymentType.copy(
                         card = amt?.toFloat() ?: 0f
                     )
-                splitViewModel.fnUpdateFromCard()
+                splitViewModel.fnUpdateTotalAmtFromCard()
             }
             catch (e: Exception)
             {

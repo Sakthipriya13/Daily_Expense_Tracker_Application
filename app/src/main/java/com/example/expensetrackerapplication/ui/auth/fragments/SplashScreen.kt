@@ -23,6 +23,7 @@ import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.io.File
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -53,8 +54,12 @@ class SplashScreen : Fragment() {
     private lateinit var topAnimation : Animation
     private lateinit var bottomAnimation : Animation
 
-    val settingsViewModel : SettingsViewModel  by activityViewModels()
+    val settingsViewModel : SettingsViewModel  by activityViewModels{
+        appViewModelFactory
+    }
 
+    val logger = FileLogger(requireContext().applicationContext)
+    val LOG_TAG = "SPLASH_SCREEN"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,10 +87,28 @@ class SplashScreen : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        topAnimation= AnimationUtils.loadAnimation(requireContext(), R.anim.top_animation)
-        bottomAnimation= AnimationUtils.loadAnimation(requireContext(),R.anim.bottom_animation)
 
-        splashDataBinding.idAppLogo.animation=topAnimation
+        try {
+            topAnimation= AnimationUtils.loadAnimation(requireContext(), R.anim.top_animation)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Assign Top Animation: ${e.message}")
+        }
+
+        try {
+            bottomAnimation= AnimationUtils.loadAnimation(requireContext(),R.anim.bottom_animation)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Assign Bottom Animation: ${e.message}")
+        }
+
+        try {
+            splashDataBinding.idAppLogo.animation=topAnimation
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Assign Top Animation To Logo: ${e.message}")
+        }
+
 //        splashDataBinding.idAppName.animation=topAnimation
 
 //        lifecycleScope.b launchWhenStarted {
@@ -99,25 +122,32 @@ class SplashScreen : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             viewModel.navigateToLogin.collect { shouldNavigate ->
-                if(shouldNavigate)
+                try
                 {
-                    findNavController().navigate(R.id.action_splash_to_login)
+                    if(shouldNavigate)
+                    {
+                        findNavController().navigate(R.id.action_splash_to_login)
+                    }
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Navigate To Login: ${e.message}")
                 }
             }
         }
     }
-    suspend fun fnGetCloudUserId(): String
-    {
-        var auth = FirebaseAuth.getInstance()
-        if(auth.currentUser == null){
-            Log.i("CLOUD USER ID","Cloud User Id: NULL")
-            auth.signInAnonymously().await()
-        }
-        else{
-            Log.i("CLOUD USER ID","Cloud User Id: ${auth.currentUser!!.uid}")
-        }
-        return auth.currentUser!!.uid
-    }
+//    suspend fun fnGetCloudUserId(): String
+//    {
+//        var auth = FirebaseAuth.getInstance()
+//        if(auth.currentUser == null){
+//            Log.i("CLOUD USER ID","Cloud User Id: NULL")
+//            auth.signInAnonymously().await()
+//        }
+//        else{
+//            Log.i("CLOUD USER ID","Cloud User Id: ${auth.currentUser!!.uid}")
+//        }
+//        return auth.currentUser!!.uid
+//    }
     companion object {
         /**
          * Use this factory method to create a new instance of

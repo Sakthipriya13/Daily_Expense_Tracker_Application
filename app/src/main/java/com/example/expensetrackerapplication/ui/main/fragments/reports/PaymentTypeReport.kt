@@ -56,6 +56,7 @@ class PaymentTypeReport : Fragment() {
         appViewModelFactory
     }
 
+    val logger = FileLogger(requireContext().applicationContext)
     val LOG_TAG = "PAYMENT_TYPE_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +71,8 @@ class PaymentTypeReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        paymentTypeReportBinding = DataBindingUtil.inflate(inflater,R.layout.payment_type_report, container, false)
+        paymentTypeReportBinding = DataBindingUtil.inflate(inflater,
+            R.layout.payment_type_report, container, false)
         paymentTypeReportBinding.paymentTypeReportViewModel = paymentTypeReportViewModel
         paymentTypeReportBinding.lifecycleOwner = viewLifecycleOwner
 
@@ -119,15 +121,19 @@ class PaymentTypeReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Show Calendar: ${e.message}")
                 Log.e(LOG_TAG,"Show Calendar: ${e.message}")
             }
         }
         
         paymentTypeReportViewModel.selectedDate.observe(viewLifecycleOwner){ date->
-            try {
+            try
+            {
                 paymentTypeReportViewModel.fnGetPaymentTypeList(date)
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Selected Date Observed: ${e.message}")
                 Log.e(LOG_TAG,"Selected Date Observed: ${e.message}")
             }
         }
@@ -141,7 +147,9 @@ class PaymentTypeReport : Fragment() {
                     paymentTypeReportViewModel.resetCloseState()
                 }
             }
-            catch (e: Exception){
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Payment Type Report: ${e.message}")
                 Log.e(LOG_TAG,"Close The Payment Type Report: ${e.message}")
             }
         }
@@ -164,6 +172,7 @@ class PaymentTypeReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Payment Type List Observed: ${e.message}")
                 Log.e(LOG_TAG,"Payment Type List Observed: ${e.message}")
             }
         }
@@ -182,6 +191,7 @@ class PaymentTypeReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"ProgressBar Loading: ${e.message}")
                 Log.e(LOG_TAG,"ProgressBar Loading: ${e.message}")
             }
         }
@@ -201,6 +211,7 @@ class PaymentTypeReport : Fragment() {
             }
             catch (e: Exception)
             {
+                logger.logError(LOG_TAG,"Export Status: ${e.message}")
                 Log.e(LOG_TAG,"Export Status: ${e.message}")
             }
         }
@@ -297,7 +308,9 @@ class PaymentTypeReport : Fragment() {
 
             paymentTypeReportBinding.idChart.invalidate()
         }
-        catch (e: Exception){
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Chart Creation: ${e.message}")
             Log.e(LOG_TAG,"Chart Creation: ${e.message}")
         }
     }
