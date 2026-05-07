@@ -7,6 +7,7 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.AuthViewModel
+import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
 import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
 import com.example.expensetrackerapplication.viewmodel.DashBoardViewModel
@@ -96,6 +97,9 @@ class AppViewModelFactory(
             }
             modelClass.isAssignableFrom(SplitViewModel::class.java) ->{
                 SplitViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(CalendarYearViewModel::class.java)->{
+                CalendarYearViewModel(application,logger) as T
             }
             else ->{
                 throw IllegalArgumentException(

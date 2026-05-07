@@ -6,7 +6,7 @@
     <data>
         <variable
             name="calendar"
-            type="String" />
+            type="com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel" />
     </data>
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
@@ -36,21 +36,21 @@
                     android:layout_margin="5dp"
                     android:textColor="?attr/textColorWhite"
                     />
+
                 <TextView
                     android:id="@+id/idTextYear"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="2026"
                     android:layout_marginLeft="100dp"
                     android:layout_marginRight="100dp"
                     android:layout_marginBottom="5dp"
-                    android:gravity="center"
-                    android:textSize="@dimen/sub_header_size"
-                    android:textStyle="normal"
+                    android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:text="@{calendar._selectedYear}"
                     android:textColor="?attr/textColorWhite"
-                    />
+                    android:textSize="@dimen/sub_header_size"
+                    android:textStyle="normal" />
             </LinearLayout>
 
             <RelativeLayout
@@ -92,6 +92,7 @@
                     android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:text="@string/cancel"
+                    android:onClick="@{()-> calendar.onClickCancel()}"
                     android:textColor="?attr/colorPrimary"
                     android:textColorLink="?attr/colorPrimary"
                     android:textSize="@dimen/button_text_size"
@@ -105,6 +106,7 @@
                     android:textColor="@color/text_color_white"
                     android:background="@drawable/btn_background"
                     android:text= "@string/ok"
+                    android:onClick="@{()->calendar.onClickOk()}"
                     android:textSize="@dimen/button_text_size" />
 
             </LinearLayout>

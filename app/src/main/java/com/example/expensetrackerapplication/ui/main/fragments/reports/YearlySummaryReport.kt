@@ -26,6 +26,7 @@ import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
+import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -69,6 +70,10 @@ class YearlySummaryReport : Fragment() {
 //        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG="YEARLY_SUMMARY_REPORT"
+
+    val calendarYearViewModel : CalendarYearViewModel by viewModels {
+        appViewModelFactory
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -314,8 +319,8 @@ class YearlySummaryReport : Fragment() {
             {
                 Global.isCalendarSelected = true
                 var monthBinding = YearCalendarBinding.inflate(layoutInflater)
-//                monthBinding.calendar = calendarYearViewModel
-//                monthBinding.lifecycleOwner = viewLifecycleOwner
+                monthBinding.calendar = calendarYearViewModel
+                monthBinding.lifecycleOwner = viewLifecycleOwner
 //
                 val monthAlert = AlertDialog.Builder(requireContext())
                 monthAlert.setView(monthBinding.root)
@@ -332,35 +337,53 @@ class YearlySummaryReport : Fragment() {
                 monthBinding.idYearPicker.value = currentYear
                 monthBinding.idYearPicker.wrapSelectorWheel = false
 
-                monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
+                calendarYearViewModel._selectedYear.value = "${monthBinding.idYearPicker.value}"
+//                monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
 
-//            monthBinding.idTextYear.setOnClickListener {
+//                monthBinding.idOkYear.setOnClickListener {
+                    calendarYearViewModel.isConfirm.observe(viewLifecycleOwner){ isConfirm ->
+                        try
+                        {
+                            if(isConfirm) {
+                                monthBinding.idTextYear.text =
+                                    "${monthBinding.idYearPicker.value}"
 
-                monthBinding.idOkYear.setOnClickListener {
-                    monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
+                                Global.isCalendarSelected = false
 
-//                    val selectedYear = java.time.YearMonth.of(
-//                        monthBinding.idYearPicker.value,
-//                        java.time.YearMonth.now().monthValue
-//                    )
+                                yearlySummaryReportViewModel._selectedYear.value =
+                                    monthBinding.idYearPicker.value.toString()
 
-                    Global.isCalendarSelected = false
+                                dialog.dismiss()
+                            }
+                        }
+                        catch (e: Exception)
+                        {
+                            logger.logError(LOG_TAG,"Year Selected From YearCalendar: ${e.message}")
+                        }
+                    }
+//                }
 
-                    yearlySummaryReportViewModel._selectedYear.value = monthBinding.idYearPicker.value.toString()
-
-                    dialog.dismiss()
-                }
-
-                monthBinding.idCancelYear.setOnClickListener {
-                    Global.isCalendarSelected = false
-                    dialog.dismiss()
-                }
-//            }
+//                monthBinding.idCancelYear.setOnClickListener {
+                    calendarYearViewModel.isClose.observe(viewLifecycleOwner){ isClose ->
+                        try
+                        {
+                            if(isClose)
+                            {
+                                Global.isCalendarSelected = false
+                                dialog.dismiss()
+                            }
+                        }
+                        catch (e: Exception)
+                        {
+                            logger.logError(LOG_TAG,"Close The Year Calendar: ${e.message}")
+                        }
+                    }
+//                }
             }
         }
         catch (e: Exception)
         {
-            logger.logError(LOG_TAG,"Display Year Selection Screen: ${e.message}")
+            logger.logError(LOG_TAG,"Display Year Calendar Screen: ${e.message}")
             Log.e(LOG_TAG,"Display Year Selection Screen: ${e.message}")
         }
     }
