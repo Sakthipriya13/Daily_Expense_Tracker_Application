@@ -32,7 +32,7 @@ import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CurrentDayReportModel
 import com.example.expensetrackerapplication.model.PaymentType
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui_event.DayWiseReportClickListener
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -76,7 +76,8 @@ class DayWiseReport : Fragment() {
 
 //    private lateinit var mainViewBinding : MainBinding
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG = "DAY_WISE_REPORT"
 
@@ -92,6 +93,8 @@ class DayWiseReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         DayWiseReportBinding = DataBindingUtil.inflate(inflater,R.layout.day_wise_report, container, false)
         DayWiseReportBinding.currentDayReportViewModel=DayWiseReportViewModel
 

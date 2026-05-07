@@ -58,7 +58,8 @@ class SplashScreen : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "SPLASH_SCREEN"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +74,8 @@ class SplashScreen : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        logger = FileLogger(requireContext().applicationContext)
 
         splashDataBinding= DataBindingUtil.inflate(inflater,R.layout.splash_screen,container,false)
 

@@ -4,7 +4,7 @@ import android.util.Log
 import com.example.expensetrackerapplication.data.dao.IncomeDao
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 

@@ -12,7 +12,7 @@ import com.example.expensetrackerapplication.data.entity.UserEntity
 import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.datastore.LoginDataStore
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 

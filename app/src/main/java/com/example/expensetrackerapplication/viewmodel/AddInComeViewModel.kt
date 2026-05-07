@@ -11,7 +11,7 @@ import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
 import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 import kotlin.math.log
@@ -101,10 +101,14 @@ class AddInComeViewModel(
                         isSynced = 0
                     )
                     var result = incomeRepository.fnInsertIncome(income)
-                    if(result)
+                    if(result) {
                         _insertStatus.postValue(ResultState1.success(R.string.income_InsertIncomeSuccess))
-                    else
+                        logger.logInfo(LOG_TAG,"Insert Income Success")
+                    }
+                    else {
                         _insertStatus.postValue(ResultState1.fail(R.string.income_InsertIncomeFailed))
+                        logger.logError(LOG_TAG,"Insert Income Failed")
+                    }
                 }
             }
             catch (e : Exception)

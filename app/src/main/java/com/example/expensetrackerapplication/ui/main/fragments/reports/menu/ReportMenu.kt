@@ -41,7 +41,8 @@ open class ReportMenu : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG = "REPORT_MENU"
 
@@ -57,6 +58,8 @@ open class ReportMenu : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         reportMenuBinding = DataBindingUtil.inflate(inflater,R.layout.report_menu, container, false)
         reportMenuBinding.reportMenuViewModel=reportMenuViewModel
         reportMenuBinding.lifecycleOwner=viewLifecycleOwner
@@ -66,7 +69,6 @@ open class ReportMenu : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         reportMenuViewModel.selectedReportType.observe(viewLifecycleOwner){ menu ->
             try {
                 menu?.let {

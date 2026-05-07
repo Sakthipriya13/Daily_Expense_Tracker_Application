@@ -27,7 +27,7 @@ import com.example.expensetrackerapplication.databinding.NewExpenseBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.PaymentType
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.NewExpenseViewModel
@@ -80,7 +80,8 @@ class NewExpense : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG ="NEW_EXPENSE"
 
@@ -101,6 +102,7 @@ class NewExpense : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
 
         newExpenseBinding = DataBindingUtil.inflate(inflater,R.layout.new_expense, container, false)
         newExpenseBinding.newExpenseViewModel=newExpenseViewModel

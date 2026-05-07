@@ -6,6 +6,7 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.expensetrackerapplication.R
@@ -31,13 +32,16 @@ class Auth : BaseActivity()
 
     lateinit var authBinding : AuthBinding
 
-    val logger  = FileLogger(this.applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(this.applicationContext)
 
     val LOG_TAG = "AUTH"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        logger = FileLogger(this.applicationContext)
 
         authBinding = AuthBinding.inflate(layoutInflater)
         authBinding.authViewModel = authViewModel

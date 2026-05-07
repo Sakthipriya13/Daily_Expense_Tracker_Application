@@ -24,7 +24,7 @@ import com.example.expensetrackerapplication.databinding.YearlySummaryReportBind
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
@@ -67,7 +67,8 @@ class YearlySummaryReport : Fragment() {
 
     private lateinit var adapter : YearlySummaryAdapter
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG="YEARLY_SUMMARY_REPORT"
 
@@ -83,6 +84,8 @@ class YearlySummaryReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         yearlySummaryReportBinding = DataBindingUtil.inflate(inflater,R.layout.yearly_summary_report, container, false)
         yearlySummaryReportBinding.yearlySummaryViewModel = yearlySummaryReportViewModel
         yearlySummaryReportBinding.lifecycleOwner = viewLifecycleOwner

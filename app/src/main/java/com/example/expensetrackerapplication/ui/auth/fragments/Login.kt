@@ -15,7 +15,7 @@ import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ForgetPasswordBinding
 import com.example.expensetrackerapplication.databinding.LoginBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.main.Main
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -48,7 +48,10 @@ class Login : Fragment() {
     }
     private lateinit var loginDataBinding : LoginBinding
 
-    val logger = FileLogger(requireContext().applicationContext)
+    lateinit var logger : FileLogger
+
+//    val logger = FileLogger(requireContext().applicationContext)
+
     val LOG_TAG = "LOGIN"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +66,7 @@ class Login : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
 
         loginDataBinding= DataBindingUtil.inflate(inflater,R.layout.login,container,false)
         loginDataBinding.loginViewModel=loginViewModel
@@ -73,7 +77,6 @@ class Login : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         loginViewModel.clearAllFields.observe(viewLifecycleOwner){ob ->
             try

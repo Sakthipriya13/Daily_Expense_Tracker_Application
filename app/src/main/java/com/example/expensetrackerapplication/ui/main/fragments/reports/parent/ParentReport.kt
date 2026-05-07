@@ -41,7 +41,8 @@ class ParentReport : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "PARENT_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +62,9 @@ class ParentReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        logger = FileLogger(requireContext().applicationContext)
+
         parentReportBinding = DataBindingUtil.inflate(inflater,R.layout.parent_report, container, false)
         parentReportBinding.parentReportViewModel=parentReportViewModel
         parentReportBinding.lifecycleOwner = viewLifecycleOwner

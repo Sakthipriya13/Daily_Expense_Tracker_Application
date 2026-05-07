@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import androidx.work.WorkManager
 import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.reusefiles.BaseActivity
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
@@ -66,12 +66,15 @@ class Main : BaseActivity() {
 
     private lateinit var navController : NavController
 
-    val logger = FileLogger(this.applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(this.applicationContext)
     val LOG_TAG = "MAIN"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        logger = FileLogger(this.applicationContext)
 
         mainDataBinding= MainBinding.inflate(layoutInflater)
         mainDataBinding.mainViewModel=mainViewModel

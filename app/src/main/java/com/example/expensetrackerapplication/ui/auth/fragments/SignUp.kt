@@ -48,7 +48,8 @@ class SignUp : Fragment() {
 
     private lateinit var signUpDataBinding : SignUpBinding
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG = "SIGN_UP"
 
@@ -65,6 +66,8 @@ class SignUp : Fragment() {
         savedInstanceState: Bundle?
     ): View?
     {
+        logger = FileLogger(requireContext().applicationContext)
+
         signUpDataBinding= DataBindingUtil.inflate(inflater,R.layout.sign_up, container, false)
         signUpDataBinding.lifecycleOwner=viewLifecycleOwner
         signUpDataBinding.signUpViewModel=signUpViewModel
@@ -74,7 +77,6 @@ class SignUp : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
 //        signUpViewModel._firestoreCloudId.value =  splashViewModel.cloudUserId.value
 

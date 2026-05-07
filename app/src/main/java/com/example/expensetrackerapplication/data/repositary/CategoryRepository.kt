@@ -3,7 +3,7 @@ package com.example.expensetrackerapplication.data.repositary
 import android.util.Log
 import com.example.expensetrackerapplication.data.dao.CategoryDao
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore

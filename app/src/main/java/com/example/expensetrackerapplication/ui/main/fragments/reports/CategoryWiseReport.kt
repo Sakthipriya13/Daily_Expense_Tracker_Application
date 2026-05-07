@@ -20,7 +20,7 @@ import com.example.expensetrackerapplication.databinding.CategoryChartListItemBi
 import com.example.expensetrackerapplication.databinding.CategoryWiseReportBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryChartModel
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
@@ -58,7 +58,8 @@ class CategoryWiseReport : Fragment() {
 
     val LOG_TAG = "CATEGORY_WISE_REPORT"
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +73,8 @@ class CategoryWiseReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         categoryWiseReportBinding = DataBindingUtil.inflate(inflater,R.layout.category_wise_report, container, false)
         categoryWiseReportBinding.categoryWiseReportViewModel = categoryWiseReportViewModel
         categoryWiseReportBinding.lifecycleOwner = viewLifecycleOwner

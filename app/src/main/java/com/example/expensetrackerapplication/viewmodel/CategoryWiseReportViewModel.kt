@@ -12,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.CategoryChartModel
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.application

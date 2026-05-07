@@ -68,5 +68,5 @@ class FileLogger(private val context: Context) : Logger {
         }
     }
 
-    fun getLogFile(): File = logFile
+//    fun getLogFile(): File = logFile
 }

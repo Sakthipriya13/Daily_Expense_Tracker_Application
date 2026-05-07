@@ -21,7 +21,7 @@ import com.example.expensetrackerapplication.databinding.ChangePasswordBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.ProfileBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -62,7 +62,8 @@ class Profile : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG ="PROFILE"
 
 //    private val mainViewModel : MainViewModel by activityViewModels()
@@ -96,6 +97,8 @@ class Profile : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        logger = FileLogger(requireContext().applicationContext)
 
 //        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
 //

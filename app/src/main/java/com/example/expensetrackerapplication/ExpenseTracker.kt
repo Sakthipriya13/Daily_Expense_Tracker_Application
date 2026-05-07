@@ -15,44 +15,5 @@ import kotlinx.coroutines.delay
 class ExpenseTracker : Application() {
     override fun onCreate() {
         super.onCreate()
-//        try{
-//            Log.i("SYNC_WORKER","Start Sync From Expense Tracker1")
-//
-//            val uId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-//
-//            startSyncWork(uId)
-//
-//            Log.i("SYNC_WORKER","Start Sync From Expense Tracker2")
-//
-//        }
-//        catch (e : Exception){
-//            Log.e("START_SYNC","Start Sync From Expense Tracker (Exception): ${e.message}")
-//        }
-    }
-
-     fun startSyncWork(uId: String) {
-         Log.i("SYNC_WORKER","Start Sync From Expense Tracker3")
-
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val workRequest =
-//            PeriodicWorkRequestBuilder<SyncWorker>(15, TimeUnit.MINUTES)
-                OneTimeWorkRequestBuilder<SyncWorker>()
-                .setConstraints(constraints)
-                    .setInputData(
-                        workDataOf("Cloud_User_Id" to uId)
-                    )
-                .build()
-//            .getInstance(this)
-//            .enqueueUniquePeriodicWork(
-        WorkManager.getInstance(this).enqueueUniqueWork(
-                "SYNC",
-//                ExistingPeriodicWorkPolicy.KEEP,
-            ExistingWorkPolicy.KEEP,
-            workRequest
-            )
-
     }
 }

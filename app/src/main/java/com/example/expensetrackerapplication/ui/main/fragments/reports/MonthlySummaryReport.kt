@@ -26,7 +26,7 @@ import com.example.expensetrackerapplication.databinding.MonthlyReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.MonthlySummaryViewModel
@@ -65,7 +65,8 @@ class MonthlyReport : Fragment() {
 
     val LOG_TAG = "MONTHLY_SUMMARY_REPORT"
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +80,8 @@ class MonthlyReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         monthlySummaryBinding = DataBindingUtil.inflate(inflater,R.layout.monthly_report, container, false)
         monthlySummaryBinding.monthlySummaryViewModel = monthlySummaryViewModel
         monthlySummaryBinding.lifecycleOwner = viewLifecycleOwner

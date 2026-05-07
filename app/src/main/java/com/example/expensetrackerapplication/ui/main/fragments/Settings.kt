@@ -29,7 +29,7 @@ import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.datastore.ThemeDataStore
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryModel
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui_event.CategoryItemClickListener
 import com.example.expensetrackerapplication.utils.ResultState1
@@ -84,7 +84,8 @@ class Settings : Fragment()
 
     val LOG_TAG = "SETTINGS"
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     override fun onResume() {
         super.onResume()
@@ -104,6 +105,8 @@ class Settings : Fragment()
         savedInstanceState: Bundle?
     ): View?
     {
+        logger = FileLogger(requireContext().applicationContext)
+
         settingsBinding= DataBindingUtil.inflate(inflater,R.layout.settings, container, false)
         settingsBinding.settingsViewModel=settingsViewModel
         settingsBinding.lifecycleOwner=viewLifecycleOwner

@@ -13,7 +13,7 @@ import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.data.logger.Logger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.PaymentType
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 
@@ -236,7 +236,7 @@ class NewExpenseViewModel(
                     _insertFlag.value = 0
                     _newExpenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
                     fnClearAllFieldsValue()
-                    logger.logError(LOG_TAG,"Expense successfully stored")
+                    logger.logInfo(LOG_TAG,"Expense successfully stored")
                 }
                 else
                 {

@@ -16,7 +16,7 @@ import com.example.expensetrackerapplication.data.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.PaymentTypeReportBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.PaymentTypeReportViewModel
@@ -56,7 +56,8 @@ class PaymentTypeReport : Fragment() {
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "PAYMENT_TYPE_REPORT"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +72,8 @@ class PaymentTypeReport : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
+
         paymentTypeReportBinding = DataBindingUtil.inflate(inflater,
             R.layout.payment_type_report, container, false)
         paymentTypeReportBinding.paymentTypeReportViewModel = paymentTypeReportViewModel

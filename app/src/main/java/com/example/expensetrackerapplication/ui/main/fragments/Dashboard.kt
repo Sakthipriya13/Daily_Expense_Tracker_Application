@@ -22,7 +22,7 @@ import com.example.expensetrackerapplication.databinding.DashboardBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.viewmodel.DashBoardViewModel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
@@ -63,7 +63,8 @@ class Dashboard : Fragment() {
         appViewModelFactory
     }
 
-    val logger  = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG ="DASHBOARD"
 
@@ -89,6 +90,7 @@ class Dashboard : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        logger = FileLogger(requireContext().applicationContext)
 
         dashBoardBinding = DataBindingUtil.inflate(inflater, R.layout.dashboard, container, false)
         dashBoardBinding.dashBoard=dashBoardViewModel

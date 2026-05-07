@@ -2,17 +2,14 @@ package com.example.expensetrackerapplication.reusefiles
 
 import android.content.Context
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.lifecycleScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.datastore.LanguageDataStore
 import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.datastore.ThemeDataStore
-import com.example.expensetrackerapplication.`object`.Global
-import com.example.expensetrackerapplication.`object`.LocaleHelper
-import kotlinx.coroutines.launch
+import com.example.expensetrackerapplication.utils.Global
+import com.example.expensetrackerapplication.utils.LocaleManager
 import kotlinx.coroutines.runBlocking
 
 abstract class BaseActivity : AppCompatActivity()
@@ -74,7 +71,7 @@ abstract class BaseActivity : AppCompatActivity()
 //            LanguageDataStore(newBase).languageFlow?.first()
             LanguageDataStore(newBase).fnGetLanguage()
         }
-        val context = LocaleHelper.fnSetLocale(newBase,languageCode)
+        val context = LocaleManager.fnSetLocale(newBase,languageCode)
         super.attachBaseContext(context)
     }
 }

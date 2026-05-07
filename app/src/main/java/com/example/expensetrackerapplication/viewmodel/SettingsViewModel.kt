@@ -25,7 +25,7 @@ import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.datastore.LanguageDataStore
 import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.datastore.ThemeDataStore
-import com.example.expensetrackerapplication.`object`.Global
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
@@ -177,7 +177,7 @@ class SettingsViewModel(
                     fnGetAllCategories()
                     fnClearNewCategoryField()
                     _insertCategoryStatus.value = ResultState1.success(R.string.set_InsertCategorySuccess)
-                    logger.logError(LOG_TAG,"Category successfully stored")
+                    logger.logInfo(LOG_TAG,"Category successfully stored")
                 }
                 else{
                     _insertCategoryStatus.value = ResultState1.fail(R.string.set_InsertCategoryFailed)
@@ -318,12 +318,14 @@ class SettingsViewModel(
                     {
                         fnSendFilesViaEmail(files)
                     }
-                    else{
+                    else
+                    {
                         _shareDataStatus.value = ResultState1.fail(R.string.set_ShareData_NoData)
                         return@launch
                     }
                 }
-                else{
+                else
+                {
                     _shareDataStatus.value= ResultState1.fail(R.string.noInternet)
                 }
             }
