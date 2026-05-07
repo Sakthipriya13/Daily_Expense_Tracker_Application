@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.data.logger
+package com.example.expensetrackerapplication.logger
 
 import android.content.Context
 import android.util.Log

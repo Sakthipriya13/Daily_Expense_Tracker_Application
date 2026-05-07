@@ -3,7 +3,7 @@ package com.example.expensetrackerapplication.factory
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.AuthViewModel

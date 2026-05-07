@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.ParentReportBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.viewmodel.ParentReportViewModel

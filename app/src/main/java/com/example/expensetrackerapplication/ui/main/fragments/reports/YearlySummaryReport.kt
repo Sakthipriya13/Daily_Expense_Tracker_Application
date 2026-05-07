@@ -14,11 +14,10 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.paging.LOG_TAG
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.YearCalendarBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportBinding
 import com.example.expensetrackerapplication.databinding.YearlySummaryReportListItemViewBinding
@@ -27,7 +26,6 @@ import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
-import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis

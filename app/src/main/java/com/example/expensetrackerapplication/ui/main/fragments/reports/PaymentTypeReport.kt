@@ -12,7 +12,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.PaymentTypeReportBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel

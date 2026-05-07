@@ -7,15 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.data.database.AppDatabase
-import com.example.expensetrackerapplication.data.logger.FileLogger
-import com.example.expensetrackerapplication.data.logger.Logger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.utils.Global
 import kotlinx.coroutines.launch
-import java.io.File
 import kotlin.math.abs
 
 class DashBoardViewModel(

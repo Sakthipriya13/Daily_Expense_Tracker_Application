@@ -16,7 +16,7 @@ import com.anychart.AnyChart
 import com.anychart.chart.common.dataentry.DataEntry
 import com.anychart.chart.common.dataentry.ValueDataEntry
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 //import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.databinding.DashboardBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
@@ -33,7 +33,6 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 
 // TODO: Rename parameter arguments, choose names that match

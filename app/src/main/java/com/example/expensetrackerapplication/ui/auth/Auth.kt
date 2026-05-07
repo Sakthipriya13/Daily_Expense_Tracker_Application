@@ -6,16 +6,14 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.AuthBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
-import com.example.expensetrackerapplication.reusefiles.BaseActivity
+import com.example.expensetrackerapplication.ui.base.BaseActivity
 import com.example.expensetrackerapplication.viewmodel.AuthViewModel
-import kotlin.math.log
 
 class Auth : BaseActivity()
 {

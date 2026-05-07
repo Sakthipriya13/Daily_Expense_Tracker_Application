@@ -1,7 +1,6 @@
 package com.example.expensetrackerapplication.ui.main.fragments
 
 import android.app.AlertDialog
-import android.app.Application
 import android.app.DatePickerDialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -22,7 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.NewExpenseBinding
 import com.example.expensetrackerapplication.databinding.SplitDialogueBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
@@ -37,7 +36,6 @@ import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

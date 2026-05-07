@@ -2,7 +2,6 @@ package com.example.expensetrackerapplication.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.activity.enableEdgeToEdge
@@ -17,11 +16,10 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.work.WorkManager
-import com.example.expensetrackerapplication.data.logger.FileLogger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.utils.Global
-import com.example.expensetrackerapplication.reusefiles.BaseActivity
+import com.example.expensetrackerapplication.ui.base.BaseActivity
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
 import kotlinx.coroutines.delay

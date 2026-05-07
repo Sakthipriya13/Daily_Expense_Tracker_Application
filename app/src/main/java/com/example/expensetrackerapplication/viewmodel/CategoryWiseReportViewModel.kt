@@ -17,8 +17,7 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import androidx.lifecycle.application
 import com.example.expensetrackerapplication.R
-import com.example.expensetrackerapplication.data.logger.FileLogger
-import com.example.expensetrackerapplication.data.logger.Logger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

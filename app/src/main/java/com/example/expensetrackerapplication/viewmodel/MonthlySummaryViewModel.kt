@@ -13,8 +13,7 @@ import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
-import com.example.expensetrackerapplication.data.logger.FileLogger
-import com.example.expensetrackerapplication.data.logger.Logger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth

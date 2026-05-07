@@ -5,9 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.paging.LOG_TAG
-import com.example.expensetrackerapplication.data.logger.FileLogger
-import com.example.expensetrackerapplication.data.logger.Logger
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.Report_Menu
 
 class ReportMenuViewModel(
