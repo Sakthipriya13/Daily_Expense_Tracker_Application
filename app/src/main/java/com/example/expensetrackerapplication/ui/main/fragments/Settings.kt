@@ -31,7 +31,7 @@ import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.CategoryModel
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
-import com.example.expensetrackerapplication.ui_event.CategoryItemClickListener
+import com.example.expensetrackerapplication.ui.listeners.CategoryItemClickListener
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel

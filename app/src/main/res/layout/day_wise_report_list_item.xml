@@ -8,7 +8,7 @@
             type="com.example.expensetrackerapplication.model.CurrentDayReportModel" />
         <variable
             name="deleteClickListener"
-            type="com.example.expensetrackerapplication.ui_event.DayWiseReportClickListener" />
+            type="com.example.expensetrackerapplication.ui.listeners.DayWiseReportClickListener" />
     </data>
 
     <androidx.cardview.widget.CardView

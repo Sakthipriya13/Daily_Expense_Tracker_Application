@@ -9,7 +9,7 @@
             type="com.example.expensetrackerapplication.model.CategoryModel" />
         <variable
             name="onClickRemove"
-            type="com.example.expensetrackerapplication.ui_event.CategoryItemClickListener" />
+            type="com.example.expensetrackerapplication.ui.listeners.CategoryItemClickListener" />
     </data>
 
     <androidx.cardview.widget.CardView
