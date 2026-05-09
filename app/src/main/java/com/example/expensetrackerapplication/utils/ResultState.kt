@@ -1,8 +1,8 @@
 package com.example.expensetrackerapplication.utils
 
 sealed class ResultState {
-    data class success(var message : String) : ResultState()
-    data class fail(var message : String) : ResultState()
+    object Success : ResultState()
+    object fail : ResultState()
 }
 
 sealed class ResultState1 {

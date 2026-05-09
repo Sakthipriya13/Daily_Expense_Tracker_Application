@@ -10,6 +10,7 @@ import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.LocaleManager
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 abstract class BaseActivity : AppCompatActivity()
 {
@@ -79,13 +80,13 @@ abstract class BaseActivity : AppCompatActivity()
 //    }
 
     override fun attachBaseContext(newBase: Context?) {
-        lifecycleScope.launch {
-            val languageCode = LanguageDataStore(newBase).fnGetLanguage()
+        val languageCode = runBlocking {
+            LanguageDataStore(newBase).fnGetLanguage()
+        }
+//        lifecycleScope.launch {
+//            val languageCode = LanguageDataStore(newBase).fnGetLanguage()
             val context = LocaleManager.fnSetLocale(newBase,languageCode)
             super.attachBaseContext(context)
-        }
-//        val languageCode = runBlocking {
-//            LanguageDataStore(newBase).fnGetLanguage()
 //        }
     }
 }

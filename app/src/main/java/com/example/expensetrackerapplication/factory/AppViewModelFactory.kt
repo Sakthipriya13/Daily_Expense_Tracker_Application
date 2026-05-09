@@ -7,6 +7,7 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.AuthViewModel
+import com.example.expensetrackerapplication.viewmodel.CalendarMonthViewModel
 import com.example.expensetrackerapplication.viewmodel.CalendarYearViewModel
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
 import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
@@ -56,7 +57,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(MonthlySummaryViewModel::class.java)->{
                 MonthlySummaryViewModel(application, logger) as T
             }
-            modelClass.isAssignableFrom(YearlySummaryReport::class.java) ->{
+            modelClass.isAssignableFrom(YearlySummaryReportViewModel::class.java) ->{
                 YearlySummaryReportViewModel(application,logger) as T
             }
             modelClass.isAssignableFrom(CategoryWiseReportViewModel::class.java) ->{
@@ -92,7 +93,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(MainViewModel::class.java) ->{
                 MainViewModel(application, logger) as T
             }
-            modelClass.isAssignableFrom(PaymentTypeReportViewModel::class.java) ->{
+            modelClass.isAssignableFrom(ParentReportViewModel::class.java) ->{
                 ParentReportViewModel(application,logger) as T
             }
             modelClass.isAssignableFrom(SplitViewModel::class.java) ->{
@@ -100,6 +101,9 @@ class AppViewModelFactory(
             }
             modelClass.isAssignableFrom(CalendarYearViewModel::class.java)->{
                 CalendarYearViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(CalendarMonthViewModel::class.java)->{
+                CalendarMonthViewModel(application,logger) as T
             }
             else ->{
                 throw IllegalArgumentException(

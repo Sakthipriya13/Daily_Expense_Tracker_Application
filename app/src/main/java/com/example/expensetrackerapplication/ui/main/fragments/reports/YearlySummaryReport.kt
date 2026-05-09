@@ -75,6 +75,10 @@ class YearlySummaryReport : Fragment() {
         appViewModelFactory
     }
 
+    private lateinit var yearCalendarBinding: YearCalendarBinding
+
+    private lateinit var yearCalendarDialog : AlertDialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -100,6 +104,32 @@ class YearlySummaryReport : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         yearlySummaryReportViewModel.fnPreWarmExcelEngine()
+
+        try
+        {
+            yearCalendarBinding = YearCalendarBinding.inflate(layoutInflater)
+            yearCalendarBinding.calendar = calendarYearViewModel
+            yearCalendarBinding.lifecycleOwner = viewLifecycleOwner
+
+            yearCalendarDialog = AlertDialog.Builder(requireContext())
+                                            .setView(yearCalendarBinding.root)
+                                            .setCancelable(false)
+                                            .create()
+            yearCalendarDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            val currentYear = android.icu.util.Calendar.getInstance().get(android.icu.util.Calendar.YEAR)
+
+            yearCalendarBinding.idYearPicker.minValue = 2000
+            yearCalendarBinding.idYearPicker.maxValue = currentYear + 100
+            yearCalendarBinding.idYearPicker.value = currentYear
+            yearCalendarBinding.idYearPicker.wrapSelectorWheel = false
+
+            calendarYearViewModel._selectedYear.value = "${yearCalendarBinding.idYearPicker.value}"
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Year Calendar Dialog Creation: ${e.message}")
+        }
 
         try{
             adapter = YearlySummaryAdapter(requireContext().applicationContext)
@@ -139,13 +169,53 @@ class YearlySummaryReport : Fragment() {
         yearlySummaryReportViewModel.isCalendarSelected.observe(viewLifecycleOwner){ isSelected ->
             try {
                 if(isSelected){
-                    showYearPicker()
+                    if(Global.isCalendarSelected == false)
+                    {
+                        Global.isCalendarSelected = true
+
+                        yearCalendarDialog.show()
+                    }
                 }
             }
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Calendar Selected: ${e.message}")
                 Log.e(LOG_TAG,"Calendar Selected: ${e.message}")
+            }
+        }
+        calendarYearViewModel.isConfirm.observe(viewLifecycleOwner){ isConfirm ->
+            try
+            {
+                if(isConfirm)
+                {
+                    calendarYearViewModel._selectedYear.value = "${yearCalendarBinding.idYearPicker.value}"
+
+                    Global.isCalendarSelected = false
+
+                    yearlySummaryReportViewModel._selectedYear.value =
+                        yearCalendarBinding.idYearPicker.value.toString()
+
+                    yearCalendarDialog.dismiss()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Year Selected From YearCalendar: ${e.message}")
+            }
+        }
+
+        calendarYearViewModel.isClose.observe(viewLifecycleOwner){ isClose ->
+            try
+            {
+                if(isClose)
+                {
+                    Global.isCalendarSelected = false
+                    yearCalendarDialog.dismiss()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Year Calendar: ${e.message}")
             }
         }
 
@@ -318,10 +388,11 @@ class YearlySummaryReport : Fragment() {
             if(Global.isCalendarSelected == false)
             {
                 Global.isCalendarSelected = true
+
                 var monthBinding = YearCalendarBinding.inflate(layoutInflater)
                 monthBinding.calendar = calendarYearViewModel
                 monthBinding.lifecycleOwner = viewLifecycleOwner
-//
+
                 val monthAlert = AlertDialog.Builder(requireContext())
                 monthAlert.setView(monthBinding.root)
                 monthAlert.setCancelable(false)
@@ -345,8 +416,9 @@ class YearlySummaryReport : Fragment() {
                         try
                         {
                             if(isConfirm) {
-                                monthBinding.idTextYear.text =
-                                    "${monthBinding.idYearPicker.value}"
+//                                monthBinding.idTextYear.text =
+//                                    "${monthBinding.idYearPicker.value}"
+                                calendarYearViewModel._selectedYear.value = "${monthBinding.idYearPicker.value}"
 
                                 Global.isCalendarSelected = false
 

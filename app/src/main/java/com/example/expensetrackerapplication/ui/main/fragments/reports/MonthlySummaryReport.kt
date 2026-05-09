@@ -26,8 +26,10 @@ import com.example.expensetrackerapplication.databinding.YearlySummaryReportList
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.utils.Global
+import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
+import com.example.expensetrackerapplication.viewmodel.CalendarMonthViewModel
 import com.example.expensetrackerapplication.viewmodel.MonthlySummaryViewModel
 import java.time.Month
 import java.time.YearMonth
@@ -67,6 +69,14 @@ class MonthlyReport : Fragment() {
     private lateinit var logger : FileLogger
 //        FileLogger(requireContext().applicationContext)
 
+    val calendarMonthViewModel : CalendarMonthViewModel by viewModels {
+        appViewModelFactory
+    }
+
+    private lateinit var monthCalendarDialog : AlertDialog
+    private lateinit var monthBinding : MonthCalendarBinding
+    private lateinit var monthAdapter : MonthAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -96,6 +106,56 @@ class MonthlyReport : Fragment() {
 
         try
         {
+            monthBinding = DataBindingUtil.inflate(layoutInflater,R.layout.month_calendar,null,false)
+            monthBinding.calendar = calendarMonthViewModel
+            monthBinding.lifecycleOwner = viewLifecycleOwner
+
+            monthCalendarDialog = AlertDialog.Builder(requireContext())
+                .setView(monthBinding?.root)
+                .setCancelable(false)
+                .create()
+
+            monthCalendarDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            monthAdapter = MonthAdapter ({ month ->
+                selectedYearMonth = selectedYearMonth.withMonth(month)
+                var selectedMonth = if (month < 10) "0$month" else "$month"
+                monthlySummaryViewModel._selectedMonth.value = selectedMonth
+                monthlySummaryViewModel._selectedYear.value = "${monthBinding?.idTextYear?.text}"
+                monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
+                monthCalendarDialog?.dismiss()
+                Global.isCalendarSelected = false
+            },requireContext().applicationContext)
+
+            monthBinding?.idMonthPicker.apply {
+                try
+                {
+                    this?.layoutManager = GridLayoutManager(requireContext(),3)
+                    this?.adapter = monthAdapter
+                }
+                catch (e: Exception)
+                {
+                    logger.logError(LOG_TAG,"Set Month Adapter For Month Picker: ${e.message}")
+                }
+            }
+
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+            monthBinding.idYearPicker.minValue = 2000
+            monthBinding.idYearPicker.maxValue = currentYear + 100
+            monthBinding.idYearPicker.value = currentYear
+            monthBinding.idYearPicker.wrapSelectorWheel = false
+
+            calendarMonthViewModel._selectedYear.value = "${monthBinding.idYearPicker.value}"
+
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Month Calendar Dialog Creation: ${e.message}")
+        }
+
+        try
+        {
             monthlySummaryReportAdapter = MonthlySummaryReportAdapter(requireContext().applicationContext)
             monthlySummaryBinding.idMonthlySummaryReportView.adapter = monthlySummaryReportAdapter
             monthlySummaryBinding.idMonthlySummaryReportView.layoutManager = LinearLayoutManager(requireContext())
@@ -111,7 +171,12 @@ class MonthlyReport : Fragment() {
             {
                 if(isSelected)
                 {
-                    showMonthPicker()
+                    Log.i("MONTHLY_SUMMARY_REPORT","Is Calendar Selected: ${monthlySummaryViewModel.isCalendarSelected.value}")
+                    if(Global.isCalendarSelected == false)
+                    {
+                        Global.isCalendarSelected = true
+                        monthCalendarDialog?.show()
+                    }
                 }
             }
             catch (e: Exception)
@@ -120,6 +185,89 @@ class MonthlyReport : Fragment() {
                 Log.e("MONTHLY_SUMMARY_REPORT","Calendar Selected: ${e.message}")
             }
         }
+
+        calendarMonthViewModel.isClose.observe(viewLifecycleOwner) { isClose ->
+            try
+            {
+                monthCalendarDialog?.dismiss()
+                Global.isCalendarSelected =false
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Close The Month Calendar: ${e.message}")
+            }
+        }
+
+        calendarMonthViewModel.isYearClicked.observe(viewLifecycleOwner) { isClicked ->
+            try
+            {
+                if (isClicked)
+                {
+                    monthBinding.idYearPicker.visibility = View.VISIBLE
+                    monthBinding.idMonthPicker.visibility = View.GONE
+
+                    monthBinding.idMonthLayout.visibility = View.GONE
+                    monthBinding.idYearLayout.visibility = View.VISIBLE
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Is Year Clicked Value Observed: ${e.message}")
+            }
+        }
+
+        calendarMonthViewModel.isYearSelected.observe(viewLifecycleOwner) { isConfirm ->
+            try {
+                when (isConfirm) {
+                    is ResultState.Success -> {
+                        try {
+                            calendarMonthViewModel._selectedYear.value =
+                                "${monthBinding.idYearPicker.value}"
+
+                            val selectedYear = java.time.YearMonth.of(
+                                monthBinding.idYearPicker.value,
+                                java.time.YearMonth.now().monthValue
+                            )
+
+                            monthAdapter.submitYearMonth(selectedYear)
+
+                            monthBinding.idYearPicker.visibility = View.GONE
+                            monthBinding.idMonthPicker.visibility = View.VISIBLE
+
+                            monthBinding.idMonthLayout.visibility = View.VISIBLE
+                            monthBinding.idYearLayout.visibility = View.GONE
+
+                        } catch (e: Exception) {
+                            logger.logError(
+                                LOG_TAG,
+                                "Year Selected From Year Calendar: ${e.message}"
+                            )
+                        }
+                    }
+
+                    is ResultState.fail -> {
+                        try {
+                            monthBinding.idYearPicker.visibility = View.GONE
+                            monthBinding.idMonthPicker.visibility = View.VISIBLE
+
+                            monthBinding.idMonthLayout.visibility = View.VISIBLE
+                            monthBinding.idYearLayout.visibility = View.GONE
+
+                        } catch (e: Exception) {
+                            logger.logError(
+                                LOG_TAG,
+                                "Close The Year Calendar: ${e.message}"
+                            )
+                        }
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG, "Is Year Selected: ${e.message}")
+            }
+        }
+
         monthlySummaryViewModel.isClosed.observe(viewLifecycleOwner){ status ->
             try
             {
@@ -216,92 +364,161 @@ class MonthlyReport : Fragment() {
     }
 
 
-    private fun showMonthPicker()
-    {
-        try {
-            if(Global.isCalendarSelected == false)
-            {
-                Global.isCalendarSelected = true
-                val monthBinding = MonthCalendarBinding.inflate(layoutInflater)
-
-                val monthAlert = AlertDialog.Builder(requireContext())
-                monthAlert.setView(monthBinding.root)
-                monthAlert.setCancelable(false)
-
-                val dialog = monthAlert.create()
-                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                dialog.show()
-
-                val monthAdapter = MonthAdapter ({ month ->
-                    selectedYearMonth = selectedYearMonth.withMonth(month)
-                    Log.i("SELECTED MONTH","Selected Month: ${selectedYearMonth.monthValue}&${ monthBinding.idTextYear.text}")
-                    var selectedMonth = if (month < 10) "0$month" else "$month"
-                    monthlySummaryViewModel._selectedMonth.value = selectedMonth
-                    monthlySummaryViewModel._selectedYear.value = "${monthBinding.idTextYear.text}"
-                    monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
-                    dialog.dismiss()
-                    Global.isCalendarSelected = false
-                },requireContext().applicationContext)
-
-                monthBinding.idMonthPicker.apply {
-                    layoutManager = GridLayoutManager(requireContext(),3)
-                    adapter = monthAdapter
-                }
-
-                monthBinding.idCancelMonth.setOnClickListener {
-                    dialog.dismiss()
-                    Global.isCalendarSelected =false
-                }
-
-                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
-                monthBinding.idYearPicker.minValue = 2000
-                monthBinding.idYearPicker.maxValue = currentYear + 100
-                monthBinding.idYearPicker.value = currentYear
-                monthBinding.idYearPicker.wrapSelectorWheel = false
-
-                monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
-
-                monthBinding.idTextYear.setOnClickListener {
-                    monthBinding.idYearPicker.visibility = View.VISIBLE
-                    monthBinding.idMonthPicker.visibility = View.GONE
-
-                    monthBinding.idMonthLayout.visibility = View.GONE
-                    monthBinding.idYearLayout.visibility = View.VISIBLE
-
-                    monthBinding.idOkYear.setOnClickListener {
-                        monthBinding.idTextYear.text="${monthBinding.idYearPicker.value}"
-
-                        val selectedYear = java.time.YearMonth.of(
-                            monthBinding.idYearPicker.value,
-                            java.time.YearMonth.now().monthValue
-                        )
-
-                        monthAdapter.submitYearMonth(selectedYear)
-
-                        monthBinding.idYearPicker.visibility = View.GONE
-                        monthBinding.idMonthPicker.visibility = View.VISIBLE
-
-                        monthBinding.idMonthLayout.visibility = View.VISIBLE
-                        monthBinding.idYearLayout.visibility = View.GONE
-                    }
-
-                    monthBinding.idCancelYear.setOnClickListener {
-                        monthBinding.idYearPicker.visibility = View.GONE
-                        monthBinding.idMonthPicker.visibility = View.VISIBLE
-
-                        monthBinding.idMonthLayout.visibility = View.VISIBLE
-                        monthBinding.idYearLayout.visibility = View.GONE
-                    }
-                }
-            }
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Show Monthly Calendar: ${e.message}")
-            Log.e("MONTHLY_SUMMARY_REPORT","Show Monthly Calendar: ${e.message}")
-        }
-    }
+//    fun showMonthPicker()
+//    {
+//        try {
+//            if(Global.isCalendarSelected == false)
+//            {
+//                Global.isCalendarSelected = true
+//
+//                monthBinding = DataBindingUtil.inflate(layoutInflater,R.layout.month_calendar,null,false)
+//                monthBinding?.calendar = calendarMonthViewModel
+//                monthBinding?.lifecycleOwner = viewLifecycleOwner
+//
+//                monthCalendarDialog = AlertDialog.Builder(requireContext())
+//                                    .setView(monthBinding?.root)
+//                                    .setCancelable(false)
+//                                    .create()
+//
+//                monthCalendarDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                monthCalendarDialog?.show()
+//
+//                val monthAdapter = MonthAdapter ({ month ->
+//                    selectedYearMonth = selectedYearMonth.withMonth(month)
+//                    var selectedMonth = if (month < 10) "0$month" else "$month"
+//                    monthlySummaryViewModel._selectedMonth.value = selectedMonth
+//                    monthlySummaryViewModel._selectedYear.value = "${monthBinding?.idTextYear?.text}"
+//                    monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
+//                    monthCalendarDialog?.dismiss()
+//                    Global.isCalendarSelected = false
+//                },requireContext().applicationContext)
+//
+//                monthBinding?.idMonthPicker.apply {
+//                    try
+//                    {
+//                        this?.layoutManager = GridLayoutManager(requireContext(),3)
+//                        this?.adapter = monthAdapter
+//                    }
+//                    catch (e: Exception)
+//                    {
+//                        logger.logError(LOG_TAG,"Set Month Adapter For Month Picker: ${e.message}")
+//                    }
+//                }
+//
+////                calendarMonthViewModel.isClose.observe(viewLifecycleOwner) { isClose ->
+////                    try
+////                    {
+////                        monthCalendarDialog?.dismiss()
+////                        Global.isCalendarSelected =false
+////                        monthlySummaryViewModel._isCalendarSelected.value = false
+////                        calendarMonthViewModel._isClose.value = false
+////                    }
+////                    catch (e: Exception)
+////                    {
+////                        logger.logError(LOG_TAG,"Close The Month Calendar: ${e.message}")
+////                    }
+////                }
+//
+//                val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+//
+//                monthBinding.idYearPicker.minValue = 2000
+//                monthBinding.idYearPicker.maxValue = currentYear + 100
+//                monthBinding.idYearPicker.value = currentYear
+//                monthBinding.idYearPicker.wrapSelectorWheel = false
+//
+//                calendarMonthViewModel._selectedYear.value = "${monthBinding.idYearPicker.value}"
+//
+////                monthBinding.idTextYear.setOnClickListener {
+////                calendarMonthViewModel.isYearClicked.observe(viewLifecycleOwner){ isClicked ->
+////                    try
+////                    {
+////                        if(isClicked)
+////                        {
+////                            monthBinding.idYearPicker.visibility = View.VISIBLE
+////                            monthBinding.idMonthPicker.visibility = View.GONE
+////
+////                            monthBinding.idMonthLayout.visibility = View.GONE
+////                            monthBinding.idYearLayout.visibility = View.VISIBLE
+////
+////                            calendarMonthViewModel.isYearSelected.observe(viewLifecycleOwner){ isConfirm ->
+////                                  try
+////                                  {
+////                                      when(isConfirm)
+////                                      {
+////                                          is ResultState.Success -> {
+////                                              try
+////                                              {
+////                                                  calendarMonthViewModel._selectedYear.value = "${monthBinding.idYearPicker.value}"
+////
+////                                                  val selectedYear = java.time.YearMonth.of(
+////                                                      monthBinding.idYearPicker.value,
+////                                                      java.time.YearMonth.now().monthValue
+////                                                  )
+////
+////                                                  monthAdapter.submitYearMonth(selectedYear)
+////
+////                                                  monthBinding.idYearPicker.visibility = View.GONE
+////                                                  monthBinding.idMonthPicker.visibility = View.VISIBLE
+////
+////                                                  monthBinding.idMonthLayout.visibility = View.VISIBLE
+////                                                  monthBinding.idYearLayout.visibility = View.GONE
+////
+////                                                  calendarMonthViewModel._isYearSelected.value =ResultState.fail
+////
+////                                              }
+////                                              catch (e: Exception)
+////                                              {
+////                                                  logger.logError(LOG_TAG,"Year Selected From Year Calendar: ${e.message}")
+////                                              }
+////                                          }
+////
+////                                          is ResultState.fail ->{
+////                                              try
+////                                              {
+////                                                  monthBinding.idYearPicker.visibility = View.GONE
+////                                                  monthBinding.idMonthPicker.visibility = View.VISIBLE
+////
+////                                                  monthBinding.idMonthLayout.visibility = View.VISIBLE
+////                                                  monthBinding.idYearLayout.visibility = View.GONE
+////
+////                                                  calendarMonthViewModel._isYearSelected.value =ResultState.Success
+////
+////                                              }
+////                                              catch (e: Exception)
+////                                              {
+////                                                  logger.logError(LOG_TAG,"Close The Year Calendar: ${e.message}")
+////                                              }
+////                                          }
+////                                      }
+////                                  }
+////                                  catch (e: Exception)
+////                                  {
+////                                      logger.logError(LOG_TAG,"Is Year Selected: ${e.message}")
+////                                  }
+////                            }
+////
+//////                            monthBinding.idOkYear.setOnClickListener {
+//////
+//////                            }
+//////
+//////                            monthBinding.idCancelYear.setOnClickListener {
+//////
+//////                            }
+////                        }
+////                    }
+////                    catch (e: Exception)
+////                    {
+////                        logger.logError(LOG_TAG,"Is Year Clicked Value Observed: ${e.message}")
+////                    }
+////                }
+//            }
+//        }
+//        catch (e: Exception)
+//        {
+//            logger.logError(LOG_TAG,"Show Monthly Calendar: ${e.message}")
+//            Log.e("MONTHLY_SUMMARY_REPORT","Show Monthly Calendar: ${e.message}")
+//        }
+//    }
 
 
     companion object {
