@@ -33,6 +33,7 @@ import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.ProfileViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -376,7 +377,8 @@ class ChangePassword : BottomSheetDialogFragment()
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "CHANGE_PASSWORD"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -390,6 +392,8 @@ class ChangePassword : BottomSheetDialogFragment()
         savedInstanceState: Bundle?
     ): View?
     {
+        logger = FileLogger(requireContext().applicationContext)
+
         changePasswordBinding= DataBindingUtil.inflate(inflater,R.layout.change_password,container,false)
         changePasswordBinding.changePassword=changePasswordViewModel
         changePasswordBinding.lifecycleOwner=viewLifecycleOwner
@@ -475,7 +479,8 @@ class AddIncome : BottomSheetDialogFragment()
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "ADD_INCOME"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -488,6 +493,9 @@ class AddIncome : BottomSheetDialogFragment()
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        logger = FileLogger(requireContext().applicationContext)
+
         addIncomeBinding = DataBindingUtil.inflate(inflater,R.layout.add_income,container,false)
         addIncomeBinding.addIncome = addIncomeViewModel
         addIncomeBinding.lifecycleOwner=viewLifecycleOwner

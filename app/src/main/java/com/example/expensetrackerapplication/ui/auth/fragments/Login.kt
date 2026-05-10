@@ -320,7 +320,8 @@ class ForgetPassword : BottomSheetDialogFragment()
     }
     val LOG_TAG = "FORGET_PASSWORD"
 
-    val logger = FileLogger(requireContext().applicationContext)
+    private lateinit var logger : FileLogger
+//        FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -332,6 +333,9 @@ class ForgetPassword : BottomSheetDialogFragment()
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        logger = FileLogger(requireContext().applicationContext)
+
         forgetBinding = DataBindingUtil.inflate(inflater,R.layout.forget_password,container,false)
         forgetBinding.forget = forgetViewModel
         forgetBinding.lifecycleOwner = viewLifecycleOwner

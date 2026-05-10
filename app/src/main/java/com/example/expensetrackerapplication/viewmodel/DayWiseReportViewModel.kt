@@ -120,7 +120,7 @@ class DayWiseReportViewModel(
         viewModelScope.launch {
             try
             {
-                _isExportLoading.postValue(true)
+//                _isExportLoading.postValue(true)
 
                 var totalExpenseAmtSum = 0.0f
                 var addedExpenseAmtSum = 0.0f

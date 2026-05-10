@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name ="colorPrimary">#6C67E6</color>
+
+    <color name="colorAccent">#9490f5</color>
+    <color name="colorSecondary">#9490f5</color>
+
+    <color name="textview_bg_for_list">#c9c7f0</color>
+
+    <color name="successBackground">#52c752</color>
+    <color name="errorBackground">#f05551</color>
+
+    <color name="infoBackground">#F5B027</color>
+    <color name="warningBackground">#f05551</color>
+
+    <color name="text_color_black">#FF000000</color>
+    <color name="text_color_white">#FFFFFFFF</color>
+
+    <color name ="colorPrimary1">#6C67E6</color>
+    <color name="colorAccent1">#9995FA</color>
+    <color name="colorSecondary1">#BDBBF0</color>
+
+    <color name ="colorPrimary2">#0F0E47</color>
+    <color name="colorAccent2">#505081</color>
+    <color name="colorSecondary2">#8686AC</color>
+
+    <color name ="colorPrimary3">#e1341e</color>
+    <color name="colorAccent3">#eb8578</color>
+    <color name="colorSecondary3">#f0c5c0</color>
+
+    <color name ="colorPrimary4">#069494</color>
+    <color name="colorAccent4">#61d4d4</color>
+    <color name="colorSecondary4">#a7ebeb</color>
+
+    <color name ="colorPrimary5">#174D38</color>
+    <color name="colorAccent5">#5cbd97</color>
+    <color name="colorSecondary5">#a8e3cc</color>
+
+    <color name="color_grey">#898989</color>
+
+    <color name="icon_color">?attr/colorPrimary</color>
+
+</resources>
