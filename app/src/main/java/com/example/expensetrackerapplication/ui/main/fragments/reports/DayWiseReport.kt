@@ -39,6 +39,7 @@ import com.example.expensetrackerapplication.viewmodel.DayWiseReportViewModel
 import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
 
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
+import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
@@ -79,6 +80,13 @@ class DayWiseReport : Fragment() {
 //        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG = "DAY_WISE_REPORT"
+
+    private lateinit var splitBinding : SplitDialogueBinding
+    var splitDialog : AlertDialog? = null
+
+    val splashViewModel : SplashViewModel by viewModels{
+        appViewModelFactory
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -199,24 +207,38 @@ class DayWiseReport : Fragment() {
 
                     listAdapter.fnSubmitList(list, object : DayWiseReportClickListener {
                         override fun onDeleteClick(expense: CurrentDayReportModel) {
-                            if(!expense.isDelete.equals("DELETED"))
-                                fnShowDeletePrompt(expense)
-                            else
-                                fnShowMessage(getString(R.string.dayWiseReport_ExpenseWasAlreadyDeleted),requireContext(),R.drawable.bg_info)
+                            try
+                            {
+                                if(!expense.isDelete.equals("DELETED"))
+                                    fnShowDeletePrompt(expense)
+                                else
+                                    fnShowMessage(getString(R.string.dayWiseReport_ExpenseWasAlreadyDeleted),requireContext(),R.drawable.bg_info)
+                            }
+                            catch (e: Exception)
+                            {
+                                logger.logError(LOG_TAG,"On Click Delete Expense Button: ${e.message}")
+                            }
                         }
 
                         override fun onClickEdit(expense: CurrentDayReportModel) {
-                            if(!expense.isDelete.equals("DELETED"))
+                            try
                             {
-                                if(Global.isBottomSheetSelected==false)
+                                if(!expense.isDelete.equals("DELETED"))
                                 {
-                                    Global.isBottomSheetSelected=true
-                                    EditExpense(expense).show(parentFragmentManager,"EditExpenseBottomSheet")
+                                    if(Global.isBottomSheetSelected==false)
+                                    {
+                                        Global.isBottomSheetSelected=true
+                                        EditExpense(expense).show(parentFragmentManager,"EditExpenseBottomSheet")
+                                    }
+                                }
+                                else
+                                {
+                                    fnShowMessage(getString(R.string.dayWiseReport_EditNotAllowed),requireContext(),R.drawable.error_bg)
                                 }
                             }
-                            else
+                            catch (e: Exception)
                             {
-                                fnShowMessage(getString(R.string.dayWiseReport_EditNotAllowed),requireContext(),R.drawable.error_bg)
+                                logger.logError(LOG_TAG,"On Click Edit Expense Button: ${e.message}")
                             }
                         }
 
@@ -457,7 +479,9 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
         appViewModelFactory
     }
 
-    val logger = FileLogger(requireContext().applicationContext)
+//    val logger = FileLogger(requireContext().applicationContext)
+
+    private lateinit var logger : FileLogger
 
     val LOG_TAG = "EDIT_EXPENSE"
 
@@ -472,6 +496,8 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
         savedInstanceState: Bundle?
     ): View? {
 
+        logger = FileLogger(requireContext().applicationContext)
+
         editExpenseBinding= DataBindingUtil.inflate(inflater,R.layout.edit_expense,container,false)
         editExpenseBinding.edit=editExpenseViewModel
         editExpenseBinding.lifecycleOwner=viewLifecycleOwner
@@ -481,6 +507,85 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        try
+        {
+            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
+            splitBinding.split = splitViewModel
+            splitBinding.lifecycleOwner = viewLifecycleOwner
+
+            splitDialog = AlertDialog.Builder(requireContext())
+                .setView(splitBinding.root)
+                .setCancelable(false)
+                .create()
+
+            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            splitBinding.idEAmtInCash.post{
+                splitBinding.idEAmtInCash.selectAll()
+                splitBinding.idEAmtInCash.requestFocus()
+            }
+        }
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Split Screen Creation: ${e.message}")
+            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
+        }
+
+        editExpenseViewModel.expenseAmt.observe(viewLifecycleOwner){ expense ->
+            try
+            {
+                var totAmt = Global.fnFormatFloatTwoDigits(expense?.toFloat())
+                splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+                splitViewModel._totAmt.value = totAmt
+                splitViewModel._amtInCash.value=totAmt
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Expense Amount Value Observed: ${e.message}")
+            }
+        }
+
+
+        splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
+            try
+            {
+                if(!hasFocus)
+                {
+                    splitBinding.idEAmtInCard.selectAll()
+                    splitBinding.idEAmtInCard.requestFocus()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCash: ${e.message}")
+            }
+        }
+
+        splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
+            try {
+                if (!hasFocus)
+                {
+                    splitBinding.idEAmtInUpi.selectAll()
+                    splitBinding.idEAmtInUpi.requestFocus()
+                }
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCard: ${e.message}")
+            }
+        }
+
+        splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
+            try {
+                if (!hasFocus)
+                {
+                    splitBinding.idBtnOk.requestFocus()
+                }
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInUpi: ${e.message}")
+            }
+        }
 
         lifecycleScope.launch {
             try
@@ -789,7 +894,7 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
             try {
                 if(isChecked)
                 {
-                    fnShowDialog()
+                    splitDialog?.show()
                     editExpenseViewModel._showSplitDialog.value = false
                 }
                 else
@@ -836,56 +941,56 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
 
     }
 
-    fun fnShowDialog()
-    {
-        try {
-            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
-            splitBinding.split = splitViewModel
-            splitBinding.lifecycleOwner = viewLifecycleOwner
-
-            splitDialog = AlertDialog.Builder(requireContext())
-                .setView(splitBinding.root)
-                .setCancelable(false)
-                .create()
-
-            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            splitDialog?.show()
-
-            splitViewModel._totAmtUi.value = "Total: ${editExpenseViewModel.expenseAmt.value}"
-
-            splitViewModel._totAmt.value = editExpenseViewModel.expenseAmt.value.toString()
-            splitViewModel._amtInCash.value=editExpenseViewModel.expenseAmt.value.toString()
-
-            splitBinding.idEAmtInCash.post{
-                splitBinding.idEAmtInCash.selectAll()
-                splitBinding.idEAmtInCash.requestFocus()
-            }
-
-            splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
-                if(!hasFocus){
-                    splitBinding.idEAmtInCard.selectAll()
-                    splitBinding.idEAmtInCard.requestFocus()
-                }
-            }
-
-            splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
-                if (!hasFocus){
-                    splitBinding.idEAmtInUpi.selectAll()
-                    splitBinding.idEAmtInUpi.requestFocus()
-                }
-            }
-
-            splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
-                if (!hasFocus){
-                    splitBinding.idBtnOk.requestFocus()
-                }
-            }
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
-            Log.e("EDIT_EXPENSE","Show Split Screen: ${e.message}")
-        }
-    }
+//    fun fnShowDialog()
+//    {
+//        try {
+//            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
+//            splitBinding.split = splitViewModel
+//            splitBinding.lifecycleOwner = viewLifecycleOwner
+//
+//            splitDialog = AlertDialog.Builder(requireContext())
+//                .setView(splitBinding.root)
+//                .setCancelable(false)
+//                .create()
+//
+//            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//            splitDialog?.show()
+//
+//            splitViewModel._totAmtUi.value = "Total: ${editExpenseViewModel.expenseAmt.value}"
+//
+//            splitViewModel._totAmt.value = editExpenseViewModel.expenseAmt.value.toString()
+//            splitViewModel._amtInCash.value=editExpenseViewModel.expenseAmt.value.toString()
+//
+//            splitBinding.idEAmtInCash.post{
+//                splitBinding.idEAmtInCash.selectAll()
+//                splitBinding.idEAmtInCash.requestFocus()
+//            }
+//
+//            splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
+//                if(!hasFocus){
+//                    splitBinding.idEAmtInCard.selectAll()
+//                    splitBinding.idEAmtInCard.requestFocus()
+//                }
+//            }
+//
+//            splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
+//                if (!hasFocus){
+//                    splitBinding.idEAmtInUpi.selectAll()
+//                    splitBinding.idEAmtInUpi.requestFocus()
+//                }
+//            }
+//
+//            splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
+//                if (!hasFocus){
+//                    splitBinding.idBtnOk.requestFocus()
+//                }
+//            }
+//        }
+//        catch (e: Exception)
+//        {
+//            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
+//            Log.e("EDIT_EXPENSE","Show Split Screen: ${e.message}")
+//        }
+//    }
 }
 

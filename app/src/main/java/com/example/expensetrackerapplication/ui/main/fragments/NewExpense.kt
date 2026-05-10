@@ -114,6 +114,91 @@ class NewExpense : Fragment() {
 
 //        newExpenseViewModel._fireStoreCloudId.value = splashViewModel.cloudUserId.value
 
+        try
+        {
+            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
+            splitBinding.split = splitViewModel
+            splitBinding.lifecycleOwner = viewLifecycleOwner
+
+            splitDialog = AlertDialog.Builder(requireContext())
+                .setView(splitBinding.root)
+                .setCancelable(false)
+                .create()
+
+            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            splitBinding.idEAmtInCash.post{
+                splitBinding.idEAmtInCash.selectAll()
+                splitBinding.idEAmtInCash.requestFocus()
+            }
+
+//            splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+//
+//            splitViewModel._totAmt.value = totAmt
+//            splitViewModel._amtInCash.value=totAmt
+
+        }
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Split Screen Creation: ${e.message}")
+            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
+        }
+
+        newExpenseViewModel.expenseAmt.observe(viewLifecycleOwner){ expense ->
+            try
+            {
+                var totAmt = Global.fnFormatFloatTwoDigits(expense?.toFloat())
+                splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+                splitViewModel._totAmt.value = totAmt
+                splitViewModel._amtInCash.value=totAmt
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Expense Amount Value Observed: ${e.message}")
+            }
+        }
+
+
+        splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
+            try
+            {
+                if(!hasFocus)
+                {
+                    splitBinding.idEAmtInCard.selectAll()
+                    splitBinding.idEAmtInCard.requestFocus()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCash: ${e.message}")
+            }
+        }
+
+        splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
+            try {
+                if (!hasFocus)
+                {
+                    splitBinding.idEAmtInUpi.selectAll()
+                    splitBinding.idEAmtInUpi.requestFocus()
+                }
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCard: ${e.message}")
+            }
+        }
+
+        splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
+            try {
+                if (!hasFocus)
+                {
+                    splitBinding.idBtnOk.requestFocus()
+                }
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInUpi: ${e.message}")
+            }
+        }
+
         newExpenseViewModel.clearAllFields.observe(viewLifecycleOwner){ ob ->
             if(ob)
             {
@@ -319,14 +404,13 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Close Split Dialog: ${e.message}")
-                Log.e("CLOSE_SPLIT_DIALOG","Close Split Dialog: ${e.message}")
             }
         }
         newExpenseViewModel.showSplitDialog.observe(viewLifecycleOwner){ isChecked ->
             try {
                 if(isChecked)
                 {
-                    fnShowDialog()
+                    splitDialog?.show()
                     newExpenseViewModel._showSplitDialog.value = false
                 }
                 else
@@ -341,68 +425,7 @@ class NewExpense : Fragment() {
                 logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
                 Log.e("SHOW_SPLIT_DIALOG","Show Split Dialog: ${e.message}")
             }
-//            {
-//                val view = layoutInflater.inflate(R.layout.split_dialogue,null)
-//                var amtInCash = view.findViewById<TextInputEditText>(R.id.idEAmtInCash)
-//                var amtInCard = view.findViewById<TextInputEditText>(R.id.idEAmtInCard)
-//                var amtInUpi = view.findViewById<TextInputEditText>(R.id.idEAmtInUpi)
-//
-//                var btnOk=view.findViewById<Button>(R.id.idBtnOk)
-//                var btnCancel=view.findViewById<TextView>(R.id.idBtnCancel)
-//
-//                var dialog = AlertDialog.Builder(requireContext())
-//                    .setView(view)
-//                    .setCancelable(false)
-//                    .create()
-//
-//                dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//                dialog.show()
-//
-//                btnOk.setOnClickListener {
-//                    newExpenseViewModel._amtInCash.value=amtInCash.text.toString().toFloatOrNull() ?:0.0f
-//                    newExpenseViewModel._amtInCard.value=amtInCard.text.toString().toFloatOrNull() ?:0.0f
-//                    newExpenseViewModel._amtInUpi.value=amtInUpi.text.toString().toFloatOrNull() ?:0.0f
-//
-//                    val totAmt = newExpenseViewModel._amtInCash.value!! +
-//                            newExpenseViewModel._amtInCard.value!! +
-//                            newExpenseViewModel._amtInUpi.value!!
-//
-//                    newExpenseViewModel._expenseAmt.value=totAmt.toString()
-//
-//                    newExpenseBinding.idERemarks.requestFocus()
-//                    newExpenseBinding.idERemarks.isFocusable=true
-//
-//
-//                    Log.v("AMT IN CASH","Amt In Cash: ${newExpenseViewModel.amtInCash.value}")
-//                    Log.v("AMT IN CARD","Amt In Card: ${newExpenseViewModel.amtInCard.value}")
-//                    Log.v("AMT IN UPI","Amt In Upi: ${newExpenseViewModel.amtInUpi.value}")
-//                    Log.v("TOTAL EXPENSE AMT","Total Expense Amt: ${newExpenseViewModel.expenseAmt.value}")
-//
-//
-//                    dialog.dismiss()
-//
-////                     Log.v("PAYMENT TYPE","Payment Type: SPLIT")
-////                     newExpenseViewModel._paymentType.value=Global.PAYMENT_TYPE_SPLIT
-////                     newExpenseViewModel._selectedpaymentType.value=R.id.idSplitPayment
-//
-//                }
-//
-//                btnCancel.setOnClickListener {
-////                     newExpenseViewModel.fnCashPayment()
-//                    newExpenseViewModel._paymentType.value=-1
-//                    newExpenseViewModel._selectedpaymentType.value=-1
-//                    dialog.dismiss()
-//                }
-//            }
         }
-
-//        newExpenseViewModel.valueMissingError.observe(viewLifecycleOwner){ errMsg ->
-//            if(!errMsg.isNullOrBlank())
-//            {
-//                fnShowMessage(errMsg,requireContext(),R.drawable.error_bg)
-//            }
-//        }
-
         newExpenseViewModel.newExpenseInsertStatus.observe(viewLifecycleOwner){ state ->
             try {
                 when(state){
@@ -433,59 +456,59 @@ class NewExpense : Fragment() {
 
     }
 
-    fun fnShowDialog()
-    {
-        try
-        {
-            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
-            splitBinding.split = splitViewModel
-            splitBinding.lifecycleOwner = viewLifecycleOwner
-
-            splitDialog = AlertDialog.Builder(requireContext())
-                .setView(splitBinding.root)
-                .setCancelable(false)
-                .create()
-
-            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            splitDialog?.show()
-
-            var totAmt = Global.fnFormatFloatTwoDigits(newExpenseViewModel.expenseAmt.value?.toFloat())
-            splitViewModel._totAmtUi.value = "Total: ${totAmt}"
-
-            splitViewModel._totAmt.value = totAmt
-            splitViewModel._amtInCash.value=totAmt
-
-            splitBinding.idEAmtInCash.post{
-                splitBinding.idEAmtInCash.selectAll()
-                splitBinding.idEAmtInCash.requestFocus()
-            }
-
-            splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
-                if(!hasFocus){
-                    splitBinding.idEAmtInCard.selectAll()
-                    splitBinding.idEAmtInCard.requestFocus()
-                }
-            }
-
-            splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
-                if (!hasFocus){
-                    splitBinding.idEAmtInUpi.selectAll()
-                    splitBinding.idEAmtInUpi.requestFocus()
-                }
-            }
-
-            splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
-                if (!hasFocus){
-                    splitBinding.idBtnOk.requestFocus()
-                }
-            }
-        }
-        catch (e : Exception)
-        {
-            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
-            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
-        }
-    }
+//    fun fnShowDialog()
+//    {
+//        try
+//        {
+//            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
+//            splitBinding.split = splitViewModel
+//            splitBinding.lifecycleOwner = viewLifecycleOwner
+//
+//            splitDialog = AlertDialog.Builder(requireContext())
+//                .setView(splitBinding.root)
+//                .setCancelable(false)
+//                .create()
+//
+//            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//            splitDialog?.show()
+//
+//            var totAmt = Global.fnFormatFloatTwoDigits(newExpenseViewModel.expenseAmt.value?.toFloat())
+//            splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+//
+//            splitViewModel._totAmt.value = totAmt
+//            splitViewModel._amtInCash.value=totAmt
+//
+//            splitBinding.idEAmtInCash.post{
+//                splitBinding.idEAmtInCash.selectAll()
+//                splitBinding.idEAmtInCash.requestFocus()
+//            }
+//
+//            splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
+//                if(!hasFocus){
+//                    splitBinding.idEAmtInCard.selectAll()
+//                    splitBinding.idEAmtInCard.requestFocus()
+//                }
+//            }
+//
+//            splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
+//                if (!hasFocus){
+//                    splitBinding.idEAmtInUpi.selectAll()
+//                    splitBinding.idEAmtInUpi.requestFocus()
+//                }
+//            }
+//
+//            splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
+//                if (!hasFocus){
+//                    splitBinding.idBtnOk.requestFocus()
+//                }
+//            }
+//        }
+//        catch (e : Exception)
+//        {
+//            logger.logError(LOG_TAG,"Show Split Screen: ${e.message}")
+//            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
+//        }
+//    }
     companion object {
         /**
          * Use this factory method to create a new instance of
