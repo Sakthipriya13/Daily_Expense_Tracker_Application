@@ -120,4 +120,16 @@ class ForgetViewModel(
             }
         }
     }
+
+    fun fnClearAllFields()
+    {
+        try
+        {
+            _newPassword.value = ""
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
+    }
 }
