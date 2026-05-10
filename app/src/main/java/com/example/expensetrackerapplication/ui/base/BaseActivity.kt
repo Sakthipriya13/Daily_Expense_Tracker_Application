@@ -16,9 +16,12 @@ abstract class BaseActivity : AppCompatActivity()
 {
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        lifecycleScope.launch {
-            val themeColorCode = ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()
-            when(themeColorCode){
+//        lifecycleScope.launch {
+//            val themeColorCode = ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()
+            val colorCode = runBlocking {
+                ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()
+            }
+            when(colorCode){
                 Global.COLOR_CODE1 -> setTheme(R.style.Theme_App_Color1)
                 Global.COLOR_CODE2 -> setTheme(R.style.Theme_App_Color2)
                 Global.COLOR_CODE3 -> setTheme(R.style.Theme_App_Color3)
@@ -26,7 +29,7 @@ abstract class BaseActivity : AppCompatActivity()
                 Global.COLOR_CODE5 -> setTheme(R.style.Theme_App_Color5)
                 else -> setTheme(R.style.Theme_App_Color1)
             }
-        }
+//        }
 
 //        val colorCode = runBlocking {
 //            ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()

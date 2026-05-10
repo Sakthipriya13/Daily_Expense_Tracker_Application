@@ -50,8 +50,6 @@ class Login : Fragment() {
 
     lateinit var logger : FileLogger
 
-//    val logger = FileLogger(requireContext().applicationContext)
-
     val LOG_TAG = "LOGIN"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,43 +90,6 @@ class Login : Fragment() {
                 logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To UserName: ${e.message}")
             }
         }
-
-
-//        loginViewModel.userNameEmptyStatus.observe(viewLifecycleOwner){ state ->
-//            when(state)
-//            {
-//                is ResultState.success -> {}
-//                is ResultState.fail ->{
-//                    loginDataBinding.idUserName.isFocusable=true
-//                    loginDataBinding.idUserName.requestFocus()
-//                    fnShowMessage(state.message,requireContext(),R.drawable.error_bg)
-//                }
-//            }
-//        }
-
-//        loginViewModel.userPasswordEmptyStatus.observe(viewLifecycleOwner){ state ->
-//            when(state)
-//            {
-//                is ResultState.success -> {}
-//                is ResultState.fail ->{
-//                    loginDataBinding.idPassword.isFocusable = true
-//                    loginDataBinding.idPassword.requestFocus()
-//                    fnShowMessage(state.message,requireContext(),R.drawable.error_bg)
-//                }
-//            }
-//        }
-
-//        loginViewModel.bothNameAndPasswordEmptyStatus.observe(viewLifecycleOwner){ state ->
-//            when(state)
-//            {
-//                is ResultState.success -> {}
-//                is ResultState.fail ->{
-//                    loginDataBinding.idUserName.isFocusable=true
-//                    loginDataBinding.idUserName.requestFocus()
-//                    fnShowMessage(state.message,requireContext(),R.drawable.error_bg)
-//                }
-//            }
-//        }
 
         loginViewModel.loginStatus.observe(viewLifecycleOwner){ state ->
             try
@@ -209,29 +170,6 @@ class Login : Fragment() {
             }
         }
 
-//        loginViewModel.loginStatus_fail.observe(viewLifecycleOwner){ ob ->
-//            if(ob)
-//            {
-//                Log.e("LOGIN STATUS", "Login Status Value Was False")
-//                fnShowMessage("User Not Found,Enter Valid User ",requireContext(),R.drawable.error_bg)
-//                loginViewModel._userName.value=""
-//                loginViewModel._userPassword.value=""
-//                loginDataBinding.idUserName.isFocusable=true
-//                loginDataBinding.idUserName.requestFocus()
-//            }
-//        }
-//        loginViewModel.loginStatus_success.observe(viewLifecycleOwner){ ob ->
-//            if(ob)
-//            {
-//                fnShowMessage("Successfully Login",requireContext(),R.drawable.bg_success)
-////                findNavController().navigate(R.id.action_login_to_main)
-//                var intent = Intent(requireContext(), Main::class.java)
-//                startActivity(intent)
-//                requireActivity().finish()
-//            }
-//
-//        }
-
         loginViewModel.navigateToSignUp.observe(viewLifecycleOwner){ ob ->
             try {
                 if(ob)
@@ -266,25 +204,6 @@ class Login : Fragment() {
             }
         }
     }
-
-
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//
-//        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-//
-//            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-//
-//            v.setPadding(
-//                v.paddingLeft,
-//                v.paddingTop,
-//                v.paddingRight,
-//                imeBottom
-//            )
-//
-//            insets
-//        }
-//    }
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -321,7 +240,6 @@ class ForgetPassword : BottomSheetDialogFragment()
     val LOG_TAG = "FORGET_PASSWORD"
 
     private lateinit var logger : FileLogger
-//        FileLogger(requireContext().applicationContext)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -361,27 +279,17 @@ class ForgetPassword : BottomSheetDialogFragment()
             }
         }
 
-//        forgetViewModel.emailErrorStatus.observe(viewLifecycleOwner){ state ->
-//            when(state){
-//                is ResultState.success -> {}
-//                is ResultState.fail -> {
-//                    forgetBinding.idEEmail.isFocusable = true
-//                    forgetBinding.idEEmail.requestFocus()
-//                    fnShowMessage(state.message,requireContext(),R.drawable.error_bg)
-//                }
-//            }
-//        }
-//        forgetViewModel.passwordErrorStatus.observe(viewLifecycleOwner){ state ->
-//            when(state)
-//            {
-//                is ResultState.success -> {}
-//                is ResultState.fail ->{
-//                    forgetBinding.idENewPassword.isFocusable = true
-//                    forgetBinding.idENewPassword.requestFocus()
-//                    fnShowMessage(state.message,requireContext(),R.drawable.error_bg)
-//                }
-//            }
-//        }
+        forgetViewModel.isClearAllFields.observe(viewLifecycleOwner){ isClear ->
+            try
+            {
+                forgetBinding.idEEmail.isFocusable = true
+                forgetBinding.idEEmail.requestFocus()
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To Email Field: ${e.message}")
+            }
+        }
 
         forgetViewModel.resetStatus.observe(viewLifecycleOwner) { state ->
             try {

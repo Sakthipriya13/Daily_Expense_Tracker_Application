@@ -28,7 +28,9 @@ import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
+import com.example.expensetrackerapplication.viewmodel.ToastViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
+import kotlin.math.log
 
 class AppViewModelFactory(
     private val application: Application,
@@ -108,6 +110,9 @@ class AppViewModelFactory(
             }
             modelClass.isAssignableFrom(DeletePromptViewModel::class.java)->{
                 DeletePromptViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(ToastViewModel::class.java)->{
+                ToastViewModel(application, logger) as T
             }
             else ->{
                 throw IllegalArgumentException(

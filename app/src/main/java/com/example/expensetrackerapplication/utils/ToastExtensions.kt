@@ -8,38 +8,56 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.expensetrackerapplication.R
-
+import com.example.expensetrackerapplication.databinding.CustomToastMessageBinding
+import com.example.expensetrackerapplication.factory.AppViewModelFactory
+import com.example.expensetrackerapplication.logger.FileLogger
+import com.example.expensetrackerapplication.viewmodel.ToastViewModel
 
 
 fun Fragment.fnShowMessage(msg: String, context: Context, bg: Int){
     try
     {
-//        Log.i("TOAST_MESSAGE","Toast Message1")
-//        val view = LayoutInflater.from(context).inflate(R.layout.custom_toast_message,null,false)
-//
+        Log.i("TOAST_MESSAGE","Toast Message1")
+
+        val appViewModelFactory : AppViewModelFactory by lazy {
+            AppViewModelFactory(
+                requireActivity().application,
+                FileLogger(requireContext().applicationContext)
+            )
+        }
+
+        val toastViewModel : ToastViewModel by viewModels {
+            appViewModelFactory
+        }
+
+        val toastBinding : CustomToastMessageBinding = DataBindingUtil.inflate(layoutInflater,R.layout.custom_toast_message,null,false)
+        toastBinding.toast = toastViewModel
+        toastBinding.lifecycleOwner = viewLifecycleOwner
+
 //        var toastMsg = view.findViewById<TextView>(R.id.success_Msg)
 //        var layout = view.findViewById<LinearLayout>(R.id.idLayout)
-//
-//        toastMsg.text=msg
-//        layout.setBackgroundResource(bg)
-//
-//        var toast = Toast(context.applicationContext).apply {
-//            duration = Toast.LENGTH_LONG
-////            setGravity(Gravity.TOP,0,100)
-//            this.view =view
-//        }
-////        toast.duration=Toast.LENGTH_LONG
-////        toast.setGravity(Gravity.TOP,0,0)
-////        toast.view=view
-//        Log.i("TOAST_MESSAGE","Toast Message2")
-//
-//        toast.show()
-//
-//        Log.i("TOAST_MESSAGE","Toast Message3")
 
-        Toast.makeText(context.applicationContext,msg, Toast.LENGTH_LONG).show()
+//        toastMsg.text=msg
+        toastViewModel._toastMsg.value = msg
+        toastBinding.idRoot.setBackgroundResource(bg)
+
+        var toast = Toast(context.applicationContext).apply {
+            duration = Toast.LENGTH_LONG
+            setGravity(Gravity.TOP,0,150)
+//            setGravity(Gravity.TOP,0,100)
+            this.view =toastBinding.root
+        }
+        Log.i("TOAST_MESSAGE","Toast Message2")
+
+        toast.show()
+
+        Log.i("TOAST_MESSAGE","Toast Message3")
+
+//        Toast.makeText(context.applicationContext,msg, Toast.LENGTH_LONG).show()
 
     }
     catch(e : Exception)
@@ -57,7 +75,7 @@ fun Activity.fnShowMessage(msg: String, context: Context, bg: Int){
 
         var toastMsg = view.findViewById<TextView>(R.id.success_Msg)
         toastMsg.text=msg
-        var layout = view.findViewById<LinearLayout>(R.id.idLayout)
+        var layout = view.findViewById<LinearLayout>(R.id.idRoot)
         layout.setBackgroundResource(bg)
         var toast = Toast(context).apply {
             duration = Toast.LENGTH_LONG

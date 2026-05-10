@@ -40,6 +40,9 @@ class ForgetViewModel(
     var _resetStatus = MutableLiveData<ResultState1>()
     var resetStatus : LiveData<ResultState1> = _resetStatus
 
+    var _isClearAllFields = MutableLiveData<Boolean>()
+    var isClearAllFields : LiveData<Boolean> = _isClearAllFields
+
 //    var _passwordErrorStatus = MutableLiveData<ResultState>()
 //    var passwordErrorStatus : LiveData<ResultState> = _passwordErrorStatus
 //
@@ -125,7 +128,9 @@ class ForgetViewModel(
     {
         try
         {
+            _email.value = ""
             _newPassword.value = ""
+            _isClearAllFields.value = true
         }
         catch (e: Exception)
         {

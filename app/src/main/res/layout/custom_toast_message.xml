@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<androidx.constraintlayout.widget.ConstraintLayout-->
-<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
-<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
-<!--    android:layout_width="wrap_content"-->
-<!--    android:layout_height="wrap_content">-->
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="toast"
+            type="com.example.expensetrackerapplication.viewmodel.ToastViewModel" />
+    </data>
+
     <androidx.cardview.widget.CardView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardCornerRadius="20dp"
-        android:layout_margin="10dp">
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--    >-->
-
+        >
         <LinearLayout
-            android:id="@+id/idLayout"
-            android:layout_width="match_parent"
+            android:id="@+id/idRoot"
+            android:layout_width="300dp"
             android:layout_height="70dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="?attr/successBackground"
+            >
 
             <ImageView
                 android:layout_width="0dp"
@@ -32,13 +34,15 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
-                android:text=""
-                android:textSize="@dimen/text_size"
+                android:text="@{toast._toastMsg}"
+                android:textSize="@dimen/sub_header_size"
                 android:textColor="@color/white"
                 android:gravity="start|center_vertical|center_horizontal"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-<!--</androidx.constraintlayout.widget.ConstraintLayout>-->
+
+</layout>
 

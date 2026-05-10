@@ -10,6 +10,8 @@
 
     <color name="textview_bg_for_list">#c9c7f0</color>
 
+    <color name="background">#FFFFFFFF</color>
+
     <color name="successBackground">#52c752</color>
     <color name="errorBackground">#f05551</color>
 
