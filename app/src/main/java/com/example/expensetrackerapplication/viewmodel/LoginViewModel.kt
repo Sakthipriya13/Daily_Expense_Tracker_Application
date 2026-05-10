@@ -73,7 +73,7 @@ class LoginViewModel(
         }
     }
 
-    fun clickLoginButton()
+    fun onClickLoginButton()
     {
         viewModelScope.launch {
             try
@@ -105,10 +105,12 @@ class LoginViewModel(
                         if(result==false)
                         {
                             var res = userRepository.fnLoginCloudAccount(userName.value,userPassword.value)
-                            if(res.isSuccess){
+                            if(res.isSuccess)
+                            {
                                 _loginStatus.postValue(ResultState1.success(R.string.login_Success))
                             }
-                            else{
+                            else
+                            {
                                 Global.lUserId =-1
                                 Global.lUserName=""
                                 Global.lUserPassword=""
@@ -116,7 +118,6 @@ class LoginViewModel(
                                 Global.lUssrEmail=""
                                 _loginStatus.postValue(ResultState1.fail(R.string.login_UserNotFound))
                             }
-
                         }
                         else
                         {

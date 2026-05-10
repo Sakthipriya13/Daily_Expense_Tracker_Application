@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.viewmodel
 
 import android.app.Application
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -247,6 +248,9 @@ class SettingsViewModel(
     {
         viewModelScope.launch {
             try{
+
+                Log.i(LOG_TAG,"Start Export1")
+
                 _isLoading.value = true
 
                 val isNetworkAvail = Global.isNetworkAvailable(application)
@@ -314,6 +318,7 @@ class SettingsViewModel(
 
                     if(files.size > 0)
                     {
+                        Log.i(LOG_TAG,"Start Export2")
                         fnSendFilesViaEmail(files)
                     }
                     else
@@ -432,23 +437,60 @@ class SettingsViewModel(
     fun fnSendFilesViaEmail(file: ArrayList<Uri>){
         try
         {
+            Log.i(LOG_TAG,"Start Export3")
+
             var isNetworkAvailable = Global.isNetworkAvailable(application)
 
-            if(isNetworkAvailable){
+//            if(isNetworkAvailable)
+//            {
+//
+//                Log.i(LOG_TAG,"Start Export4")
+//
+//                val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+//
+//                intent.type ="text/csv"
+//                intent.putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
+//                intent.putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
+//
+//                intent.putExtra(Intent.EXTRA_STREAM,file)
+//
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//
+//                _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
+//            }
 
-                val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+            if(isNetworkAvailable)
+            {
+                Log.i(LOG_TAG,"Start Export4")
 
-                intent.type ="text/csv"
-                intent.putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
-                intent.putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
-                intent.putExtra(Intent.EXTRA_STREAM,file)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                    type ="text/csv"
+
+                    putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
+                    putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
+
+//                    putExtra(Intent.EXTRA_STREAM,file[0])
+//                    putExtra(Intent.EXTRA_STREAM,file[1])
+//                    putExtra(Intent.EXTRA_STREAM,file[2])
+
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM,file)
+
+                    // Important for Gmail / Outlook
+                    clipData = ClipData.newRawUri("", file[0])
+                    file.drop(1).forEach { uri ->
+                        clipData?.addItem(ClipData.Item(uri))
+                    }
+
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
 
                 _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
             }
             else
             {
+                Log.i(LOG_TAG,"Start Export5")
                 _internetStatus.value = ResultState1.fail(R.string.noInternet)
             }
         }
@@ -480,16 +522,10 @@ class SettingsViewModel(
                 _sendEmailEvent.value = null
 
                 _uiEvent.emit(UiEvent.RecreateActivity)
-
-//                _uiEvent.value = UiEvent.RecreateActivity
-
-//                _recreateActvity.value = true
-
             }
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Update Language: ${e.message}")
-                Log.e("UPDATE_LANGUAGE","Update Language: ${e.message}")
                 _isLoading.value = false
             }
             finally

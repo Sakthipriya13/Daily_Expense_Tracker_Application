@@ -8,6 +8,7 @@ import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
+import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 
 class SplitViewModel(
@@ -100,9 +101,9 @@ class SplitViewModel(
             val total = totAmt.value?.toFloatOrNull() ?: 0f
             val cash = amtInCash.value?.toFloatOrNull() ?: 0f
 
-            val remaining = total - cash
+            val remaining = Global.fnFormatFloatTwoDigits(total - cash)
 
-            _amtInCard.value = if (remaining > 0) remaining.toString() else "0.00"
+            _amtInCard.value = if (remaining.toFloat() > 0) remaining else "0.00"
 
         }
         catch (e: Exception)
@@ -119,9 +120,9 @@ class SplitViewModel(
             val cash = amtInCash.value?.toFloatOrNull() ?: 0f
             val card = amtInCard.value?.toFloatOrNull() ?: 0f
 
-            var remaining = total-cash-card
+            var remaining = Global.fnFormatFloatTwoDigits(total-cash-card)
 
-            _amtInUpi.value = if (remaining > 0) remaining.toString() else "0.00"
+            _amtInUpi.value = if (remaining.toFloat() > 0) remaining else "0.00"
         }
         catch (e: Exception)
         {

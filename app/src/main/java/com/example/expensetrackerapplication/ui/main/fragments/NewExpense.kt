@@ -127,16 +127,6 @@ class NewExpense : Fragment() {
 
             splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-            splitBinding.idEAmtInCash.post{
-                splitBinding.idEAmtInCash.selectAll()
-                splitBinding.idEAmtInCash.requestFocus()
-            }
-
-//            splitViewModel._totAmtUi.value = "Total: ${totAmt}"
-//
-//            splitViewModel._totAmt.value = totAmt
-//            splitViewModel._amtInCash.value=totAmt
-
         }
         catch (e : Exception)
         {
@@ -144,19 +134,6 @@ class NewExpense : Fragment() {
             Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
         }
 
-        newExpenseViewModel.expenseAmt.observe(viewLifecycleOwner){ expense ->
-            try
-            {
-                var totAmt = Global.fnFormatFloatTwoDigits(expense?.toFloat())
-                splitViewModel._totAmtUi.value = "Total: ${totAmt}"
-                splitViewModel._totAmt.value = totAmt
-                splitViewModel._amtInCash.value=totAmt
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense Amount Value Observed: ${e.message}")
-            }
-        }
 
 
         splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
@@ -318,7 +295,6 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Amount In Cash: ${e.message}")
-                Log.e("AMOUNT_IN_CASH","Amount In Cash: ${e.message}")
             }
         }
 
@@ -337,7 +313,6 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Amount In Card: ${e.message}")
-                Log.e("AMOUNT_IN_CARD","Amount In Card: ${e.message}")
             }
         }
 
@@ -354,7 +329,6 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Amount In Upi: ${e.message}")
-                Log.e("AMOUNT_IN_UPI","Amount In Upi: ${e.message}")
             }
         }
 
@@ -374,7 +348,6 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Split Status: ${e.message}")
-                Log.e("SPLIT_STATUS","Split Status: ${e.message}")
             }
         }
 
@@ -389,7 +362,6 @@ class NewExpense : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Split: ${e.message}")
-                Log.e("SPLIT","Split: ${e.message}")
             }
         }
 
@@ -397,7 +369,6 @@ class NewExpense : Fragment() {
             try {
                 if(close)
                 {
-//                newExpenseViewModel._paymentType.value=-1
                     newExpenseViewModel._selectedPaymentType.value=-1
                     Global.isCalendarSelected = false
                     splitDialog?.dismiss()
@@ -415,8 +386,24 @@ class NewExpense : Fragment() {
                     if (Global.isCalendarSelected == false)
                     {
                         Global.isCalendarSelected = true
+
+                        var totAmt = Global.fnFormatFloatTwoDigits(newExpenseViewModel.expenseAmt.value?.toFloat())
+                        splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+                        splitViewModel._totAmt.value = totAmt
+                        splitViewModel._amtInCash.value=totAmt
+                        splitViewModel._amtInCard.value = "0.00"
+                        splitViewModel._amtInUpi.value = "0.00"
+
+                        splitBinding.idEAmtInCash.post{
+                            splitBinding.idEAmtInCard.clearFocus()
+                            splitBinding.idEAmtInUpi.clearFocus()
+
+                            splitBinding.idEAmtInCash.isFocusableInTouchMode = true
+                            splitBinding.idEAmtInCash.requestFocus()
+                            splitBinding.idEAmtInCash.selectAll()
+                        }
+
                         splitDialog?.show()
-                        newExpenseViewModel._showSplitDialog.value = false
 
                     }
                 }

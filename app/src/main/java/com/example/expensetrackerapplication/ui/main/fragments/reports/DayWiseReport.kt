@@ -577,6 +577,25 @@ class DayWiseReport : Fragment() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
+            try
+            {
+                splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
+                splitBinding.split = splitViewModel
+                splitBinding.lifecycleOwner = viewLifecycleOwner
+
+                splitDialog = AlertDialog.Builder(requireContext())
+                    .setView(splitBinding.root)
+                    .setCancelable(false)
+                    .create()
+
+                splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+            }
+            catch (e : Exception)
+            {
+                logger.logError(LOG_TAG,"Split Screen Creation: ${e.message}")
+            }
+
             lifecycleScope.launch {
                 try {
                     editExpenseViewModel.fnGetExpenseDetailsPerId(expense.expenseId)
@@ -849,10 +868,9 @@ class DayWiseReport : Fragment() {
             splitViewModel.isClosed.observe(viewLifecycleOwner) { close ->
                 try {
                     if (close) {
-//                editExpenseViewModel._paymentType.value=-1
                         editExpenseViewModel._selectedPaymentType.value = -1
-                        splitDialog?.dismiss()
                         Global.isCalendarSelected = false
+                        splitDialog?.dismiss()
                     }
                 } catch (e: Exception) {
                     logger.logError(LOG_TAG, "Close The Split Screen: ${e.message}")
@@ -866,8 +884,24 @@ class DayWiseReport : Fragment() {
                         if(Global.isCalendarSelected == false)
                         {
                             Global.isCalendarSelected = true
+
+                            var totAmt = Global.fnFormatFloatTwoDigits(editExpenseViewModel.expenseAmt.value?.toFloat())
+                            splitViewModel._totAmtUi.value = "Total: ${totAmt}"
+                            splitViewModel._totAmt.value = totAmt
+                            splitViewModel._amtInCash.value=totAmt
+                            splitViewModel._amtInCard.value = "0.00"
+                            splitViewModel._amtInUpi.value = "0.00"
+
+                            splitBinding.idEAmtInCash.post{
+                                splitBinding.idEAmtInCard.clearFocus()
+                                splitBinding.idEAmtInUpi.clearFocus()
+
+                                splitBinding.idEAmtInCash.isFocusableInTouchMode = true
+                                splitBinding.idEAmtInCash.requestFocus()
+                                splitBinding.idEAmtInCash.selectAll()
+                            }
+
                             splitDialog?.show()
-                            editExpenseViewModel._showSplitDialog.value = false
                         }
                     }
                     else

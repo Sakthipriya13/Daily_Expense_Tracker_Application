@@ -186,7 +186,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:textColor="@color/text_color_white"
-                        android:onClick="@{() -> loginViewModel.clickLoginButton()}"
+                        android:onClick="@{() -> loginViewModel.onClickLoginButton()}"
                         android:background="@drawable/btn_background"
                         android:text= "@string/login"
                         android:textSize="@dimen/button_text_size" />

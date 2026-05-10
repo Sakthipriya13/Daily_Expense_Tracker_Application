@@ -38,7 +38,9 @@ import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.color.MaterialColors
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -97,7 +99,6 @@ class Settings : Fragment()
     val deletePromptViewModel : DeletePromptViewModel by viewModels {
         appViewModelFactory
     }
-
 
     override fun onResume() {
         super.onResume()
@@ -197,22 +198,43 @@ class Settings : Fragment()
 
         lifecycleScope.launch {
             launch {
-                try
-                {
-                    loginDataStore.userDatas?.collect { user ->
-                        Global.lUserId = user.userId
-                        Global.lUserName = user.userName ?:""
-                        Global.lUssrEmail = user.userEmail ?:""
-                        Global.lUserPassword = user.userPassword ?:""
-                        Global.lUserMobileNo = user.userMobileNo ?:""
-                        Global.cloudUserId = user.cloudId
+                try {
+                    val user = loginDataStore.userDatas?.first()
+
+                    user?.let {
+                        Global.lUserId = it.userId
+                        Global.lUserName = it.userName ?: ""
+                        Global.lUssrEmail = it.userEmail ?: ""
+                        Global.lUserPassword = it.userPassword ?: ""
+                        Global.lUserMobileNo = it.userMobileNo ?: ""
+                        Global.cloudUserId = it.cloudId
                     }
                 }
-                catch (e: Exception)
-                {
-                    logger.logError(LOG_TAG,"Store Login User Details: ${e.message}")
+                catch (e: CancellationException) {
+                    logger.logError(LOG_TAG, "Coroutine cancelled: ${e.message}")
+//                    throw e
+                }
+                catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Store Login User Details: ${e.message}")
                 }
             }
+//            launch {
+//                try
+//                {
+//                    loginDataStore.userDatas?.collect { user ->
+//                        Global.lUserId = user.userId
+//                        Global.lUserName = user.userName ?:""
+//                        Global.lUssrEmail = user.userEmail ?:""
+//                        Global.lUserPassword = user.userPassword ?:""
+//                        Global.lUserMobileNo = user.userMobileNo ?:""
+//                        Global.cloudUserId = user.cloudId
+//                    }
+//                }
+//                catch (e: Exception)
+//                {
+//                    logger.logError(LOG_TAG,"Store Login User Details: ${e.message}")
+//                }
+//            }
             launch {
                 try
                 {
