@@ -32,7 +32,9 @@ import com.example.expensetrackerapplication.model.CategoryModel
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.listeners.CategoryItemClickListener
+import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
+import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.color.MaterialColors
@@ -81,11 +83,21 @@ class Settings : Fragment()
     val splashViewModel : SplashViewModel by viewModels{
         appViewModelFactory
     }
-
     val LOG_TAG = "SETTINGS"
 
     private lateinit var logger : FileLogger
 //        FileLogger(requireContext().applicationContext)
+
+    private lateinit var deletePromptBinding : ConfirmationPromptBinding
+
+    private lateinit var deletePromptDialog : AlertDialog
+
+    var deleteCategory : CategoryModel? = null
+
+    val deletePromptViewModel : DeletePromptViewModel by viewModels {
+        appViewModelFactory
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -113,9 +125,47 @@ class Settings : Fragment()
         return settingsBinding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        try {
+
+            deletePromptBinding = DataBindingUtil.inflate(layoutInflater,R.layout.confirmation_prompt,null,false)
+            deletePromptBinding.prompt = deletePromptViewModel
+            deletePromptBinding.lifecycleOwner = viewLifecycleOwner
+
+            deletePromptDialog = AlertDialog.Builder(requireContext())
+                .setView(deletePromptBinding.root)
+                .setCancelable(false)
+                .create()
+            deletePromptDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Delete Prompt Screen Creation: ${e.message}")
+        }
+
+        deletePromptViewModel.isClose.observe(viewLifecycleOwner){ isClose ->
+            try
+            {
+                when(isClose){
+                    is ResultState.Success ->{
+                        Global.displayDialogPrompt=false
+                        deletePromptDialog.dismiss()
+                    }
+                    is ResultState.fail ->{
+                        settingsViewModel.fnDeleteCategory(deleteCategory?.categoryId,deleteCategory?.userId)
+                        Global.displayDialogPrompt=false
+                        deletePromptDialog.dismiss()
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Is Close Value Observed From DeletePromptViewModel: ${e.message}")
+            }
+        }
 
         // Datastore Variables Initialization
         loginDataStore= LoginDataStore(requireContext())
@@ -269,7 +319,20 @@ class Settings : Fragment()
                 }
                 categoryAdapter.fnSubmitList(categoryNameList, object : CategoryItemClickListener{
                     override fun onRemoveClick(category: CategoryModel) {
-                        fnShowDeletePrompt(category)
+                        try
+                        {
+//                            fnShowDeletePrompt(category)
+                            deleteCategory = category
+                            // Assign Title
+                            deletePromptViewModel._title.value = getString(R.string.warning)
+                            //Assign Content
+                            deletePromptViewModel._message.value = getString(R.string.do_you_want_to_delete_the_category)
+                            deletePromptDialog.show()
+                        }
+                        catch(e: Exception)
+                        {
+                            logger.logError(LOG_TAG,"Display Category Delete Confirmation Prompt: ${e.message}")
+                        }
                     }
                 }
                 )
@@ -531,134 +594,49 @@ class Settings : Fragment()
         }
     }
 
-//    suspend fun fnGetCloudUserId():String{
-//        val auth = FirebaseAuth.getInstance()
+//    fun fnShowDeletePrompt(category : CategoryModel)
+//    {
+//        try {
+//            //Check If Prompt Already Display Or Not
+//            if(Global.displayDialogPrompt==false)
+//            {
+//                // Assign True: Now Prompt Displayed
+//                Global.displayDialogPrompt=true
 //
-//        if(auth.currentUser == null){
-//            auth.signInAnonymously().await()
-//        }
-//
-//        return auth.currentUser!!.uid
-//    }
-
-//    fun fnUpdateBtnTheme(themeCode : Int){
-//        settingsBinding.idBtnSysTheme.setBackgroundColor(
-//            ContextCompat.getColor(requireContext(),R.color.color_grey)
-//        )
-//        settingsBinding.idBtnDarkTheme.setBackgroundColor(
-//            ContextCompat.getColor(requireContext(),R.color.color_grey)
-//        )
-//        settingsBinding.idBtnLightTheme.setBackgroundColor(
-//            ContextCompat.getColor(requireContext(),R.color.color_grey)
-//        )
-//        when(themeCode){
-//            Global.THEME_DARK -> {
-//                settingsBinding.idBtnDarkTheme.setBackgroundColor(
-//                    MaterialColors.getColor(
-//                        requireView(),
-//                        com.google.android.material.R.attr.colorOnPrimary
-//                    )
-//                )
-//                settingsBinding.idBtnDarkTheme.setTextColor(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
-//                settingsBinding.idBtnDarkTheme.iconTint = ColorStateList.valueOf(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
-//
-//            }
-//            Global.THEME_LIGHT -> { settingsBinding.idBtnLightTheme.setBackgroundColor(
-//                MaterialColors.getColor(
-//                    requireView(),
-//                    com.google.android.material.R.attr.colorOnPrimary
-//                    )
-//                )
-//                settingsBinding.idBtnLightTheme.setTextColor(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
-//                settingsBinding.idBtnLightTheme.iconTint = ColorStateList.valueOf(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
-//
-//            }
-//            else -> {
-//                settingsBinding.idBtnSysTheme.setBackgroundColor(
-//                    MaterialColors.getColor(
-//                        requireView(),
-//                        com.google.android.material.R.attr.colorOnPrimary
-//                    )
-//                )
-//                settingsBinding.idBtnSysTheme.setTextColor(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
-//                settingsBinding.idBtnSysTheme.iconTint = ColorStateList.valueOf(
-//                    ContextCompat.getColor(
-//                        requireContext(),
-//                        R.color.text_color_white
-//                    )
-//                )
+//                // PromptBinding Variable Initialization
+//                var promptBinding = ConfirmationPromptBinding.inflate(layoutInflater)
+//                // Assign Title
+//                promptBinding.tittle = getString(R.string.warning)
+//                //Assign Content
+//                promptBinding.message = getString(R.string.do_you_want_to_delete_the_category)
+//                // AlertDialog Variable Initialization
+//                val deletePrompt = AlertDialog.Builder(requireContext())
+//                    .setView(promptBinding.root)
+//                    .setCancelable(false)
+//                    .create()
+//                //Set Transparent Background
+//                deletePrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                // On Click OkBtn
+//                promptBinding.idBtnOk.setOnClickListener {
+//                    settingsViewModel.fnDeleteCategory(category.categoryId,category.userId)
+//                    Global.displayDialogPrompt=false
+//                    deletePrompt.dismiss()
+//                }
+//                // On Click CancelBtn
+//                promptBinding.idBtnCancel.setOnClickListener {
+//                    Global.displayDialogPrompt=false
+//                    deletePrompt.dismiss()
+//                }
+//                // Show Prompt
+//                deletePrompt.show()
 //            }
 //        }
+//        catch (e: Exception)
+//        {
+//            logger.logError(LOG_TAG,"Display Category Delete Confirmation Prompt: ${e.message}")
+//            Log.e("DISPLAY_WARNING_DELETE_CATEGORY","Display Warning - Delete Category: ${e.message}")
+//        }
 //    }
-
-    fun fnShowDeletePrompt(category : CategoryModel)
-    {
-        try {
-            //Check If Prompt Already Display Or Not
-            if(Global.displayDialogPrompt==false)
-            {
-                // Assign True: Now Prompt Displayed
-                Global.displayDialogPrompt=true
-
-                // PromptBinding Variable Initialization
-                var promptBinding = ConfirmationPromptBinding.inflate(layoutInflater)
-                // Assign Title
-                promptBinding.tittle = getString(R.string.warning)
-                //Assign Content
-                promptBinding.message = getString(R.string.do_you_want_to_delete_the_category)
-                // AlertDialog Variable Initialization
-                val deletePrompt = AlertDialog.Builder(requireContext())
-                    .setView(promptBinding.root)
-                    .setCancelable(false)
-                    .create()
-                //Set Transparent Background
-                deletePrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                // On Click OkBtn
-                promptBinding.idBtnOk.setOnClickListener {
-                    settingsViewModel.fnDeleteCategory(category.categoryId,category.userId)
-                    Global.displayDialogPrompt=false
-                    deletePrompt.dismiss()
-                }
-                // On Click CancelBtn
-                promptBinding.idBtnCancel.setOnClickListener {
-                    Global.displayDialogPrompt=false
-                    deletePrompt.dismiss()
-                }
-                // Show Prompt
-                deletePrompt.show()
-            }
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Display Category Delete Confirmation Prompt: ${e.message}")
-            Log.e("DISPLAY_WARNING_DELETE_CATEGORY","Display Warning - Delete Category: ${e.message}")
-        }
-    }
     companion object {
         /**
          * Use this factory method to create a new instance of

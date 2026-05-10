@@ -383,6 +383,7 @@ class NewExpense : Fragment() {
             {
                 newExpenseBinding.idERemarks.requestFocus()
                 newExpenseBinding.idERemarks.isFocusable=true
+                Global.isCalendarSelected = false
                 splitDialog?.dismiss()
             }
             catch (e: Exception)
@@ -398,6 +399,7 @@ class NewExpense : Fragment() {
                 {
 //                newExpenseViewModel._paymentType.value=-1
                     newExpenseViewModel._selectedPaymentType.value=-1
+                    Global.isCalendarSelected = false
                     splitDialog?.dismiss()
                 }
             }
@@ -410,8 +412,13 @@ class NewExpense : Fragment() {
             try {
                 if(isChecked)
                 {
-                    splitDialog?.show()
-                    newExpenseViewModel._showSplitDialog.value = false
+                    if (Global.isCalendarSelected == false)
+                    {
+                        Global.isCalendarSelected = true
+                        splitDialog?.show()
+                        newExpenseViewModel._showSplitDialog.value = false
+
+                    }
                 }
                 else
                 {

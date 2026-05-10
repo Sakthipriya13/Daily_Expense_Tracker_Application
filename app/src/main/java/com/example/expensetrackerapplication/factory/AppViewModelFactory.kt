@@ -13,6 +13,7 @@ import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewMod
 import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
 import com.example.expensetrackerapplication.viewmodel.DashBoardViewModel
 import com.example.expensetrackerapplication.viewmodel.DayWiseReportViewModel
+import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
 import com.example.expensetrackerapplication.viewmodel.ForgetViewModel
 import com.example.expensetrackerapplication.viewmodel.LoginViewModel
@@ -104,6 +105,9 @@ class AppViewModelFactory(
             }
             modelClass.isAssignableFrom(CalendarMonthViewModel::class.java)->{
                 CalendarMonthViewModel(application,logger) as T
+            }
+            modelClass.isAssignableFrom(DeletePromptViewModel::class.java)->{
+                DeletePromptViewModel(application,logger) as T
             }
             else ->{
                 throw IllegalArgumentException(

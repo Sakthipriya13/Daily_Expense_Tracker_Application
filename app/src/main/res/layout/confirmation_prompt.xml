@@ -5,11 +5,8 @@
 
     <data>
         <variable
-            name="tittle"
-            type="String" />
-        <variable
-            name="message"
-            type="String" />
+            name="prompt"
+            type="com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel" />
     </data>
     <androidx.cardview.widget.CardView
         android:id="@+id/idDeletePromptLayout"
@@ -28,7 +25,7 @@
                 android:id="@+id/idHeader"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{tittle}"
+                android:text="@{prompt._title}"
                 android:gravity="start|center"
                 android:textSize="@dimen/app_header_size"
                 android:textColor="?attr/textColorWhite"
@@ -43,7 +40,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
-                android:text="@{message}"
+                android:text="@{prompt._message}"
                 android:textSize="@dimen/text_size"
                 app:layout_constraintTop_toBottomOf="@id/idHeader"
                 app:layout_constraintStart_toStartOf="parent"
@@ -69,6 +66,7 @@
                     android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:text="@string/cancel"
+                    android:onClick="@{() -> prompt.onClickCancel()}"
                     android:textColor="?attr/colorPrimary"
                     android:textColorLink="?attr/colorPrimary"
                     android:textSize="@dimen/button_text_size"
@@ -82,6 +80,7 @@
                     android:textColor="@color/text_color_white"
                     android:background="@drawable/btn_background"
                     android:text="@string/ok"
+                    android:onClick="@{()-> prompt.onClickOk()}"
                     android:textSize="@dimen/button_text_size" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

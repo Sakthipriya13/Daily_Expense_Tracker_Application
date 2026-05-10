@@ -23,7 +23,7 @@ interface CategoryDao {
     suspend fun fnGetDefaultCategories(lUserId :Int) : List<CategoryEntitty>
 
     @Query("DELETE FROM Categories WHERE categoryId = :categoryId AND UserId= :userId")
-    suspend fun fnDeleteCategoryFromDb(categoryId : Int, userId : Int) : Int
+    suspend fun fnDeleteCategoryFromDb(categoryId : Int?, userId : Int?) : Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun fnInsertAllCategory(list: List<CategoryEntitty>): List<Long>

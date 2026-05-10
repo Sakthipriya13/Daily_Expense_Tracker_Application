@@ -223,7 +223,7 @@ class SettingsViewModel(
         }
     }
 
-    fun fnDeleteCategory(categoryId : Int, userId : Int)
+    fun fnDeleteCategory(categoryId: Int?, userId: Int?)
     {
         viewModelScope.launch {
             try {

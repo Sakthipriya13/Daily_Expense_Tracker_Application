@@ -21,12 +21,15 @@ import com.example.expensetrackerapplication.databinding.ChangePasswordBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
 import com.example.expensetrackerapplication.databinding.ProfileBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
+import com.example.expensetrackerapplication.model.CategoryModel
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.Auth
+import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
+import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.ProfileViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -64,19 +67,13 @@ class Profile : Fragment() {
 //        FileLogger(requireContext().applicationContext)
     val LOG_TAG ="PROFILE"
 
-//    private val mainViewModel : MainViewModel by activityViewModels()
+    private lateinit var deletePromptBinding : ConfirmationPromptBinding
 
-//    private  var profilePhotoUri : Uri? = null
-//    private lateinit var cameraLauncher: ActivityResultLauncher<Uri?>
-//    private lateinit var galleryLauncher: ActivityResultLauncher<String>
+    private lateinit var deletePromptDialog : android.app.AlertDialog
 
-
-//    private var takePictureLauncher =
-//        registerForActivityResult(ActivityResultContracts.TakePicture()){ success ->
-//        if(success){
-//            profileViewModel.fnUpdateUserProfilePhoto(profilePhotoUri)
-//        }
-//    }
+    val deletePromptViewModel : DeletePromptViewModel by viewModels {
+        appViewModelFactory
+    }
 
     override fun onResume() {
         super.onResume()
@@ -98,68 +95,6 @@ class Profile : Fragment() {
 
         logger = FileLogger(requireContext().applicationContext)
 
-//        cameraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-//
-//            if (success && profilePhotoUri != null) {
-//
-//                lifecycleScope.launch {
-//
-//                    val path = withContext(Dispatchers.IO) {
-//                        Global.fnCopyImageToInternalStorage(
-//                            requireContext(),
-//                            profilePhotoUri!!
-//                        )
-//                    }
-//
-//                    profileViewModel.saveUriToDatabase(path)
-//
-//                    loadImage()
-//                }
-//            }
-//        }
-
-//        galleryLauncher =
-//            registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-//
-//                uri?.let {
-//                    // ✅ STEP 1: Show instantly (no delay)
-//                    Glide.with(this)
-//                        .load(it)
-//                        .placeholder(R.drawable.user)
-//                        .into(profileBinding.idProfileImage)
-//
-//                    // ✅ STEP 2: Save in background
-//                    lifecycleScope.launch {
-//                        try {
-//                            val path = withContext(Dispatchers.IO) {
-//                                Global.fnCopyImageToInternalStorage(requireContext(), it)
-//                            }
-//
-//                            profileViewModel.saveUriToDatabase(path)
-//
-//                            mainViewModel._triggerProfile.value = true
-//
-//                        } catch (e: Exception) {
-//                            Log.e("GALLERY_ERROR", e.message.toString())
-//                        }
-//                    }
-
-
-//                    lifecycleScope.launch {
-//
-//                        val path = withContext(Dispatchers.IO) {
-//                            copyImageToInternalStorage(requireContext(), it)
-//                        }
-//                        profileViewModel.saveUriToDatabase(path)
-//
-//                        loadImage()
-//
-//                        //18-03-2026 add this line
-//                        mainViewModel.fnGetUserProfilePhotoUri()
-//                    }
-//                }
-//            }
-
         profileBinding= DataBindingUtil.inflate(inflater,R.layout.profile,container,false)
         profileBinding.profile=profileViewModel
         profileBinding.lifecycleOwner=viewLifecycleOwner
@@ -170,41 +105,41 @@ class Profile : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //28-03-2026
-//        profileViewModel.fnGetUserProfilePhotoUri()
+        try {
+            deletePromptBinding = DataBindingUtil.inflate(layoutInflater,R.layout.confirmation_prompt,null,false)
+            deletePromptBinding.prompt = deletePromptViewModel
+            deletePromptBinding.lifecycleOwner = viewLifecycleOwner
 
-//        lifecycleScope.launch {
-//
-//            val path = withContext(Dispatchers.IO) {
-//                profileViewModel.fnGetImage().await()
-//            }
-//
-//            path.let {
-//                Log.e("PROFILE URI STRING","Profile Uri String: $it")
-//                if(it!=null && !it.equals("")){
-//                    Glide.with(requireContext())
-//                        .load(File(it))
-//                        .into(profileBinding.idProfileImage)
-//                }
-//                else{
-//                    profileBinding.idProfileImage.setImageResource(R.drawable.user)
-//                }
-//            }
-//        }
+            deletePromptDialog = android.app.AlertDialog.Builder(requireContext())
+                .setView(deletePromptBinding.root)
+                .setCancelable(false)
+                .create()
+            deletePromptDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Delete Prompt Screen Creation: ${e.message}")
+        }
 
-//        profileViewModel.profilePath.observe(viewLifecycleOwner){ path ->
-//            path.let {
-//                Log.e("PROFILE URI STRING","Profile Uri String: $it")
-//                if(it!=null && !it.equals("")){
-//                    Glide.with(requireContext())
-//                        .load(File(it))
-//                        .into(profileBinding.idProfileImage)
-//                }
-//                else{
-//                    profileBinding.idProfileImage.setImageResource(R.drawable.user)
-//                }
-//            }
-//        }
+        deletePromptViewModel.isClose.observe(viewLifecycleOwner){ isClose ->
+            try
+            {
+                when(isClose){
+                    is ResultState.Success ->{
+                        Global.isCalendarSelected = false
+                        deletePromptDialog.dismiss()
+                    }
+                    is ResultState.fail ->{
+                        Global.isCalendarSelected = false
+                        profileViewModel.fnDeleteUserAccount()
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Is Close Value Observed From DeletePromptViewModel: ${e.message}")
+            }
+        }
 
         profileViewModel.isDelAccount.observe(viewLifecycleOwner){ isDelAc ->
             try
@@ -216,34 +151,10 @@ class Profile : Fragment() {
                         //Flag Value
                         Global.isCalendarSelected = true
 
-                        //Confirmation Binding
-                        val view = ConfirmationPromptBinding.inflate(layoutInflater)
-                        view.tittle = getString(R.string.deleteAccount_Title)
-                        view.message = getString(R.string.deleteAccount_Content)
-
-                        //AlertDialog Screen Variable Initialization
-                        var delAcPrompt = AlertDialog.Builder(requireContext())
-                            .setView(view.root)
-                            .setCancelable(false)
-                            .create()
-
-                        //Set Transparent Background
-                        delAcPrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-                        //On Click Ok Button
-                        view.idBtnOk.setOnClickListener {
-                            Global.isCalendarSelected = false
-                            profileViewModel.fnDeleteUserAccount()
-                        }
-
-                        //On Click Cancel Button
-                        view.idBtnCancel.setOnClickListener {
-                            Global.isCalendarSelected = false
-                            delAcPrompt.dismiss()
-                        }
-
+                        deletePromptViewModel._title.value = getString(R.string.deleteAccount_Title)
+                        deletePromptViewModel._message.value = getString(R.string.deleteAccount_Content)
                         //Display Dialog Screen
-                        delAcPrompt.show()
+                        deletePromptDialog.show()
                     }
                 }
             }

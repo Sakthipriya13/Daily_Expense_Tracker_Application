@@ -5,7 +5,6 @@ import com.example.expensetrackerapplication.data.dao.CategoryDao
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -88,7 +87,7 @@ class CategoryRepository(val categoryDao: CategoryDao)
     }
 
 
-    suspend fun fnDeleteCategory(categoryId : Int, userId : Int):Boolean{
+    suspend fun fnDeleteCategory(categoryId: Int?, userId: Int?):Boolean{
         return try{
             var res= categoryDao.fnDeleteCategoryFromDb(categoryId = categoryId,userId)
 

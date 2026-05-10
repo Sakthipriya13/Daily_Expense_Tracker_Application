@@ -34,8 +34,10 @@ import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.listeners.DayWiseReportClickListener
+import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.DayWiseReportViewModel
+import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
 
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
@@ -66,27 +68,38 @@ class DayWiseReport : Fragment() {
             FileLogger(requireContext().applicationContext)
         )
     }
-    lateinit var DayWiseReportBinding : DayWiseReportBinding
-    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels{
+    lateinit var DayWiseReportBinding: DayWiseReportBinding
+    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels {
         appViewModelFactory
     }
-//   val reportMenuViewModel : ReportMenuViewModel by activityViewModels()
+
+    //   val reportMenuViewModel : ReportMenuViewModel by activityViewModels()
 //   val mainViewModel : MainViewModel by activityViewModels()
-    lateinit var listAdapter : ListAdapter
+    lateinit var listAdapter: ListAdapter
 
 //    private lateinit var mainViewBinding : MainBinding
 
-    private lateinit var logger : FileLogger
+    private lateinit var logger: FileLogger
 //        FileLogger(requireContext().applicationContext)
 
     val LOG_TAG = "DAY_WISE_REPORT"
 
-    private lateinit var splitBinding : SplitDialogueBinding
-    var splitDialog : AlertDialog? = null
+    private lateinit var splitBinding: SplitDialogueBinding
+    var splitDialog: AlertDialog? = null
 
-    val splashViewModel : SplashViewModel by viewModels{
+    val splashViewModel: SplashViewModel by viewModels {
         appViewModelFactory
     }
+
+    private lateinit var deletePromptBinding: ConfirmationPromptBinding
+
+    private lateinit var deletePromptDialog: android.app.AlertDialog
+
+    val deletePromptViewModel: DeletePromptViewModel by viewModels {
+        appViewModelFactory
+    }
+
+    var deleteExpense: CurrentDayReportModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,8 +115,9 @@ class DayWiseReport : Fragment() {
     ): View? {
         logger = FileLogger(requireContext().applicationContext)
 
-        DayWiseReportBinding = DataBindingUtil.inflate(inflater,R.layout.day_wise_report, container, false)
-        DayWiseReportBinding.currentDayReportViewModel=DayWiseReportViewModel
+        DayWiseReportBinding =
+            DataBindingUtil.inflate(inflater, R.layout.day_wise_report, container, false)
+        DayWiseReportBinding.currentDayReportViewModel = DayWiseReportViewModel
 
         DayWiseReportBinding.lifecycleOwner = viewLifecycleOwner
 
@@ -113,93 +127,120 @@ class DayWiseReport : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        try {
+            deletePromptBinding =
+                DataBindingUtil.inflate(layoutInflater, R.layout.confirmation_prompt, null, false)
+            deletePromptBinding.prompt = deletePromptViewModel
+            deletePromptBinding.lifecycleOwner = viewLifecycleOwner
+
+            deletePromptDialog = android.app.AlertDialog.Builder(requireContext())
+                .setView(deletePromptBinding.root)
+                .setCancelable(false)
+                .create()
+            deletePromptDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        } catch (e: Exception) {
+            logger.logError(LOG_TAG, "Delete Prompt Screen Creation: ${e.message}")
+        }
+
+        deletePromptViewModel.isClose.observe(viewLifecycleOwner) { isClose ->
+            try {
+                when (isClose) {
+                    is ResultState.Success -> {
+                        Global.isCalendarSelected = false
+                        deletePromptDialog.dismiss()
+                    }
+
+                    is ResultState.fail -> {
+                        Global.isCalendarSelected = false
+                        DayWiseReportViewModel.fnDeleteExpense(deleteExpense?.expenseId)
+                        deletePromptDialog.dismiss()
+                    }
+                }
+            } catch (e: Exception) {
+                logger.logError(
+                    LOG_TAG,
+                    "Is Close Value Observed From DeletePromptViewModel: ${e.message}"
+                )
+            }
+        }
+
+
         DayWiseReportViewModel.fnPreWarmExcelEngine()
 
-        try
-        {
+        try {
             listAdapter = ListAdapter(requireContext().applicationContext)
             DayWiseReportBinding.idDayWiseReportView.adapter = listAdapter
-            DayWiseReportBinding.idDayWiseReportView.layoutManager = LinearLayoutManager(requireContext())
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"List Adapter Initialization: ${e.message}")
+            DayWiseReportBinding.idDayWiseReportView.layoutManager =
+                LinearLayoutManager(requireContext())
+        } catch (e: Exception) {
+            logger.logError(LOG_TAG, "List Adapter Initialization: ${e.message}")
         }
 
-        DayWiseReportViewModel.isClosed.observe(viewLifecycleOwner){ isClose ->
-            try
-            {
-                if(isClose==true)
-                {
+        DayWiseReportViewModel.isClosed.observe(viewLifecycleOwner) { isClose ->
+            try {
+                if (isClose == true) {
                     findNavController().navigate(R.id.action_day_wise_report_to_report_menu)
                     DayWiseReportViewModel.resetCloseState()
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Close The Day Wise Report: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Close The Day Wise Report: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Close The Day Wise Report: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Close The Day Wise Report: ${e.message}")
             }
         }
-        
+
         DayWiseReportBinding.idCalendarButton.setOnClickListener {
             try {
-                if(Global.isCalendarSelected==false)
-                {
-                    Global.isCalendarSelected=true
+                if (Global.isCalendarSelected == false) {
+                    Global.isCalendarSelected = true
                     val calendar = Calendar.getInstance()
                     val year = calendar.get(Calendar.YEAR)
                     val month = calendar.get(Calendar.MONTH)
                     val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-                    val datePickerDialog = DatePickerDialog(requireContext(),
-                        { _,y,m,d ->
+                    val datePickerDialog = DatePickerDialog(
+                        requireContext(),
+                        { _, y, m, d ->
 
-                            calendar.set(y,m,d)
+                            calendar.set(y, m, d)
                             val sdf1 = SimpleDateFormat("dd-MM-yyyy", Locale.US)
                             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                             val date = sdf.format(calendar.time)
                             val dateUi = sdf1.format(calendar.time)
 
-                            DayWiseReportViewModel._selectedDate.value=date
-                            DayWiseReportViewModel._selectedDateUi.value=dateUi
-                            Global.isCalendarSelected=false
+                            DayWiseReportViewModel._selectedDate.value = date
+                            DayWiseReportViewModel._selectedDateUi.value = dateUi
+                            Global.isCalendarSelected = false
 
-                        },year,month,day)
+                        }, year, month, day
+                    )
                     datePickerDialog.setCancelable(false)
                     datePickerDialog.setCanceledOnTouchOutside(false)
 
                     datePickerDialog.setOnCancelListener {
-                        Global.isCalendarSelected=false
+                        Global.isCalendarSelected = false
                     }
 
                     datePickerDialog.show()
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Show The Calendar Prompt: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Show The Calendar Prompt: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Show The Calendar Prompt: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Show The Calendar Prompt: ${e.message}")
             }
         }
 
-        DayWiseReportViewModel.selectedDate.observe(viewLifecycleOwner){ date ->
-            try
-            {
+        DayWiseReportViewModel.selectedDate.observe(viewLifecycleOwner) { date ->
+            try {
                 DayWiseReportViewModel.fnClearAllFields()
                 DayWiseReportViewModel.fnGetExpenseDetails(date)
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Select Date: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Select Date: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Select Date: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Select Date: ${e.message}")
             }
         }
 
-        DayWiseReportViewModel.expenseList.observe(viewLifecycleOwner){ list ->
+        DayWiseReportViewModel.expenseList.observe(viewLifecycleOwner) { list ->
             try {
-                if(list.isNotEmpty())
-                {
+                if (list.isNotEmpty()) {
                     DayWiseReportViewModel._isExportLoading.value = false
 
                     DayWiseReportBinding.idNoReportsText.visibility = View.GONE
@@ -207,152 +248,177 @@ class DayWiseReport : Fragment() {
 
                     listAdapter.fnSubmitList(list, object : DayWiseReportClickListener {
                         override fun onDeleteClick(expense: CurrentDayReportModel) {
-                            try
-                            {
-                                if(!expense.isDelete.equals("DELETED"))
-                                    fnShowDeletePrompt(expense)
-                                else
-                                    fnShowMessage(getString(R.string.dayWiseReport_ExpenseWasAlreadyDeleted),requireContext(),R.drawable.bg_info)
-                            }
-                            catch (e: Exception)
-                            {
-                                logger.logError(LOG_TAG,"On Click Delete Expense Button: ${e.message}")
+                            try {
+                                if (!expense.isDelete.equals("DELETED")) {
+                                    if (Global.isCalendarSelected == false) {
+                                        deleteExpense = expense
+
+                                        Global.isCalendarSelected = true
+
+                                        deletePromptViewModel._title.value =
+                                            getString(R.string.warning)
+
+                                        deletePromptViewModel._message.value =
+                                            getString(R.string.do_you_want_to_delete_the_expense)
+
+                                        deletePromptDialog.show()
+                                    }
+                                } else
+                                    fnShowMessage(
+                                        getString(R.string.dayWiseReport_ExpenseWasAlreadyDeleted),
+                                        requireContext(),
+                                        R.drawable.bg_info
+                                    )
+                            } catch (e: Exception) {
+                                logger.logError(
+                                    LOG_TAG,
+                                    "Display Delete Prompt Screen: ${e.message}"
+                                )
                             }
                         }
 
                         override fun onClickEdit(expense: CurrentDayReportModel) {
-                            try
-                            {
-                                if(!expense.isDelete.equals("DELETED"))
-                                {
-                                    if(Global.isBottomSheetSelected==false)
+                            try {
+                                if (!expense.isDelete.equals("DELETED")) {
+                                    if (Global.isBottomSheetSelected == false)
                                     {
-                                        Global.isBottomSheetSelected=true
-                                        EditExpense(expense).show(parentFragmentManager,"EditExpenseBottomSheet")
+                                        Global.isBottomSheetSelected = true
+                                        EditExpense(expense).show(
+                                            parentFragmentManager,
+                                            "EditExpenseBottomSheet"
+                                        )
                                     }
                                 }
                                 else
                                 {
-                                    fnShowMessage(getString(R.string.dayWiseReport_EditNotAllowed),requireContext(),R.drawable.error_bg)
+                                    fnShowMessage(
+                                        getString(R.string.dayWiseReport_EditNotAllowed),
+                                        requireContext(),
+                                        R.drawable.error_bg
+                                    )
                                 }
                             }
                             catch (e: Exception)
                             {
-                                logger.logError(LOG_TAG,"On Click Edit Expense Button: ${e.message}")
+                                logger.logError(
+                                    LOG_TAG,
+                                    "On Click Edit Expense Button: ${e.message}"
+                                )
                             }
                         }
 
                     })
                     listAdapter.notifyDataSetChanged()
-                }
-                else
-                {
+                } else {
                     DayWiseReportViewModel._isExportLoading.value = false
                     DayWiseReportBinding.idNoReportsText.visibility = View.VISIBLE
                     DayWiseReportBinding.idContentLayout.visibility = View.GONE
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense List Observed: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Expense List Observed: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Expense List Observed: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Expense List Observed: ${e.message}")
             }
         }
 
-        DayWiseReportViewModel.exportStatus.observe(viewLifecycleOwner){ status ->
-            try
-            {
-                when(status)
-                {
-                    is ResultState1.success ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
-                    }
-                    is ResultState1.fail ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
-                    }
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Export Status: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Export Status: ${e.message}")
-            }
-        }
-
-        DayWiseReportViewModel.expenseDeleteStatus.observe(viewLifecycleOwner){ status ->
+        DayWiseReportViewModel.exportStatus.observe(viewLifecycleOwner) { status ->
             try {
-                when(status)
-                {
-                    is ResultState1.success ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
+                when (status) {
+                    is ResultState1.success -> {
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.bg_success
+                        )
                     }
-                    is ResultState1.fail ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
+
+                    is ResultState1.fail -> {
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.error_bg
+                        )
                     }
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense Delete Status: ${e.message}")
-                Log.e("DAY_WISE_REPORT","Expense Delete Status: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Export Status: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Export Status: ${e.message}")
             }
         }
 
-        DayWiseReportViewModel.isExportLoading.observe(viewLifecycleOwner){ isLoading ->
+        DayWiseReportViewModel.expenseDeleteStatus.observe(viewLifecycleOwner) { status ->
             try {
-                if(isLoading)
-                {
-                    DayWiseReportBinding.isExportLoading.visibility=View.VISIBLE
+                when (status) {
+                    is ResultState1.success -> {
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.bg_success
+                        )
+                    }
+
+                    is ResultState1.fail -> {
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.error_bg
+                        )
+                    }
                 }
-                else
-                {
-                    DayWiseReportBinding.isExportLoading.visibility=View.GONE
-                }
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Expense Delete Status: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Expense Delete Status: ${e.message}")
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Display Progress Bar : ${e.message}")
-                Log.e("DAY_WISE_REPORT","Display Progress Bar : ${e.message}")
+        }
+
+        DayWiseReportViewModel.isExportLoading.observe(viewLifecycleOwner) { isLoading ->
+            try {
+                if (isLoading) {
+                    DayWiseReportBinding.isExportLoading.visibility = View.VISIBLE
+                } else {
+                    DayWiseReportBinding.isExportLoading.visibility = View.GONE
+                }
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Display Progress Bar : ${e.message}")
+                Log.e("DAY_WISE_REPORT", "Display Progress Bar : ${e.message}")
             }
         }
 
     }
 
-    fun fnShowDeletePrompt(expense : CurrentDayReportModel)
-    {
-        try
-        {
-            // PromptBinding Variable Initialization
-            var promptBinding = ConfirmationPromptBinding.inflate(layoutInflater)
-            // Assign Title
-            promptBinding.tittle = getString(R.string.warning)
-            // Assign Content
-            promptBinding.message = getString(R.string.do_you_want_to_delete_the_expense)
-            // AlertDialog Variable Initialization
-            val deletePrompt = AlertDialog.Builder(requireContext())
-                .setView(promptBinding.root)
-                .setCancelable(false)
-                .create()
-            // Set Transparent Background
-            deletePrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            // On Click Ok Button Operation
-            promptBinding.idBtnOk.setOnClickListener {
-                DayWiseReportViewModel.fnDeleteExpense(expense.expenseId)
-                deletePrompt.dismiss()
-            }
-            // On Click Cancel Button Operation
-            promptBinding.idBtnCancel.setOnClickListener {
-                deletePrompt.dismiss()
-            }
-            // Display Prompt
-            deletePrompt.show()
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Show Delete Prompt: ${e.message}")
-            Log.e("DAY_WISE_REPORT","Show Delete Prompt: ${e.message}")
-        }
-    }
+//    fun fnShowDeletePrompt(expense : CurrentDayReportModel)
+//    {
+//        try
+//        {
+//            // PromptBinding Variable Initialization
+////            var promptBinding = ConfirmationPromptBinding.inflate(layoutInflater)
+//            // Assign Title
+//            promptBinding.tittle = getString(R.string.warning)
+//            // Assign Content
+//            promptBinding.message = getString(R.string.do_you_want_to_delete_the_expense)
+//            // AlertDialog Variable Initialization
+//            val deletePrompt = AlertDialog.Builder(requireContext())
+//                .setView(promptBinding.root)
+//                .setCancelable(false)
+//                .create()
+//            // Set Transparent Background
+//            deletePrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//            // On Click Ok Button Operation
+//            promptBinding.idBtnOk.setOnClickListener {
+//                DayWiseReportViewModel.fnDeleteExpense(expense.expenseId)
+//                deletePrompt.dismiss()
+//            }
+//            // On Click Cancel Button Operation
+//            promptBinding.idBtnCancel.setOnClickListener {
+//                deletePrompt.dismiss()
+//            }
+//            // Display Prompt
+//            deletePrompt.show()
+//        }
+//        catch (e: Exception)
+//        {
+//            logger.logError(LOG_TAG,"Show Delete Prompt: ${e.message}")
+//            Log.e("DAY_WISE_REPORT","Show Delete Prompt: ${e.message}")
+//        }
 
 
     companion object {
@@ -374,264 +440,189 @@ class DayWiseReport : Fragment() {
                 }
             }
     }
-}
 
-// RecyclerView Adapter
-class ListAdapter(applicationContext: Context) : RecyclerView.Adapter<ListAdapter.ListViewHolder>()
-{
-    // Expense List Variable Initialization
-    private  var expenseList : List<CurrentDayReportModel> = emptyList()
-    // Day-Wise Report Click Listener Variable Initialization
-    lateinit var deleteClickListener : DayWiseReportClickListener
 
-    val logger = FileLogger(applicationContext)
+    // RecyclerView Adapter
+    class ListAdapter(applicationContext: Context) :
+        RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
+        // Expense List Variable Initialization
+        private var expenseList: List<CurrentDayReportModel> = emptyList()
 
-    val LOG_TAG = "LIST_ADAPTER"
-    // SubmitList Function Definition
-    fun fnSubmitList(
-        list: List<CurrentDayReportModel>,
-        listener: DayWiseReportClickListener
-    ){
-        try {
-            expenseList=list
-            deleteClickListener = listener
-            notifyDataSetChanged()
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"SubmitList Function: ${e.message}")
-            Log.e("DAY_WISE_REPORT","List Adapter_SubmitList Function: ${e.message}")
-        }
-    }
-    // Inner Class
-    inner class ListViewHolder (val binding: DayWiseReportListItemBinding): RecyclerView.ViewHolder(binding.root)
-    {
-        fun bind(item: CurrentDayReportModel)
-        {
+        // Day-Wise Report Click Listener Variable Initialization
+        lateinit var deleteClickListener: DayWiseReportClickListener
+
+        val logger = FileLogger(applicationContext)
+
+        val LOG_TAG = "LIST_ADAPTER"
+
+        // SubmitList Function Definition
+        fun fnSubmitList(
+            list: List<CurrentDayReportModel>,
+            listener: DayWiseReportClickListener
+        ) {
             try {
-                binding.dayWiseReportListItem=item
-                binding.deleteClickListener=deleteClickListener
-                binding.executePendingBindings()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"bind: ${e.message}")
-                Log.e("DAY_WISE_REPORT","bind: ${e.message}")
+                expenseList = list
+                deleteClickListener = listener
+                notifyDataSetChanged()
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "SubmitList Function: ${e.message}")
+                Log.e("DAY_WISE_REPORT", "List Adapter_SubmitList Function: ${e.message}")
             }
         }
 
-    }
-    //
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ListViewHolder
-    {
+        // Inner Class
+        inner class ListViewHolder(val binding: DayWiseReportListItemBinding) :
+            RecyclerView.ViewHolder(binding.root) {
+            fun bind(item: CurrentDayReportModel) {
+                try {
+                    binding.dayWiseReportListItem = item
+                    binding.deleteClickListener = deleteClickListener
+                    binding.executePendingBindings()
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "bind: ${e.message}")
+                    Log.e("DAY_WISE_REPORT", "bind: ${e.message}")
+                }
+            }
+
+        }
+
+        //
+        override fun onCreateViewHolder(
+            parent: ViewGroup,
+            viewType: Int
+        ): ListViewHolder {
             val inflater = LayoutInflater.from(parent.context)
-            val binding = DataBindingUtil.inflate<DayWiseReportListItemBinding>(inflater,R.layout.day_wise_report_list_item,parent,false)
+            val binding = DataBindingUtil.inflate<DayWiseReportListItemBinding>(
+                inflater,
+                R.layout.day_wise_report_list_item,
+                parent,
+                false
+            )
             return ListViewHolder(binding)
 
+        }
+
+        override fun onBindViewHolder(
+            holder: ListViewHolder,
+            position: Int
+        ) {
+            holder.bind(expenseList[position])
+        }
+
+        // Return Item Count
+        override fun getItemCount(): Int {
+            return expenseList.size
+        }
     }
 
-    override fun onBindViewHolder(
-        holder: ListViewHolder,
-        position: Int
-    ) {
-        holder.bind(expenseList[position])
-    }
+    class EditExpense(var expense: CurrentDayReportModel) : BottomSheetDialogFragment() {
+        val appViewModelFactory by lazy {
+            AppViewModelFactory(
+                requireActivity().application,
+                FileLogger(requireContext().applicationContext)
+            )
+        }
+        private lateinit var editExpenseBinding: EditExpenseBinding
+        val editExpenseViewModel: EditExpenseViewModel by viewModels {
+            appViewModelFactory
+        }
 
-    // Return Item Count
-    override fun getItemCount(): Int {
-       return expenseList.size
-    }
-}
+        val settingsViewModel: SettingsViewModel by activityViewModels {
+            appViewModelFactory
+        }
 
-class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragment()
-{
-    val appViewModelFactory by lazy {
-        AppViewModelFactory(
-            requireActivity().application,
-            FileLogger(requireContext().applicationContext)
-        )
-    }
-    private lateinit var editExpenseBinding : EditExpenseBinding
-    val editExpenseViewModel : EditExpenseViewModel by viewModels{
-        appViewModelFactory
-    }
+        var categoryList = emptyList<CategoryEntitty>()
 
-    val settingsViewModel : SettingsViewModel by activityViewModels{
-        appViewModelFactory
-    }
+        private lateinit var splitBinding: SplitDialogueBinding
 
-    var categoryList =emptyList<CategoryEntitty>()
+        val splitViewModel: SplitViewModel by viewModels {
+            appViewModelFactory
+        }
 
-    private lateinit var splitBinding : SplitDialogueBinding
+        var splitDialog: AlertDialog? = null
 
-    val splitViewModel : SplitViewModel by viewModels{
-        appViewModelFactory
-    }
+        var selectedCategoryId: Int = -1
 
-    var splitDialog : AlertDialog? = null
-
-    var selectedCategoryId : Int =-1
-
-    val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels {
-        appViewModelFactory
-    }
+        val DayWiseReportViewModel: DayWiseReportViewModel by activityViewModels {
+            appViewModelFactory
+        }
 
 //    val logger = FileLogger(requireContext().applicationContext)
 
-    private lateinit var logger : FileLogger
+        private lateinit var logger: FileLogger
 
-    val LOG_TAG = "EDIT_EXPENSE"
+        val LOG_TAG = "EDIT_EXPENSE"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        isCancelable = false
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        logger = FileLogger(requireContext().applicationContext)
-
-        editExpenseBinding= DataBindingUtil.inflate(inflater,R.layout.edit_expense,container,false)
-        editExpenseBinding.edit=editExpenseViewModel
-        editExpenseBinding.lifecycleOwner=viewLifecycleOwner
-
-        return editExpenseBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        try
-        {
-            splitBinding = DataBindingUtil.inflate(layoutInflater,R.layout.split_dialogue,null,false)
-            splitBinding.split = splitViewModel
-            splitBinding.lifecycleOwner = viewLifecycleOwner
-
-            splitDialog = AlertDialog.Builder(requireContext())
-                .setView(splitBinding.root)
-                .setCancelable(false)
-                .create()
-
-            splitDialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-
-            splitBinding.idEAmtInCash.post{
-                splitBinding.idEAmtInCash.selectAll()
-                splitBinding.idEAmtInCash.requestFocus()
-            }
-        }
-        catch (e : Exception)
-        {
-            logger.logError(LOG_TAG,"Split Screen Creation: ${e.message}")
-            Log.e("SHOW_SPLIT_DIALOG","Show Split Screen: ${e.message}")
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            isCancelable = false
         }
 
-        editExpenseViewModel.expenseAmt.observe(viewLifecycleOwner){ expense ->
-            try
-            {
-                var totAmt = Global.fnFormatFloatTwoDigits(expense?.toFloat())
-                splitViewModel._totAmtUi.value = "Total: ${totAmt}"
-                splitViewModel._totAmt.value = totAmt
-                splitViewModel._amtInCash.value=totAmt
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense Amount Value Observed: ${e.message}")
-            }
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+
+            logger = FileLogger(requireContext().applicationContext)
+
+            editExpenseBinding =
+                DataBindingUtil.inflate(inflater, R.layout.edit_expense, container, false)
+            editExpenseBinding.edit = editExpenseViewModel
+            editExpenseBinding.lifecycleOwner = viewLifecycleOwner
+
+            return editExpenseBinding.root
         }
 
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
 
-        splitBinding.idEAmtInCash.setOnFocusChangeListener{ view,hasFocus ->
-            try
-            {
-                if(!hasFocus)
-                {
-                    splitBinding.idEAmtInCard.selectAll()
-                    splitBinding.idEAmtInCard.requestFocus()
+            lifecycleScope.launch {
+                try {
+                    editExpenseViewModel.fnGetExpenseDetailsPerId(expense.expenseId)
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Get Expense Details Per Id: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Get Expense Details Per Id: ${e.message}")
                 }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCash: ${e.message}")
-            }
-        }
 
-        splitBinding.idEAmtInCard.setOnFocusChangeListener { view, hasFocus ->
-            try {
-                if (!hasFocus)
-                {
-                    splitBinding.idEAmtInUpi.selectAll()
-                    splitBinding.idEAmtInUpi.requestFocus()
-                }
-            }
-            catch (e: Exception){
-                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInCard: ${e.message}")
-            }
-        }
+            editExpenseViewModel.expenseList.observe(viewLifecycleOwner) { list ->
+                try {
+                    if (list.isNotEmpty()) {
+                        for (ex in list) {
+                            editExpenseViewModel._editedExpenseId.value = ex.expenseId
+                            editExpenseViewModel._editedExpenseDate.value = ex.expenseDate
 
-        splitBinding.idEAmtInUpi.setOnFocusChangeListener { view, hasFocus ->
-            try {
-                if (!hasFocus)
-                {
-                    splitBinding.idBtnOk.requestFocus()
-                }
-            }
-            catch (e: Exception){
-                logger.logError(LOG_TAG,"Change The Focus Of IdAmountInUpi: ${e.message}")
-            }
-        }
+                            editExpenseViewModel._selectedDate.value = ex.expenseDate
+                            var uiDate = "${ex.expenseDate.substring(8)}-${
+                                ex.expenseDate.substring(
+                                    5,
+                                    7
+                                )
+                            }-${ex.expenseDate.substring(0, 4)}"
+                            editExpenseViewModel._selectedDateUi.value = uiDate
 
-        lifecycleScope.launch {
-            try
-            {
-                editExpenseViewModel.fnGetExpenseDetailsPerId(expense.expenseId)
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Get Expense Details Per Id: ${e.message}")
-                Log.e("EDIT_EXPENSE","Get Expense Details Per Id: ${e.message}")
-            }
-        }
+                            editExpenseViewModel._expenseAmt.value = ex.expenseAmt.toString()
 
-        editExpenseViewModel.expenseList.observe(viewLifecycleOwner){ list ->
-            try {
-                if(list.isNotEmpty())
-                {
-                    for(ex in list)
-                    {
-                        editExpenseViewModel._editedExpenseId.value = ex.expenseId
-                        editExpenseViewModel._editedExpenseDate.value = ex.expenseDate
+                            editExpenseBinding.idENewExpense.post {
+                                editExpenseBinding.idENewExpense.requestFocus()
+                                editExpenseBinding.idENewExpense.setSelection(
+                                    0,
+                                    editExpenseBinding.idENewExpense.text?.length ?: 0
+                                )
+                            }
 
-                        editExpenseViewModel._selectedDate.value = ex.expenseDate
-                        var uiDate = "${ex.expenseDate.substring(8)}-${ex.expenseDate.substring(5,7)}-${ex.expenseDate.substring(0,4)}"
-                        editExpenseViewModel._selectedDateUi.value = uiDate
+                            selectedCategoryId = ex.expenseCategoryId
 
-                        editExpenseViewModel._expenseAmt.value = ex.expenseAmt.toString()
+                            editExpenseViewModel._remarks.value = ex.expenseRemarks
 
-                        editExpenseBinding.idENewExpense.post {
-                            editExpenseBinding.idENewExpense.requestFocus()
-                            editExpenseBinding.idENewExpense.setSelection(0,
-                                editExpenseBinding.idENewExpense.text?.length ?: 0
+                            val paymentType = PaymentType(
+                                cash = ex.expenseAmtInCash,
+                                card = ex.expenseAmtInCard,
+                                upi = ex.expenseAmtInUpi,
+                                others = ex.expenseAmtInOthers
                             )
-                        }
-
-                        selectedCategoryId = ex.expenseCategoryId
-
-                        editExpenseViewModel._remarks.value = ex.expenseRemarks
-
-                        val paymentType = PaymentType(
-                            cash = ex.expenseAmtInCash,
-                            card = ex.expenseAmtInCard,
-                            upi = ex.expenseAmtInUpi,
-                            others = ex.expenseAmtInOthers
-                        )
-                        editExpenseViewModel._selectedPaymentTypeAmt.value = paymentType
+                            editExpenseViewModel._selectedPaymentTypeAmt.value = paymentType
 //                        editExpenseViewModel._amtInCash.value = ex.expenseAmtInCash
 //                        editExpenseViewModel._amtInCard.value = ex.expenseAmtInCard
 //                        editExpenseViewModel._amtInUpi.value = ex.expenseAmtInUpi
@@ -641,305 +632,294 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
 
 //                        Log.i("PAYMENT TYPE","Payment Type: ${ex.paymentType}")
 
-                        if( ex.paymentType == Global.PAYMENT_TYPE_CASH)
-                        {
-                            editExpenseViewModel._selectedPaymentType.value = R.id.idCashPayment
+                            if (ex.paymentType == Global.PAYMENT_TYPE_CASH) {
+                                editExpenseViewModel._selectedPaymentType.value = R.id.idCashPayment
+                            }
+                            if (ex.paymentType == Global.PAYMENT_TYPE_CARD) {
+                                editExpenseViewModel._selectedPaymentType.value = R.id.idCardPayment
+                            }
+                            if (ex.paymentType == Global.PAYMENT_TYPE_UPI) {
+                                editExpenseViewModel._selectedPaymentType.value = R.id.idUpiPayment
+                            }
+                            if (ex.paymentType == Global.PAYMENT_TYPE_SPLIT) {
+                                editExpenseViewModel._selectedPaymentType.value =
+                                    R.id.idSplitPayment
+                            }
+                            if (ex.paymentType == Global.PAYMENT_TYPE_OTHER) {
+                                editExpenseViewModel._selectedPaymentType.value =
+                                    R.id.idOthersPayment
+                            }
                         }
-                        if(ex.paymentType  == Global.PAYMENT_TYPE_CARD)
-                        {
-                            editExpenseViewModel._selectedPaymentType.value = R.id.idCardPayment
-                        }
-                        if(ex.paymentType == Global.PAYMENT_TYPE_UPI)
-                        {
-                            editExpenseViewModel._selectedPaymentType.value = R.id.idUpiPayment
-                        }
-                        if(ex.paymentType == Global.PAYMENT_TYPE_SPLIT)
-                        {
-                            editExpenseViewModel._selectedPaymentType.value = R.id.idSplitPayment
-                        }
-                        if(ex.paymentType  == Global.PAYMENT_TYPE_OTHER)
-                        {
-                            editExpenseViewModel._selectedPaymentType.value = R.id.idOthersPayment
-                        }
+                        settingsViewModel.fnGetAllCategories()
                     }
-                    settingsViewModel.fnGetAllCategories()
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Expense List Observed: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Expense List Observed: ${e.message}")
                 }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense List Observed: ${e.message}")
-                Log.e("EDIT_EXPENSE","Expense List Observed: ${e.message}")
-            }
-        }
 
-        settingsViewModel.categoryList.observe(viewLifecycleOwner){ list ->
-            try {
-                categoryList = list
-                val categoryNameList= list.map {it.categoryName}
+            settingsViewModel.categoryList.observe(viewLifecycleOwner) { list ->
+                try {
+                    categoryList = list
+                    val categoryNameList = list.map { it.categoryName }
 
-                val autoCompleteAdapter= ArrayAdapter(
-                    requireContext(),
-                    R.layout.dropdown_item,
-                    categoryNameList)
-
-                editExpenseBinding.idDCategories.setAdapter(autoCompleteAdapter)
-
-                if(selectedCategoryId!=-1)
-                {
-                    var selected = list.find { it.categoryId == selectedCategoryId }
-                    selected?.let { it ->
-                        editExpenseBinding.idDCategories.setText(it.categoryName, false)
-
-                        editExpenseViewModel._selectedCategoryId.value = it.categoryId
-                        editExpenseViewModel._selectedCategoryName.value = it.categoryName
-                    }
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Category List Observed: ${e.message}")
-                Log.e("EDIT_EXPENSE","Category List Observed: ${e.message}")
-            }
-        }
-
-        editExpenseViewModel.clearAllFields.observe(viewLifecycleOwner){ ob ->
-            try {
-                if(ob)
-                {
-                    editExpenseBinding.idENewExpense.isFocusable=true
-                    editExpenseBinding.idENewExpense.requestFocus()
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Clear All Fields Value And Set Focus To New Expense Field: ${e.message}")
-                Log.e("EDIT_EXPENSE","Clear All Fields Value And Set Focus To New Expense Field: ${e.message}")
-            }
-        }
-
-        editExpenseViewModel.isClosed.observe(viewLifecycleOwner){ status ->
-            try {
-                if(status)
-                {
-                    Global.isBottomSheetSelected = false
-                    dismiss()
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Close Edit Expense Screen: ${e.message}")
-                Log.e("EDIT_EXPENSE","Close Edit Expense Screen: ${e.message}")
-            }
-        }
-
-        editExpenseBinding.idCalendarButton.setOnClickListener {
-            try {
-                if(Global.isCalendarSelected==false)
-                {
-                    Global.isCalendarSelected=true
-                    val calendar = Calendar.getInstance()
-                    val year = calendar.get(Calendar.YEAR)
-                    val month = calendar.get(Calendar.MONTH)
-                    val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-                    val datePickerDialog = DatePickerDialog(requireContext(),
-                        { _,y,m,d ->
-
-                            calendar.set(y,m,d)
-                            val sdf1 = SimpleDateFormat("dd-MM-yyyy", Locale.US)
-                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-                            val date = sdf.format(calendar.time)
-                            val dateUi = sdf1.format(calendar.time)
-
-                            editExpenseViewModel._selectedDate.value=date
-                            editExpenseViewModel._selectedDateUi.value=dateUi
-                            Global.isCalendarSelected=false
-
-                        },year,month,day)
-                    datePickerDialog.setCancelable(false)
-                    datePickerDialog.setCanceledOnTouchOutside(false)
-
-                    datePickerDialog.setOnCancelListener {
-                        Global.isCalendarSelected=false
-                    }
-
-                    datePickerDialog.show()
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Show Calendar: ${e.message}")
-                Log.e("EDIT_EXPENSE","Show Calendar: ${e.message}")
-            }
-        }
-
-        editExpenseBinding.idDCategories.setOnItemClickListener { parent,_,position,_ ->
-            try
-            {
-                var selectedCategoryName = parent.getItemAtPosition(position).toString()
-                editExpenseViewModel._selectedCategoryName.value=selectedCategoryName
-                editExpenseViewModel._selectedCategoryId.value=categoryList[position].categoryId
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Select Category: ${e.message}")
-                Log.e("EDIT_EXPENSE","Select Category: ${e.message}")
-            }
-        }
-
-        splitViewModel.amtInCash.observe(viewLifecycleOwner){ amt ->
-            try
-            {
-                val currentPaymentType =
-                    editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
-
-                editExpenseViewModel._selectedPaymentTypeAmt.value =
-                    currentPaymentType.copy(
-                        cash = amt?.toFloat() ?: 0f
+                    val autoCompleteAdapter = ArrayAdapter(
+                        requireContext(),
+                        R.layout.dropdown_item,
+                        categoryNameList
                     )
-                splitViewModel.fnUpdateTotalAmtFromCash()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Amount In Cash: ${e.message}")
-                Log.e("EDIT_EXPENSE","Amount In Cash: ${e.message}")
-            }
-        }
 
-        splitViewModel.amtInCard.observe(viewLifecycleOwner){ amt ->
-            try
-            {
-                val currentPaymentType =
-                    editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
+                    editExpenseBinding.idDCategories.setAdapter(autoCompleteAdapter)
 
-                editExpenseViewModel._selectedPaymentTypeAmt.value =
-                    currentPaymentType.copy(
-                        card = amt?.toFloat() ?: 0f
-                    )
-                splitViewModel.fnUpdateTotalAmtFromCard()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Amount In Card: ${e.message}")
-                Log.e("EDIT_EXPENSE","Amount In Card: ${e.message}")
-            }
-        }
+                    if (selectedCategoryId != -1) {
+                        var selected = list.find { it.categoryId == selectedCategoryId }
+                        selected?.let { it ->
+                            editExpenseBinding.idDCategories.setText(it.categoryName, false)
 
-        splitViewModel.amtInUpi.observe(viewLifecycleOwner){ amt ->
-            try
-            {
-                val currentPaymentType =
-                    editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
-
-                editExpenseViewModel._selectedPaymentTypeAmt.value = currentPaymentType.copy(
-                    upi = amt?.toFloat() ?: 0.00f
-                )
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Amount In Upi: ${e.message}")
-                Log.e("EDIT_EXPENSE","Amount In Upi: ${e.message}")
-            }
-        }
-
-        splitViewModel.splitStatus.observe(viewLifecycleOwner){ status ->
-            try {
-                when(status)
-                {
-                    is ResultState1.success -> {}
-                    is ResultState1.fail -> {
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
-                        splitBinding.idEAmtInCash.selectAll()
-                        splitBinding.idEAmtInCash.requestFocus()
+                            editExpenseViewModel._selectedCategoryId.value = it.categoryId
+                            editExpenseViewModel._selectedCategoryName.value = it.categoryName
+                        }
                     }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Category List Observed: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Category List Observed: ${e.message}")
                 }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Split Status: ${e.message}")
-                Log.e("EDIT_EXPENSE","Split Status: ${e.message}")
-            }
-        }
 
-        splitViewModel.okSplit.observe(viewLifecycleOwner){ amt ->
-            try
-            {
-                editExpenseBinding.idERemarks.requestFocus()
-                editExpenseBinding.idERemarks.isFocusable=true
-                splitDialog?.dismiss()
+            editExpenseViewModel.clearAllFields.observe(viewLifecycleOwner) { ob ->
+                try {
+                    if (ob) {
+                        editExpenseBinding.idENewExpense.isFocusable = true
+                        editExpenseBinding.idENewExpense.requestFocus()
+                    }
+                } catch (e: Exception) {
+                    logger.logError(
+                        LOG_TAG,
+                        "Clear All Fields Value And Set Focus To New Expense Field: ${e.message}"
+                    )
+                    Log.e(
+                        "EDIT_EXPENSE",
+                        "Clear All Fields Value And Set Focus To New Expense Field: ${e.message}"
+                    )
+                }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Ok Split: ${e.message}")
-                Log.e("EDIT_EXPENSE", "Ok Split: ${e.message}")
-            }
-        }
 
-        splitViewModel.isClosed.observe(viewLifecycleOwner) { close ->
-            try {
-                if(close)
-                {
-//                editExpenseViewModel._paymentType.value=-1
-                    editExpenseViewModel._selectedPaymentType.value=-1
+            editExpenseViewModel.isClosed.observe(viewLifecycleOwner) { status ->
+                try {
+                    if (status) {
+                        Global.isBottomSheetSelected = false
+                        dismiss()
+                    }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Close Edit Expense Screen: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Close Edit Expense Screen: ${e.message}")
+                }
+            }
+
+            editExpenseBinding.idCalendarButton.setOnClickListener {
+                try {
+                    if (Global.isCalendarSelected == false) {
+                        Global.isCalendarSelected = true
+                        val calendar = Calendar.getInstance()
+                        val year = calendar.get(Calendar.YEAR)
+                        val month = calendar.get(Calendar.MONTH)
+                        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+                        val datePickerDialog = DatePickerDialog(
+                            requireContext(),
+                            { _, y, m, d ->
+
+                                calendar.set(y, m, d)
+                                val sdf1 = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+                                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                                val date = sdf.format(calendar.time)
+                                val dateUi = sdf1.format(calendar.time)
+
+                                editExpenseViewModel._selectedDate.value = date
+                                editExpenseViewModel._selectedDateUi.value = dateUi
+                                Global.isCalendarSelected = false
+
+                            }, year, month, day
+                        )
+                        datePickerDialog.setCancelable(false)
+                        datePickerDialog.setCanceledOnTouchOutside(false)
+
+                        datePickerDialog.setOnCancelListener {
+                            Global.isCalendarSelected = false
+                        }
+
+                        datePickerDialog.show()
+                    }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Show Calendar: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Show Calendar: ${e.message}")
+                }
+            }
+
+            editExpenseBinding.idDCategories.setOnItemClickListener { parent, _, position, _ ->
+                try {
+                    var selectedCategoryName = parent.getItemAtPosition(position).toString()
+                    editExpenseViewModel._selectedCategoryName.value = selectedCategoryName
+                    editExpenseViewModel._selectedCategoryId.value =
+                        categoryList[position].categoryId
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Select Category: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Select Category: ${e.message}")
+                }
+            }
+
+            splitViewModel.amtInCash.observe(viewLifecycleOwner) { amt ->
+                try {
+                    val currentPaymentType =
+                        editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
+
+                    editExpenseViewModel._selectedPaymentTypeAmt.value =
+                        currentPaymentType.copy(
+                            cash = amt?.toFloat() ?: 0f
+                        )
+                    splitViewModel.fnUpdateTotalAmtFromCash()
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Amount In Cash: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Amount In Cash: ${e.message}")
+                }
+            }
+
+            splitViewModel.amtInCard.observe(viewLifecycleOwner) { amt ->
+                try {
+                    val currentPaymentType =
+                        editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
+
+                    editExpenseViewModel._selectedPaymentTypeAmt.value =
+                        currentPaymentType.copy(
+                            card = amt?.toFloat() ?: 0f
+                        )
+                    splitViewModel.fnUpdateTotalAmtFromCard()
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Amount In Card: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Amount In Card: ${e.message}")
+                }
+            }
+
+            splitViewModel.amtInUpi.observe(viewLifecycleOwner) { amt ->
+                try {
+                    val currentPaymentType =
+                        editExpenseViewModel.selectedPaymentTypeAmt.value ?: PaymentType()
+
+                    editExpenseViewModel._selectedPaymentTypeAmt.value = currentPaymentType.copy(
+                        upi = amt?.toFloat() ?: 0.00f
+                    )
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Amount In Upi: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Amount In Upi: ${e.message}")
+                }
+            }
+
+            splitViewModel.splitStatus.observe(viewLifecycleOwner) { status ->
+                try {
+                    when (status) {
+                        is ResultState1.success -> {}
+                        is ResultState1.fail -> {
+                            fnShowMessage(
+                                getString(status.message),
+                                requireContext(),
+                                R.drawable.error_bg
+                            )
+                            splitBinding.idEAmtInCash.selectAll()
+                            splitBinding.idEAmtInCash.requestFocus()
+                        }
+                    }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Split Status: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Split Status: ${e.message}")
+                }
+            }
+
+            splitViewModel.okSplit.observe(viewLifecycleOwner) { amt ->
+                try {
+                    editExpenseBinding.idERemarks.requestFocus()
+                    editExpenseBinding.idERemarks.isFocusable = true
                     splitDialog?.dismiss()
+                    Global.isCalendarSelected = false
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Ok Split: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Ok Split: ${e.message}")
                 }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Close The Split Screen: ${e.message}")
-                Log.e("EDIT_EXPENSE","Close The Split Screen: ${e.message}")
-            }
-        }
-        editExpenseViewModel.showSplitDialog.observe(viewLifecycleOwner){ isChecked ->
-            try {
-                if(isChecked)
-                {
-                    splitDialog?.show()
-                    editExpenseViewModel._showSplitDialog.value = false
-                }
-                else
-                {
-                    fnShowMessage(getString(R.string.enter_expense),requireContext(),R.drawable.error_bg)
-                    editExpenseBinding.idENewExpense.isFocusable=true
-                    editExpenseBinding.idENewExpense.requestFocus()
-                }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Show Split Dialog: ${e.message}")
-                Log.e("EDIT_EXPENSE","Show Split Dialog: ${e.message}")
-            }
-        }
 
-        editExpenseViewModel.expenseInsertStatus.observe(viewLifecycleOwner){ status ->
-            try {
-                when(status){
-                    is ResultState1.success ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
+            splitViewModel.isClosed.observe(viewLifecycleOwner) { close ->
+                try {
+                    if (close) {
+//                editExpenseViewModel._paymentType.value=-1
+                        editExpenseViewModel._selectedPaymentType.value = -1
+                        splitDialog?.dismiss()
+                        Global.isCalendarSelected = false
                     }
-                    is ResultState1.fail ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
-
-                        if(status.message == R.string.newEx_AllFieldsAreEmpty)
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Close The Split Screen: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Close The Split Screen: ${e.message}")
+                }
+            }
+            editExpenseViewModel.showSplitDialog.observe(viewLifecycleOwner) { isChecked ->
+                try {
+                    if (isChecked)
+                    {
+                        if(Global.isCalendarSelected == false)
                         {
-                            editExpenseBinding.idENewExpense.isFocusable = true
-                            editExpenseBinding.idENewExpense.requestFocus()
-                        }
-                        else if(status.message == R.string.newEx_ExpenseAmountMissing){
-                            editExpenseBinding.idENewExpense.isFocusable = true
-                            editExpenseBinding.idENewExpense.requestFocus()
+                            Global.isCalendarSelected = true
+                            splitDialog?.show()
+                            editExpenseViewModel._showSplitDialog.value = false
                         }
                     }
+                    else
+                    {
+                        fnShowMessage(
+                            getString(R.string.enter_expense),
+                            requireContext(),
+                            R.drawable.error_bg
+                        )
+                        editExpenseBinding.idENewExpense.isFocusable = true
+                        editExpenseBinding.idENewExpense.requestFocus()
+                    }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Show Split Dialog: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Show Split Dialog: ${e.message}")
                 }
             }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Expense Insert Expense: ${e.message}")
-                Log.e("EDIT_EXPENSE","Expense Insert Expense: ${e.message}")
-            }
-        }
 
-    }
+            editExpenseViewModel.expenseInsertStatus.observe(viewLifecycleOwner) { status ->
+                try {
+                    when (status) {
+                        is ResultState1.success -> {
+                            fnShowMessage(
+                                getString(status.message),
+                                requireContext(),
+                                R.drawable.bg_success
+                            )
+                        }
+
+                        is ResultState1.fail -> {
+                            fnShowMessage(
+                                getString(status.message),
+                                requireContext(),
+                                R.drawable.error_bg
+                            )
+
+                            if (status.message == R.string.newEx_AllFieldsAreEmpty) {
+                                editExpenseBinding.idENewExpense.isFocusable = true
+                                editExpenseBinding.idENewExpense.requestFocus()
+                            } else if (status.message == R.string.newEx_ExpenseAmountMissing) {
+                                editExpenseBinding.idENewExpense.isFocusable = true
+                                editExpenseBinding.idENewExpense.requestFocus()
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    logger.logError(LOG_TAG, "Expense Insert Expense: ${e.message}")
+                    Log.e("EDIT_EXPENSE", "Expense Insert Expense: ${e.message}")
+                }
+            }
+
+        }
 
 //    fun fnShowDialog()
 //    {
@@ -992,5 +972,6 @@ class EditExpense(var expense : CurrentDayReportModel) : BottomSheetDialogFragme
 //            Log.e("EDIT_EXPENSE","Show Split Screen: ${e.message}")
 //        }
 //    }
+    }
 }
 
