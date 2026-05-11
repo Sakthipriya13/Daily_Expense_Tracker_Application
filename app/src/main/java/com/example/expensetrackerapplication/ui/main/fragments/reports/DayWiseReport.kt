@@ -41,6 +41,7 @@ import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
 import com.example.expensetrackerapplication.viewmodel.EditExpenseViewModel
 
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel
+import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -176,6 +177,8 @@ class DayWiseReport : Fragment() {
             logger.logError(LOG_TAG, "List Adapter Initialization: ${e.message}")
         }
 
+
+
         DayWiseReportViewModel.isClosed.observe(viewLifecycleOwner) { isClose ->
             try {
                 if (isClose == true) {
@@ -207,9 +210,12 @@ class DayWiseReport : Fragment() {
                             val date = sdf.format(calendar.time)
                             val dateUi = sdf1.format(calendar.time)
 
-                            DayWiseReportViewModel._selectedDate.value = date
                             DayWiseReportViewModel._selectedDateUi.value = dateUi
+                            DayWiseReportViewModel._selectedDate.value = date
                             Global.isCalendarSelected = false
+
+                            Log.i(LOG_TAG,"3Selected Date: ${DayWiseReportViewModel.selectedDate.value}")
+                            Log.i(LOG_TAG,"4Selected DateUi: ${DayWiseReportViewModel.selectedDateUi.value}")
 
                         }, year, month, day
                     )
@@ -230,6 +236,9 @@ class DayWiseReport : Fragment() {
 
         DayWiseReportViewModel.selectedDate.observe(viewLifecycleOwner) { date ->
             try {
+                Log.i(LOG_TAG,"1Selected Date: ${DayWiseReportViewModel.selectedDate.value}")
+                Log.i(LOG_TAG,"2Selected DateUi: ${DayWiseReportViewModel.selectedDateUi.value}")
+
                 DayWiseReportViewModel.fnClearAllFields()
                 DayWiseReportViewModel.fnGetExpenseDetails(date)
             } catch (e: Exception) {
@@ -547,8 +556,6 @@ class DayWiseReport : Fragment() {
             appViewModelFactory
         }
 
-//    val logger = FileLogger(requireContext().applicationContext)
-
         private lateinit var logger: FileLogger
 
         val LOG_TAG = "EDIT_EXPENSE"
@@ -602,6 +609,24 @@ class DayWiseReport : Fragment() {
                 } catch (e: Exception) {
                     logger.logError(LOG_TAG, "Get Expense Details Per Id: ${e.message}")
                     Log.e("EDIT_EXPENSE", "Get Expense Details Per Id: ${e.message}")
+                }
+            }
+
+            lifecycleScope.launchWhenStarted {
+                editExpenseViewModel.uiEvent.collect { event ->
+                    try
+                    {
+                        when(event)
+                        {
+                            SettingsViewModel.UiEvent.RecreateActivity ->{
+                                requireActivity().recreate()
+                            }
+                        }
+                    }
+                    catch (e: Exception)
+                    {
+                        logger.logError(LOG_TAG,"Recreate Activity: ${e.message}")
+                    }
                 }
             }
 
@@ -725,11 +750,14 @@ class DayWiseReport : Fragment() {
 
             editExpenseViewModel.isClosed.observe(viewLifecycleOwner) { status ->
                 try {
-                    if (status) {
+                    if (status)
+                    {
                         Global.isBottomSheetSelected = false
                         dismiss()
                     }
-                } catch (e: Exception) {
+                }
+                catch (e: Exception)
+                {
                     logger.logError(LOG_TAG, "Close Edit Expense Screen: ${e.message}")
                     Log.e("EDIT_EXPENSE", "Close Edit Expense Screen: ${e.message}")
                 }
@@ -929,6 +957,8 @@ class DayWiseReport : Fragment() {
                                 requireContext(),
                                 R.drawable.bg_success
                             )
+                            Global.isBottomSheetSelected = false
+                            dismiss()
                         }
 
                         is ResultState1.fail -> {
@@ -938,10 +968,13 @@ class DayWiseReport : Fragment() {
                                 R.drawable.error_bg
                             )
 
-                            if (status.message == R.string.newEx_AllFieldsAreEmpty) {
+                            if (status.message == R.string.newEx_AllFieldsAreEmpty)
+                            {
                                 editExpenseBinding.idENewExpense.isFocusable = true
                                 editExpenseBinding.idENewExpense.requestFocus()
-                            } else if (status.message == R.string.newEx_ExpenseAmountMissing) {
+                            }
+                            else if (status.message == R.string.newEx_ExpenseAmountMissing)
+                            {
                                 editExpenseBinding.idENewExpense.isFocusable = true
                                 editExpenseBinding.idENewExpense.requestFocus()
                             }

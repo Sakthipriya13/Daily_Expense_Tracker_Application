@@ -14,6 +14,10 @@ import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class EditExpenseViewModel(
@@ -134,6 +138,12 @@ class EditExpenseViewModel(
     var expenseInsertStatus : LiveData<ResultState1> = _expenseInsertStatus
 
     val LOG_TAG = "EDIT_EXPENSE_VIEW_MODEL"
+
+
+    var _uiEvent = MutableSharedFlow<UiEvent>()
+    var uiEvent : SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
+
+
     fun onClickEdit(){
         viewModelScope.launch {
             try
@@ -185,6 +195,8 @@ class EditExpenseViewModel(
                     _expenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
                     onClickClear()
                     logger.logInfo(LOG_TAG,"Expense successfully Stored")
+                    _uiEvent.emit(UiEvent.RecreateActivity)
+
                 }
                 else
                 {
@@ -228,7 +240,7 @@ class EditExpenseViewModel(
             _selectedCategoryId.value=-1
             _selectedCategoryName.value=""
 //        _paymentType.value= -1
-            _selectedPaymentType.value= null
+            _selectedPaymentType.value= -1
             _remarks.value=""
 
 //        _amtInUpi.value=0.0f
@@ -293,7 +305,7 @@ class EditExpenseViewModel(
     fun fnCardPayment(){
         try
         {
-            _selectedPaymentType.value= R.id.idCashPayment
+            _selectedPaymentType.value= R.id.idCardPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
                 card = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull()  ?:0.0f,
@@ -311,7 +323,7 @@ class EditExpenseViewModel(
 
     fun fnUpiPayment(){
         try {
-            _selectedPaymentType.value= R.id.idCashPayment
+            _selectedPaymentType.value= R.id.idUpiPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
                 card = 0.0f,
@@ -330,7 +342,7 @@ class EditExpenseViewModel(
     fun fnOtherPayment()
     {
         try {
-            _selectedPaymentType.value= R.id.idCashPayment
+            _selectedPaymentType.value= R.id.idOthersPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
                 card = 0.0f,
@@ -373,44 +385,45 @@ class EditExpenseViewModel(
         viewModelScope.launch {
             try
             {
-                var delRes= expenseRepository.fnDeleteExpense(expenseId,expenseDate)
-                if(delRes ==  true)
-                {
-                    when{
-                        expenseAmt.value.isNullOrBlank() &&
-                        selectedCategoryId.value ==-1 &&
-                        selectedCategoryName.value.isNullOrBlank() &&
-                        selectedPaymentType.value==-1 -> {
+                when{
+                    expenseAmt.value.isNullOrBlank() &&
+                    selectedCategoryId.value ==-1 &&
+                    selectedCategoryName.value.isNullOrBlank() &&
+                    selectedPaymentType.value==-1 -> {
                         _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_AllFieldsAreEmpty)
-                        }
+                    }
 
-                        selectedDate.value.isNullOrBlank() -> {
-                            _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_DateMissing)
-                        }
+                    selectedDate.value.isNullOrBlank() -> {
+                        _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_DateMissing)
+                    }
 
-                        expenseAmt.value.isNullOrBlank() || expenseAmt.value.equals(0f.toString() ) -> {
-                            _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_ExpenseAmountMissing)
-                        }
+                    expenseAmt.value.isNullOrBlank() || expenseAmt.value.equals(0f.toString() ) -> {
+                        _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_ExpenseAmountMissing)
+                    }
 
-                        selectedCategoryId.value ==-1 && selectedCategoryName.value.isNullOrBlank() -> {
-                            _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_CategoryMissing)
-                        }
-                        selectedPaymentType.value == -1 -> {
-                            _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_PaymentTypeMissing)
-                        }
+                    selectedCategoryId.value ==-1 && selectedCategoryName.value.isNullOrBlank() -> {
+                        _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_CategoryMissing)
+                    }
+                    selectedPaymentType.value == -1 -> {
+                        _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_PaymentTypeMissing)
+                    }
 
-                        else -> {
-                            if(insertFlag.value==0)
+                    else -> {
+                        if(insertFlag.value==0)
+                        {
+                            var delRes= expenseRepository.fnDeleteExpense(expenseId,expenseDate)
+                            if(delRes ==  true)
                             {
                                 fnInsertExpense()
                             }
+                            else
+                            {
+                                logger.logError(LOG_TAG,"Delete Expense Failed")
+                                Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense Failed")
+                            }
                         }
                     }
-                }
-                else
-                {
-                    logger.logError(LOG_TAG,"Delete Expense Failed")
-                    Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense Failed")
+
                 }
             }
             catch(e : Exception)

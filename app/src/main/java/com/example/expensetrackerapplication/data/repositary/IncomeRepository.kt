@@ -1,6 +1,7 @@
 package com.example.expensetrackerapplication.data.repositary
 
 import android.util.Log
+import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.data.dao.IncomeDao
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
@@ -10,6 +11,7 @@ import kotlinx.coroutines.tasks.await
 
 class IncomeRepository(val incomeDao : IncomeDao) {
 
+    val LOG_TAG = "INCOME_REPOSITORY"
 
     val firestore = FirebaseFirestore.getInstance()
 
@@ -20,7 +22,6 @@ class IncomeRepository(val incomeDao : IncomeDao) {
     suspend fun fnUpdateIncome(income: IncomeEntity) {
         incomeDao.fnUpdateIncome(income)
     }
-
     suspend fun fnGetUnSyncedIncomes(): List <IncomeEntity> {
         return incomeDao.fnGetUnSyncedIncomes(Global.lUserId)
     }
@@ -86,6 +87,7 @@ class IncomeRepository(val incomeDao : IncomeDao) {
 
     suspend fun fnGetIncomePerMonthAndYear(month : String,year:String): Float{
         return try {
+            Log.i(LOG_TAG,"Month From fnGetIncomePerMonthAndYear: $month")
             incomeDao.fnGetIncomePerMonthAndYear(month,year,Global.lUserId)
         }
         catch (e : Exception){

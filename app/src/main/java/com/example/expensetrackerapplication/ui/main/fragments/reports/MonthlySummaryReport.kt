@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.graphics.LinearGradient
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -121,8 +122,9 @@ class MonthlyReport : Fragment() {
                 selectedYearMonth = selectedYearMonth.withMonth(month)
                 var selectedMonth = if (month < 10) "0$month" else "$month"
                 monthlySummaryViewModel._selectedMonth.value = selectedMonth
-                monthlySummaryViewModel._selectedYear.value = "${monthBinding?.idTextYear?.text}"
-                monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
+                monthlySummaryViewModel._selectedYear.value = "${calendarMonthViewModel.selectedYear.value}"
+//                monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${monthBinding.idTextYear.text}"
+                monthlySummaryViewModel._selectedMonthAndYear.value = "$selectedMonth/${calendarMonthViewModel.selectedYear.value}"
                 monthCalendarDialog?.dismiss()
                 Global.isCalendarSelected = false
             },requireContext().applicationContext)

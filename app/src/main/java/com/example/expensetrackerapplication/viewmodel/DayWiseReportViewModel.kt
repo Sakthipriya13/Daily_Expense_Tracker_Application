@@ -18,8 +18,12 @@ import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.CurrentDayReportModel
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -39,11 +43,13 @@ class DayWiseReportViewModel(
     var isClosed : LiveData<Boolean> = _isClosed
 
     // Date
+    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
+    var selectedDateUi : LiveData<String> = _selectedDateUi
+
     var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
     var selectedDate : LiveData<String> = _selectedDate
 
-    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
-    var selectedDateUi : LiveData<String> = _selectedDateUi
+
 
     // Total Expense Summary
     var _totalExpenseSummary = MutableLiveData<String>("0.00")
@@ -73,6 +79,7 @@ class DayWiseReportViewModel(
     var _expenseDeleteStatus = MutableLiveData<ResultState1>()
     var expenseDeleteStatus : LiveData<ResultState1> = _expenseDeleteStatus
 
+
     val LOG_TAG = "DAY_WISE_REPORT_VIEW_MODEL"
 
     fun isBack()
@@ -80,6 +87,8 @@ class DayWiseReportViewModel(
         try
         {
             _isClosed.value=true
+            _selectedDateUi.value = Global.fnGetCurrentDateUi()
+            _selectedDate.value = Global.fnGetCurrentDate()
         }
         catch (e: Exception)
         {

@@ -16,7 +16,7 @@ interface IncomeDao {
     @Query("SELECT SUM(Income) From IncomeTable WHERE SUBSTR(date,6,2)= :curMonth AND UserId= :luserId")
     suspend fun fnGetIncomePerMonth(curMonth:String,luserId : Int) : Float
 
-    @Query("SELECT SUM(Income) From IncomeTable WHERE SUBSTR(date,6,2)= :month AND SUBSTR(date,7,4)= :year AND UserId= :luserId")
+    @Query("SELECT SUM(Income) From IncomeTable WHERE SUBSTR(date,6,2)= :month AND SUBSTR(date,1,4)= :year AND UserId= :luserId")
     suspend fun fnGetIncomePerMonthAndYear(month:String,year:String,luserId : Int) : Float
 
     @Query("SELECT SUM(Income) From IncomeTable WHERE SUBSTR(date,1,4)= :curYear AND UserId= :luserId")

@@ -140,7 +140,9 @@ class MonthlySummaryViewModel(
                 var expense = expenseRepository.fnGetExpensePerMonthAndYear(month,year)
                 var balance = income-expense
 
-                if(income != 0.0f){
+                if(income != 0.0f)
+                {
+                    Log.i(LOG_TAG,"Income Amount: $income")
                     _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
                 if(expense != 0.0f){

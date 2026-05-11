@@ -127,13 +127,16 @@ class YearlySummaryReportViewModel(
                 var expense = expenseRepository.fnGetYearSummary(year)
                 var balance = income-expense
 
-                if(income != 0.0f){
+                if(income != 0.0f)
+                {
                     _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
                 }
-                if(expense != 0.0f){
+                if(expense != 0.0f)
+                {
                     _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
                 }
-                if(balance != 0.0f){
+                if(balance != 0.0f)
+                {
                     _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
                 }
 

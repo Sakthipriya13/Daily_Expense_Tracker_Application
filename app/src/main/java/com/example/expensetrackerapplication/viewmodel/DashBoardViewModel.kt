@@ -86,6 +86,9 @@ class DashBoardViewModel(
     fun onCLickBtnThisMonth(){
         viewModelScope.launch {
             try{
+
+                Log.i(LOG_TAG,"Current Month: ${Global.fnGetCurrentMonth()}")
+
                 _isLoading.postValue(true)
 
                 _income.postValue("0.00")
