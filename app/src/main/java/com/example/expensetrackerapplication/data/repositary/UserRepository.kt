@@ -31,6 +31,17 @@ class UserRepository(var userDao: UserDao,var application: Application)
     {
         return try {
 
+            // Check username already exists
+            val checkUserName = fireStore.collection("UserNames")
+                .document(user.userName!!)
+                .get()
+                .await()
+
+            if (checkUserName.exists()) {
+                return Result.failure(Exception("Username already exists"))
+            }
+
+            // Firebase Auth Account Creation
             var cloudUserIdRes =
                 firebaseAuth.createUserWithEmailAndPassword(user.userEmail!!, user.userPassword!!)
                     .await()
@@ -41,9 +52,16 @@ class UserRepository(var userDao: UserDao,var application: Application)
             user.isSynced = 1
             Global.cloudUserId = cloudUserId
 
+            // Main User Document
             var docRef1 = fireStore.collection("ExpenseTrackerUser")
                 .document(cloudUserId)
             docRef1.set(user).await()
+
+            // Username Mapping
+            fireStore.collection("UserNames")
+                .document(user.userName!!)
+                .set(hashMapOf("userEmail" to user.userEmail))
+                .await()
 
             var userInsertStatus = userDao.fnInsertUser(user)
 
@@ -137,18 +155,36 @@ class UserRepository(var userDao: UserDao,var application: Application)
     {
         return try {
 
-            var getEmailStatus = fireStore.collection("ExpenseTrackerUser")
-                .whereEqualTo("userName",userName)
+            // May 12
+//            var getEmailStatus = fireStore.collection("ExpenseTrackerUser")
+//                .whereEqualTo("userName",userName)
+//                .get()
+//                .await()
+//            if(getEmailStatus.isEmpty)
+//            {
+//                Log.i("USER_REPOSITORY","Get Email; $getEmailStatus")
+//                return Result.failure<String>(Exception("User Not Found"))
+//            }
+//
+//            val doc = getEmailStatus.documents.first()
+//            val cloudUserEmail = doc.getString("userEmail") ?:""
+
+            val userNameDoc = fireStore.collection("UserNames")
+                .document(userName!!)
                 .get()
                 .await()
-            if(getEmailStatus.isEmpty)
-            {
-                Log.i("USER_REPOSITORY","Get Email; $getEmailStatus")
-                return Result.failure<String>(Exception("User Not Found"))
+
+            if (!userNameDoc.exists()) {
+                Log.i("USER_REPOSITORY", "Username Not Found: $userName")
+                return Result.failure(Exception("User Not Found"))
             }
 
-            val doc = getEmailStatus.documents.first()
-            val cloudUserEmail = doc.getString("userEmail") ?:""
+            val cloudUserEmail = userNameDoc.getString("userEmail") ?: ""
+
+            if (cloudUserEmail.isEmpty()) {
+                return Result.failure(Exception("User Email Not Found"))
+            }
+
 
             Log.i("USER DETAILS", "cloudUserId Email: $cloudUserEmail")
 

@@ -234,7 +234,7 @@ class SignUpViewModel(
                     }
                     else
                     {
-                        logger.logError(LOG_TAG,"New User Creation: Failed2")
+                        logger.logError(LOG_TAG,"New User Creation Failed: ${userInsertStatus.isFailure}")
                         _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
                         _isLoading.value=false
                     }
