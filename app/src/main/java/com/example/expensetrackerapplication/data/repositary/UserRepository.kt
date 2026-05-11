@@ -143,6 +143,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
                 .await()
             if(getEmailStatus.isEmpty)
             {
+                Log.i("USER_REPOSITORY","Get Email; $getEmailStatus")
                 return Result.failure<String>(Exception("User Not Found"))
             }
 
@@ -274,7 +275,8 @@ class UserRepository(var userDao: UserDao,var application: Application)
             }
 
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
             Log.e("LOGIN CLOUD ACCOUNT","Login Cloud Account : ${e.message}")
             return Result.failure(Exception("Login Cloud Account: ${e.message}"))
         }
