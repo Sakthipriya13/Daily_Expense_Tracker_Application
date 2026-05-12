@@ -209,7 +209,8 @@
                     app:layout_constraintTop_toBottomOf="@+id/idSpace1">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        >
                         <TextView
                             android:id="@+id/idBarChartHeading"
                             android:layout_width="match_parent"
@@ -250,7 +251,8 @@
                     app:layout_constraintTop_toBottomOf="@id/idBarChartView">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent">
+                        android:layout_height="match_parent"
+                        >
                     <TextView
                             android:id="@+id/idHeading"
                             android:layout_width="match_parent"
@@ -271,7 +273,8 @@
                             android:id="@+id/idCategoryPieChart"
                             android:layout_width="match_parent"
                             android:layout_height="500dp"
-                            android:layout_margin="10dp"
+                            android:layout_margin="20dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@id/idHeading"
                             />
@@ -282,7 +285,7 @@
                 <View
                     android:id="@+id/idSpace4"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="100dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/idCategoryView"/>
 

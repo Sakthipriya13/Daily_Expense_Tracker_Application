@@ -39,7 +39,7 @@
                 android:textSize="@dimen/sub_header_size"
                 android:text="@string/date"
                 android:textStyle="bold"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:layout_margin="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

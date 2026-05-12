@@ -7,4 +7,5 @@
     <attr name="textColorWhite" format="color"/>
     <attr name="textColorBlack" format="color"/>
     <attr name="Color_Gray" format="color"/>
+    <attr name="textColor" format="color"/>
 </resources>

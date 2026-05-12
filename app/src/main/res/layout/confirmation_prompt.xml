@@ -42,6 +42,7 @@
                 android:padding="16dp"
                 android:text="@{prompt._message}"
                 android:textSize="@dimen/text_size"
+                android:textColor="@color/text_color"
                 app:layout_constraintTop_toBottomOf="@id/idHeader"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

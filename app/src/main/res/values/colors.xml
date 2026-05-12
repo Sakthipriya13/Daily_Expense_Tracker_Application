@@ -21,6 +21,8 @@
     <color name="text_color_black">#FF000000</color>
     <color name="text_color_white">#FFFFFFFF</color>
 
+    <color name="text_color">#FF000000</color>
+
     <color name ="colorPrimary1">#6C67E6</color>
     <color name="colorAccent1">#9995FA</color>
     <color name="colorSecondary1">#BDBBF0</color>

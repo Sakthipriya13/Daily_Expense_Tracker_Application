@@ -14,12 +14,14 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:padding="5dp"
+        android:layout_margin="3dp"
         android:layout_height="60dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            >
             <TextView
                 android:id="@+id/idCategoryName"
                 android:layout_width="200dp"
@@ -29,7 +31,7 @@
                 android:maxLines="2"
                 android:paddingEnd="5dp"
                 android:text="@{dayWiseReportListItem.catgeoryName}"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
 
             <TextView
@@ -42,7 +44,7 @@
                 android:drawableStart="@drawable/currency_rupee"
                 android:drawablePadding="5dp"
                 android:text="@{dayWiseReportListItem.expenseAmt}"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
 
             <TextView
@@ -54,7 +56,7 @@
                 android:paddingEnd="5dp"
                 android:maxLines="2"
                 android:text="@{dayWiseReportListItem.paymentType}"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
 
             <TextView
@@ -66,7 +68,7 @@
                 android:paddingEnd="5dp"
                 android:maxLines="2"
                 android:text="@{dayWiseReportListItem.expenseRemarks}"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
 
 
@@ -91,7 +93,7 @@
                 android:gravity="center"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:text="@{dayWiseReportListItem.isDelete}"
                 android:textSize="@dimen/text_size" />
 

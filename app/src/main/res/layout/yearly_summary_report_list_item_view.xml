@@ -8,7 +8,9 @@
     </data>
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="3dp"
+        >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
@@ -23,7 +25,7 @@
             android:paddingEnd="5dp"
             android:layout_weight="1"
             android:text="@{expense.expenseDate}"
-            android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
             android:textSize="@dimen/text_size" />
 
             <TextView
@@ -36,7 +38,7 @@
                 android:paddingEnd="5dp"
                 android:layout_weight="1"
                 android:text="@{String.valueOf(expense.transactionsCount)}"
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
 
             <TextView
@@ -50,7 +52,7 @@
                 android:drawableStart="@drawable/currency_rupee"
                 android:drawablePadding="5dp"
                 android:text='@{String.format("%.2f",expense.expenseSummaryAmt)}'
-                android:textColor="?attr/textColorBlack"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>

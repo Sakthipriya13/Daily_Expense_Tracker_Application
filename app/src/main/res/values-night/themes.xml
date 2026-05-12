@@ -22,6 +22,7 @@
         <item name="textColorWhite">@color/text_color_white</item>
         <item name="textColorBlack">@color/text_color_black</item>
         <item name="Color_Gray">@color/color_grey</item>
+        <item name="textColor">@color/text_color</item>
     </style>
 
     <style name="FabCustomShape" parent="">

@@ -30,7 +30,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:padding="20dp"
-                android:background="@color/background"
                 >
                 <TextView
                     android:id="@+id/idDateLabel"
@@ -39,6 +38,7 @@
                     android:textSize="@dimen/sub_header_size"
                     android:text="@string/date"
                     android:textStyle="bold"
+                    android:textColor="@color/text_color"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -95,6 +95,7 @@
                     android:text="@string/expense"
                     android:textSize="@dimen/sub_header_size"
                     android:textStyle="bold"
+                    android:textColor="@color/text_color"
                     app:layout_constraintBottom_toTopOf="@+id/idLNewExpense"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
@@ -133,6 +134,7 @@
                     android:text="@string/category"
                     android:textSize="@dimen/sub_header_size"
                     android:textStyle="bold"
+                    android:textColor="@color/text_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toTopOf="@id/idLCategories"
@@ -222,6 +224,7 @@
                     android:text="@string/payment_type"
                     android:textSize="@dimen/sub_header_size"
                     android:textStyle="bold"
+                    android:textColor="@color/text_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/idLCategories"
@@ -250,17 +253,9 @@
                         android:layout_marginBottom="2dp"
                         android:onClick="@{() -> newExpenseViewModel.fnCashPayment()}"
                         android:text="@string/cash"
+                        android:textColor="@color/text_color"
+
                         />
-                    <RadioButton
-                        android:id="@+id/idCardPayment"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/card"
-                        android:drawablePadding="5dp"
-                        android:textSize="@dimen/text_size"
-                        android:layout_marginBottom="2dp"
-                        android:onClick="@{() -> newExpenseViewModel.fnCardPayment()}"
-                        android:text="@string/card" />
 
                     <!--        </RadioGroup>-->
 
@@ -277,6 +272,18 @@
 
 
                     <RadioButton
+                        android:id="@+id/idCardPayment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="2dp"
+                        android:drawableStart="@drawable/card"
+                        android:drawablePadding="5dp"
+                        android:onClick="@{() -> newExpenseViewModel.fnCardPayment()}"
+                        android:text="@string/card"
+                        android:textColor="@color/text_color"
+                        android:textSize="@dimen/text_size" />
+
+                    <RadioButton
                         android:id="@+id/idUpiPayment"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -284,6 +291,7 @@
                         android:drawablePadding="5dp"
                         android:textSize="@dimen/text_size"
                         android:layout_marginBottom="2dp"
+                        android:textColor="@color/text_color"
                         android:onClick="@{() -> newExpenseViewModel.fnUpiPayment()}"
                         android:text="@string/upi" />
                     <RadioButton
@@ -294,6 +302,7 @@
                         android:drawablePadding="5dp"
                         android:textSize="@dimen/text_size"
                         android:layout_marginBottom="2dp"
+                        android:textColor="@color/text_color"
                         android:text="@string/split"
                         android:onClick="@{() -> newExpenseViewModel.fnSplitPayment()}"
                         />
@@ -304,6 +313,7 @@
                         android:drawableStart="@drawable/other_payment"
                         android:drawablePadding="5dp"
                         android:textSize="@dimen/text_size"
+                        android:textColor="@color/text_color"
                         android:onClick="@{() -> newExpenseViewModel.fnOtherPayment()}"
                         android:layout_marginBottom="2dp"
                         android:text="@string/other" />
@@ -336,6 +346,7 @@
                     android:text="@string/remarks"
                     android:textSize="@dimen/sub_header_size"
                     android:textStyle="bold"
+                    android:textColor="@color/text_color"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/idLPaymentType"

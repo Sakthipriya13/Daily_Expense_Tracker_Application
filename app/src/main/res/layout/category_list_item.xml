@@ -14,7 +14,8 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="50dp"
+        >
         <LinearLayout
             android:id="@+id/idHeaderOfList"
             android:layout_width="match_parent"
@@ -27,7 +28,7 @@
                 android:layout_weight="1"
                 android:text="@{category.categoryName}"
                 android:textStyle="bold"
-                android:textColor="@color/text_color_black"
+                android:textColor="@color/text_color"
                 android:textSize="@dimen/text_size"
                 android:gravity="start|center"
                 />

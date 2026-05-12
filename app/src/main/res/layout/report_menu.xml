@@ -59,7 +59,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/day_wise"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_color_white"
                         android:textStyle="bold"
                         android:textSize="@dimen/text_size"
                         android:gravity="center" />
@@ -99,7 +99,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/monthly_summary1"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_color_white"
                         android:textStyle="bold"
                         android:textSize="@dimen/text_size"
                         android:gravity="center" />
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/yearly_summary"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_color_white"
                         android:textStyle="bold"
                         android:textSize="@dimen/text_size"
                         android:gravity="center" />
@@ -178,7 +178,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:text="@string/category"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_color_white"
                         android:textSize="@dimen/text_size"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -216,7 +216,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/payment_type"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_color_white"
                         android:textStyle="bold"
                         android:textSize="@dimen/text_size"
                         android:gravity="center" />
