@@ -3,34 +3,64 @@ package com.example.expensetrackerapplication.data.repositary
 import android.util.Log
 import com.example.expensetrackerapplication.data.dao.CategoryDao
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class CategoryRepository(val categoryDao: CategoryDao)
+class CategoryRepository(
+    val categoryDao: CategoryDao,
+    val logger : FileLogger)
 {
+    val LOG_TAG = "CATEGORY_REPOSITORY"
     var firestore = FirebaseFirestore.getInstance()
     var firebaseAuth = FirebaseAuth.getInstance()
 
-    suspend fun fnInsertCategoryDb(category: CategoryEntitty): Long {
-        return categoryDao.fnInsertCategories(category)
-    }
+//    suspend fun fnInsertCategoryDb(category: CategoryEntitty): Long {
+//        return categoryDao.fnInsertCategories(category)
+//    }
 
     suspend fun fnUpdateCategoryDb(category: CategoryEntitty) {
-        categoryDao.fnUpdateCategory(category)
+        try
+        {
+            categoryDao.fnUpdateCategory(category)
+
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Update Category To Db: ${e.message}")
+        }
     }
 
-    suspend fun fnGetUnSyncedCategoryDb(): List <CategoryEntitty> {
-        return categoryDao.fnGetUnSyncedCategories(Global.lUserId)
+    suspend fun fnGetUnSyncedCategoryDb(): List <CategoryEntitty>
+    {
+        return try {
+            categoryDao.fnGetUnSyncedCategories(Global.lUserId)
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Get Unsynced Categories From Db: ${e.message}")
+            emptyList<CategoryEntitty>()
+        }
     }
-    suspend fun fnInsertAllCategoryDb(category: List<CategoryEntitty>): List <Long> {
-        return categoryDao.fnInsertAllCategory(category)
+    suspend fun fnInsertAllCategoryDb(category: List<CategoryEntitty>): List <Long>
+    {
+        return try
+        {
+            categoryDao.fnInsertAllCategory(category)
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Insert All Category Into Db: ${e.message}")
+            emptyList<Long>()
+        }
     }
 
     suspend fun fnInsertCategoriesToDb(category: CategoryEntitty): Boolean
     {
-        return try{
+        return try
+        {
             val insertStatus=categoryDao.fnInsertCategories(category)
             if(insertStatus<=0)
             {
@@ -41,6 +71,7 @@ class CategoryRepository(val categoryDao: CategoryDao)
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Insert Category Into Db: ${e.message}")
             Log.e("INSERT CATEGORIES STATUS LOCAL","Insert Categories Status Local: Failed(${e.message})")
             return false
         }
@@ -55,6 +86,7 @@ class CategoryRepository(val categoryDao: CategoryDao)
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Insert Default Category Into Db: ${e.message}")
             Log.e("INSERT CATEGORIES","Insert Categories: "+e.message)
             return listOf()
         }
@@ -62,33 +94,36 @@ class CategoryRepository(val categoryDao: CategoryDao)
     }
 
     suspend fun fnGetAllCategoriesFromDb() : List<CategoryEntitty>{
-        try {
+        try
+        {
             var categoryList = categoryDao.fnGetAllCategories(Global.lUserId)
             return categoryList
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Get All Categories From Db: ${e.message}")
             Log.e("GET CATEGORIES","Get Categories: "+e.message)
             return mutableListOf()
         }
     }
 
 
-    suspend fun fnGetDefaultCategoriesFromDb() : List<CategoryEntitty>{
-        return try {
-            var categoryList = categoryDao.fnGetDefaultCategories(Global.lUserId)
-            categoryList
-        }
-        catch (e: Exception)
-        {
-            Log.e("GET CATEGORIES","Get Categories: "+e.message)
-            mutableListOf()
-        }
-    }
+//    suspend fun fnGetDefaultCategoriesFromDb() : List<CategoryEntitty>{
+//        return try {
+//            var categoryList = categoryDao.fnGetDefaultCategories(Global.lUserId)
+//            categoryList
+//        }
+//        catch (e: Exception)
+//        {
+//            Log.e("GET CATEGORIES","Get Categories: "+e.message)
+//            mutableListOf()
+//        }
+//    }
 
 
     suspend fun fnDeleteCategory(categoryId: Int?, userId: Int?):Boolean{
-        return try{
+        return try
+        {
             var res= categoryDao.fnDeleteCategoryFromDb(categoryId = categoryId,userId)
 
             if(res > 0)
@@ -96,7 +131,9 @@ class CategoryRepository(val categoryDao: CategoryDao)
             else
                 false
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Delete Category: ${e.message}")
             Log.e("GET CATEGORIES","Get Categories: "+e.message)
             false
         }
@@ -117,6 +154,7 @@ class CategoryRepository(val categoryDao: CategoryDao)
         }
         catch (e : Exception)
         {
+            logger.logError(LOG_TAG,"Get Categories From Cloud: ${e.message}")
             emptyList<CategoryEntitty>()
         }
     }

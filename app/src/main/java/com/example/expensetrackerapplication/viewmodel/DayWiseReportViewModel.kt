@@ -36,7 +36,7 @@ class DayWiseReportViewModel(
     val expenseRepository : ExpenseRepository
     init {
          val dao = AppDatabase.getdatabase(application).ExpenseDao()
-         expenseRepository= ExpenseRepository(dao)
+         expenseRepository= ExpenseRepository(dao,logger)
     }
     // Close Day Wise Report
     var _isClosed = MutableLiveData<Boolean>()

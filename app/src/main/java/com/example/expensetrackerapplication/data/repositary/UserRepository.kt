@@ -2,35 +2,57 @@ package com.example.expensetrackerapplication.data.repositary
 
 import android.app.Application
 import android.util.Log
+import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.data.dao.UserDao
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
 import com.example.expensetrackerapplication.data.entity.UserEntity
+import com.example.expensetrackerapplication.logger.FileLogger
+import com.example.expensetrackerapplication.logger.Logger
 import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class UserRepository(var userDao: UserDao,var application: Application)
+class UserRepository(
+    val userDao: UserDao,
+    val application: Application,
+    val logger: FileLogger)
 {
+    val LOG_TAG = "USER_REPOSITORY"
     val firebaseAuth = FirebaseAuth.getInstance()
     var fireStore = FirebaseFirestore.getInstance()
 
-    suspend fun fnGetSignUpUserId(email: String?):Int{
-        return userDao.fnGetSignUpUserId(email)
+    suspend fun fnGetSignUpUserId(email: String?):Int
+    {
+        return try {
+            userDao.fnGetSignUpUserId(email)
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"User Repository: ${e.message}")
+            0
+        }
     }
 
     suspend fun fnUsersCount():Int
     {
-        return userDao.fnGetUsersCount()
+        return try
+        {
+            userDao.fnGetUsersCount()
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"User Count: ${e.message}")
+            0
+        }
     }
 
     suspend fun fnInsertUserDetails(user: UserEntity) : Result<String>
     {
         return try {
-
             // Check username already exists
             val checkUserName = fireStore.collection("UserNames")
                 .document(user.userName!!)
@@ -70,8 +92,10 @@ class UserRepository(var userDao: UserDao,var application: Application)
             } else {
                 return Result.failure(Exception("New User Account Creation Failed"))
             }
-        } catch (e: Exception)
+        }
+        catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Insert User Details: ${e.message}")
             Log.e("NEW USER CREATION","New User Creation: ${e.message}")
             Result.failure(Exception("${e.message}"))
         }
@@ -79,12 +103,13 @@ class UserRepository(var userDao: UserDao,var application: Application)
 
     suspend fun fnGetUserDetailsBasedOnUserName(name: String?, password: String?): List<UserEntity>
     {
-        return try {
-//            userDao.fnGetUserBasedOnUserName(name)
+        return try
+        {
             userDao.fnGetUserBasedOnUserName(name,password)
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Get User Details Based On User Name: ${e.message}")
             Log.e(
                 "GET USER DETAILS BASED ON USERNAME",
                 "Error fetching user details: ${e.message}"
@@ -100,6 +125,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
         }
         catch (e: Exception)
         {
+            logger.logError(LOG_TAG,"Delete User: ${e.message}")
             Log.e(
                 "DELETE USER ACCOUNT",
                 "Delete User Account: ${e.message}"
@@ -112,7 +138,10 @@ class UserRepository(var userDao: UserDao,var application: Application)
         return try {
             var result = userDao.fnUpdateUserPassword(newPassword = newPassword,userId, currentPassword = currentPassword)
             if(result>0) true else false
-        } catch (e : Exception){
+        }
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Update Login User Password: ${e.message}")
             Log.e("UPDATE USER PASSWORD","Update User Password: ${e.message}")
             false
         }
@@ -122,7 +151,10 @@ class UserRepository(var userDao: UserDao,var application: Application)
         return try {
             var result = userDao.fnResetUserPassword(newPassword = newPassword,email)
             if(result>0) true else false
-        } catch (e : Exception){
+        }
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Reset Login User Password: ${e.message}")
             Log.e("UPDATE USER PASSWORD","Update User Password: ${e.message}")
             false
         }
@@ -226,7 +258,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
             }
 
             val catDao = AppDatabase.getdatabase(application).CategoryDao()
-            val caterpository = CategoryRepository(catDao)
+            val caterpository = CategoryRepository(catDao,logger)
 
             var categoryDoc = fireStore.collection("ExpenseTrackerUser")
                 .document(Global.cloudUserId)
@@ -250,7 +282,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
             }
 
             val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-            val expenserpository = ExpenseRepository(expenseDao)
+            val expenserpository = ExpenseRepository(expenseDao,logger)
 
             var expenseDoc = fireStore.collection("ExpenseTrackerUser")
                 .document(Global.cloudUserId)
@@ -272,7 +304,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
             }
 
             val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-            val incomerpository = IncomeRepository(incomeDao)
+            val incomerpository = IncomeRepository(incomeDao,logger)
 
             var incomeDoc = fireStore.collection("ExpenseTrackerUser")
                 .document(Global.cloudUserId)
@@ -313,6 +345,7 @@ class UserRepository(var userDao: UserDao,var application: Application)
         }
         catch (e : Exception)
         {
+            logger.logError(LOG_TAG,"Login Cloud Account: ${e.message}")
             Log.e("LOGIN CLOUD ACCOUNT","Login Cloud Account : ${e.message}")
             return Result.failure(Exception("Login Cloud Account: ${e.message}"))
         }
@@ -328,26 +361,43 @@ class UserRepository(var userDao: UserDao,var application: Application)
         return ""
     }
 
-    suspend fun fnGetUnSyncedCurUserDetails(): List<UserEntity>{
-        return userDao.fnGetUnSyncedCurUserDetails(Global.lUserId)
+    suspend fun fnGetUnSyncedCurUserDetails(): List<UserEntity>
+    {
+        return try {
+            userDao.fnGetUnSyncedCurUserDetails(Global.lUserId)
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Get Unsynced User Details: ${e.message}")
+            emptyList<UserEntity>()
+        }
     }
 
-    suspend fun fnUpdateCategoryDb(user: UserEntity) {
-        userDao.fnUpdateCurUserDetails(user)
+    suspend fun fnUpdateCategoryDb(user: UserEntity)
+    {
+        try {
+            userDao.fnUpdateCurUserDetails(user)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Update Category: ${e.message}")
+        }
     }
 
     suspend fun isEmailExistsFun(email: String?) : Boolean{
-        return try {
+        return try
+        {
             var userDetails = userDao.isEmailExistsFun(email)
             if(userDetails.isNotEmpty() && userDetails !=null)
             {
-                return true
+                true
             }
             else{
-                return false
+                false
             }
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Is Email Exists: ${e.message}")
             Log.e("IS EMAIL EXISTS","Is Email Exists: ${e.message}")
             false
         }

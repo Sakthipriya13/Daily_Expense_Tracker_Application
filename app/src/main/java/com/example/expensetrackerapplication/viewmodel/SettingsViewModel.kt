@@ -48,11 +48,11 @@ class SettingsViewModel(
 
     init {
         var dao = AppDatabase.getdatabase(application).CategoryDao()
-        categoryRepository= CategoryRepository(dao)
+        categoryRepository= CategoryRepository(dao,logger)
         var exdao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository= ExpenseRepository(exdao)
+        expenseRepository= ExpenseRepository(exdao,logger)
         var indao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository= IncomeRepository(indao)
+        incomeRepository= IncomeRepository(indao,logger)
 
         languageDataStore= LanguageDataStore(application)
         themeColorDataStore = ThemeColorDataStore(application)

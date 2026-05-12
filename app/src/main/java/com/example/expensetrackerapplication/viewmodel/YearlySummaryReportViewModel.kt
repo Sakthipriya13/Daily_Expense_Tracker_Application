@@ -38,10 +38,10 @@ class YearlySummaryReportViewModel(
 
     init{
         val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao)
+        expenseRepository = ExpenseRepository(expenseDao,logger)
 
         val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao)
+        incomeRepository = IncomeRepository(incomeDao,logger)
     }
 
     // Income Amount Variable Initialization

@@ -26,7 +26,7 @@ class NewExpenseViewModel(
 
     init{
         var expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao)
+        expenseRepository = ExpenseRepository(expenseDao,logger)
     }
 
     //Date

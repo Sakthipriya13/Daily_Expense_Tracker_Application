@@ -27,10 +27,10 @@ class SignUpViewModel(
 
     init {
         val userDao= AppDatabase.getdatabase(application).userDao()
-        userRepository= UserRepository(userDao,application)
+        userRepository= UserRepository(userDao,application,logger)
 
         val categoryDao = AppDatabase.getdatabase(application).CategoryDao()
-        categoryRepository= CategoryRepository(categoryDao)
+        categoryRepository= CategoryRepository(categoryDao,logger)
     }
 
     //User Name Field

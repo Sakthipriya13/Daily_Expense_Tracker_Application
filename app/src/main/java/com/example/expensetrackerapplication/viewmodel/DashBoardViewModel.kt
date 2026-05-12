@@ -27,10 +27,10 @@ class DashBoardViewModel(
     
     init{
         val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        newExpenseRepository = ExpenseRepository(expenseDao)
+        newExpenseRepository = ExpenseRepository(expenseDao,logger)
         
         val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao)
+        incomeRepository = IncomeRepository(incomeDao,logger)
     }
 
     // Income Variable Initialization

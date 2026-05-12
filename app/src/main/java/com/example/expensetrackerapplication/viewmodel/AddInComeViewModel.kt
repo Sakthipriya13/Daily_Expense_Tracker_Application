@@ -23,7 +23,7 @@ class AddInComeViewModel(
 
     init{
         var incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao)
+        incomeRepository = IncomeRepository(incomeDao,logger)
     }
 
     //Date Field

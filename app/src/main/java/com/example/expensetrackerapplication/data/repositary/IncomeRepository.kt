@@ -2,14 +2,19 @@ package com.example.expensetrackerapplication.data.repositary
 
 import android.util.Log
 import androidx.paging.LOG_TAG
+import androidx.paging.Logger
 import com.example.expensetrackerapplication.data.dao.IncomeDao
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
-class IncomeRepository(val incomeDao : IncomeDao) {
+class IncomeRepository(
+    val incomeDao : IncomeDao,
+    val logger: FileLogger)
+{
 
     val LOG_TAG = "INCOME_REPOSITORY"
 
@@ -19,44 +24,66 @@ class IncomeRepository(val incomeDao : IncomeDao) {
 //        return incomeDao.fnInsertIncome(income)
 //    }
 
-    suspend fun fnUpdateIncome(income: IncomeEntity) {
-        incomeDao.fnUpdateIncome(income)
-    }
-    suspend fun fnGetUnSyncedIncomes(): List <IncomeEntity> {
-        return incomeDao.fnGetUnSyncedIncomes(Global.lUserId)
-    }
-    suspend fun fnInsertAllIncomes(income: List<IncomeEntity>): List <Long> {
-        return incomeDao.fnInsertAllIncomes(income)
-    }
-
-    suspend fun fnSyncDemo() : Result<String>
+    suspend fun fnUpdateIncome(income: IncomeEntity)
     {
-        return try{
-            val docRef2 = firestore
-                .collection("ExpenseTrackerUser")
-                .document(Global.cloudUserId)  // replace with Firebase UID
-                .collection("Categories_One")
-                .document()
-
-            val map2 = hashMapOf(
-                "userId" to 1,
-                "cloudId" to docRef2.id,
-                "isSynced" to 1,
-                "categoryId" to 1,
-                "signUpDate" to "15-03-206",
-                "categoryName" to "Cat1"
-            )
-
-            docRef2.set(map2).await()
-
-            return Result.success("Successfully Synced")
+        try
+        {
+            incomeDao.fnUpdateIncome(income)
         }
-        catch(e : Exception){
-            Log.e("SYNC DEMO","Sync Demo: ${e.message}")
-            Result.failure(Exception("${e.message}"))
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Update Income: ${e.message}")
         }
-
     }
+    suspend fun fnGetUnSyncedIncomes(): List <IncomeEntity>
+    {
+        return try {
+            incomeDao.fnGetUnSyncedIncomes(Global.lUserId)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Get Unsynced Incomes: ${e.message}")
+            emptyList<IncomeEntity>()
+        }
+    }
+    suspend fun fnInsertAllIncomes(income: List<IncomeEntity>): List <Long>
+    {
+        return try {
+            incomeDao.fnInsertAllIncomes(income)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Insert All Incomes: ${e.message}")
+            emptyList<Long>()
+        }
+    }
+
+//    suspend fun fnSyncDemo() : Result<String>
+//    {
+//        return try{
+//            val docRef2 = firestore
+//                .collection("ExpenseTrackerUser")
+//                .document(Global.cloudUserId)  // replace with Firebase UID
+//                .collection("Categories_One")
+//                .document()
+//
+//            val map2 = hashMapOf(
+//                "userId" to 1,
+//                "cloudId" to docRef2.id,
+//                "isSynced" to 1,
+//                "categoryId" to 1,
+//                "signUpDate" to "15-03-206",
+//                "categoryName" to "Cat1"
+//            )
+//
+//            docRef2.set(map2).await()
+//
+//            return Result.success("Successfully Synced")
+//        }
+//        catch(e : Exception){
+//            Log.e("SYNC DEMO","Sync Demo: ${e.message}")
+//            Result.failure(Exception("${e.message}"))
+//        }
+//
+//    }
 
     suspend fun fnInsertIncome(income: IncomeEntity): Boolean{
         return try {
@@ -66,10 +93,11 @@ class IncomeRepository(val incomeDao : IncomeDao) {
                 Log.e("INSERT INCOME TO LOCAL STATUS","Insert Income To Local Status: Failed")
                 return false
             }
-
             true
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Insert Incomes: ${e.message}")
             Log.e("INSERT INCOME TO LOCAL AND CLOUD","Insert Income To Local And Cloud: Failed(${e.message})")
             false
         }
@@ -79,7 +107,9 @@ class IncomeRepository(val incomeDao : IncomeDao) {
         return try {
             incomeDao.fnGetIncomePerMonth(curMonth,Global.lUserId)
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Get Income Per Month: ${e.message}")
             Log.e("GET INCOME PER MONTH","Get Income Per Month: ${e.message}")
             0.0f
         }
@@ -87,10 +117,11 @@ class IncomeRepository(val incomeDao : IncomeDao) {
 
     suspend fun fnGetIncomePerMonthAndYear(month : String,year:String): Float{
         return try {
-            Log.i(LOG_TAG,"Month From fnGetIncomePerMonthAndYear: $month")
             incomeDao.fnGetIncomePerMonthAndYear(month,year,Global.lUserId)
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Get Income Per Month And Year: ${e.message}")
             Log.e("GET INCOME PER MONTH","Get Income Per Month: ${e.message}")
             0.0f
         }
@@ -100,7 +131,9 @@ class IncomeRepository(val incomeDao : IncomeDao) {
         return try {
             incomeDao.fnGetIncomePerYear(year,Global.lUserId)
         }
-        catch (e : Exception){
+        catch (e : Exception)
+        {
+            logger.logError(LOG_TAG,"Get Income Per Year: ${e.message}")
             Log.e("GET INCOME PER YEAR","Get Income Per Year: ${e.message}")
             0.0f
         }
@@ -121,6 +154,7 @@ class IncomeRepository(val incomeDao : IncomeDao) {
         }
         catch (e : Exception)
         {
+            logger.logError(LOG_TAG,"Get Incomes From Cloud: ${e.message}")
             emptyList<IncomeEntity>()
         }
     }

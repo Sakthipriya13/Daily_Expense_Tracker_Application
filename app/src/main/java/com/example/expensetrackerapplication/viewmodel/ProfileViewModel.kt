@@ -23,7 +23,7 @@ class ProfileViewModel(
 
     init{
         var userDao = AppDatabase.getdatabase(application).userDao()
-        userRepository= UserRepository(userDao,application)
+        userRepository= UserRepository(userDao,application,logger)
     }
 
     // User Name Variable Initialization

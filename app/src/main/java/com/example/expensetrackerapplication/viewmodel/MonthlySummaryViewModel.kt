@@ -39,8 +39,8 @@ class MonthlySummaryViewModel(
         // Income & Expense Repository Variable Initialization
         val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
         val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository= IncomeRepository(incomeDao)
-        expenseRepository= ExpenseRepository(expenseDao)
+        incomeRepository= IncomeRepository(incomeDao,logger)
+        expenseRepository= ExpenseRepository(expenseDao,logger)
     }
     // Close The Monthly Report Screen
     var _isClosed = MutableLiveData<Boolean>()
