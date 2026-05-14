@@ -18,9 +18,12 @@ import kotlinx.coroutines.tasks.await
 
 class SyncWorker(
     val context: Context,
-    val workerParams: WorkerParameters,
-    val logger : FileLogger)
-    : CoroutineWorker(context, workerParams)
+    workerParams: WorkerParameters,
+    val logger : FileLogger
+)
+    : CoroutineWorker(
+    context, workerParams
+    )
 {
     val LOG_TAG = "SYNC_WORKER"
 
@@ -30,13 +33,13 @@ class SyncWorker(
             Log.i("SYNC_WORKER", "Sync Started")
 
             val firestore = FirebaseFirestore.getInstance()
-            val db = AppDatabase.Companion.getdatabase(applicationContext)
-
-            fnSyncCategory(db, firestore)
-            fnSyncExpense(db, firestore)
-            fnSyncIncome(db, firestore)
-            fnSyncUser(db, firestore)
-
+            val db = AppDatabase.Companion.getdatabase(applicationContext,logger)
+            db?.let {
+                fnSyncCategory(db, firestore)
+                fnSyncExpense(db, firestore)
+                fnSyncIncome(db, firestore)
+                fnSyncUser(db, firestore)
+            }
             Log.i("SYNC_WORKER", "Sync Completed")
 
             Result.success()

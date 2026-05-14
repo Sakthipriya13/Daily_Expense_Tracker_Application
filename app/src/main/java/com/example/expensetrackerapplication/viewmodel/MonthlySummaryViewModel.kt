@@ -32,25 +32,29 @@ class MonthlySummaryViewModel(
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Declaration
-    val expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
     // Income Repository Variable Declaration
-    val incomeRepository : IncomeRepository
+    private lateinit var incomeRepository : IncomeRepository
     init {
         // Income & Expense Repository Variable Initialization
-        val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository= IncomeRepository(incomeDao,logger)
-        expenseRepository= ExpenseRepository(expenseDao,logger)
+        val expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository= ExpenseRepository(expenseDao,logger)
+        }
+        val incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        incomeDao?.let {
+            incomeRepository= IncomeRepository(incomeDao,logger)
+        }
     }
     // Close The Monthly Report Screen
     var _isClosed = MutableLiveData<Boolean>()
     var isClosed : LiveData<Boolean> = _isClosed
 
     // Month Variable Initialization
-    var _selectedMonth = MutableLiveData<String>(Global.fnGetCurrentMonth())
+    var _selectedMonth = MutableLiveData<String>(Global.fnGetCurrentMonth(logger))
     var selectedMonth : LiveData<String> = _selectedMonth
     // Year Variable Initialization
-    var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear())
+    var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear(logger))
     var selectedYear : LiveData<String> = _selectedYear
 
     // selected Month And Year Variable Initialization
@@ -143,13 +147,13 @@ class MonthlySummaryViewModel(
                 if(income != 0.0f)
                 {
                     Log.i(LOG_TAG,"Income Amount: $income")
-                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income,logger))
                 }
                 if(expense != 0.0f){
-                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense,logger))
                 }
                 if(balance != 0.0f){
-                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
 
                 val yearMonth = YearMonth.of(year.toInt(),month.toInt())
@@ -200,7 +204,7 @@ class MonthlySummaryViewModel(
 
                     delay(1000L)
 
-                    var start = Global.fnGetCurrentTime()
+                    var start = Global.fnGetCurrentTime(logger)
 
                     var workBook = XSSFWorkbook()
                     var sheet = workBook.createSheet("MONTHLY SUMMARY REPORT")
@@ -210,16 +214,16 @@ class MonthlySummaryViewModel(
                     sheet.setColumnWidth(2,30*256)
 
 
-                    val headerFont = Global.fnHeaderFont(workBook)
-                    val summaryFont =  Global.fnSummaryFont(workBook)
+                    val headerFont = Global.fnHeaderFont(workBook,logger)
+                    val summaryFont =  Global.fnSummaryFont(workBook,logger)
                     //Header Style
-                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont)
+                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont,logger)
                     //Summary Style
-                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont)
+                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont,logger)
                     //Create Table Header Style
-                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook)
+                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook,logger)
                     //Create Table Date Style
-                    val dataStyle = Global.fnTableDateStyle(workBook)
+                    val dataStyle = Global.fnTableDateStyle(workBook,logger)
 
                     //Header Row
                     var headerRow = sheet.createRow(0)
@@ -246,7 +250,7 @@ class MonthlySummaryViewModel(
 
                     var dateRow = sheet.createRow(3)
                     var dateCell1 = dateRow.createCell(0)
-                    dateCell1.setCellValue("EXPORT DATE:         ${Global.fnGetCurrentDateUi()}")
+                    dateCell1.setCellValue("EXPORT DATE:         ${Global.fnGetCurrentDateUi(logger)}")
                     dateCell1.cellStyle=summaryStyle
                     sheet.addMergedRegion(
                         CellRangeAddress(3,3,0,4)
@@ -254,7 +258,7 @@ class MonthlySummaryViewModel(
 
                     var timeRow = sheet.createRow(4)
                     var dateCell2 = timeRow.createCell(0)
-                    dateCell2.setCellValue("EXPORT TIME:         ${Global.fnGetCurrentTime()}")
+                    dateCell2.setCellValue("EXPORT TIME:         ${Global.fnGetCurrentTime(logger)}")
                     dateCell2.cellStyle=summaryStyle
                     sheet.addMergedRegion(
                         CellRangeAddress(4,4,0,4)
@@ -326,7 +330,7 @@ class MonthlySummaryViewModel(
 
                     }
 
-                    val exportStatus  = fnExportReportToDownloads(workBook,"MonthlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
+                    val exportStatus  = fnExportReportToDownloads(workBook,"MonthlySummaryReport${Global.fnGetCurrentDate(logger)}_${Global.fnGetCurrentTime(logger)}.xlsx")
 
                     if(exportStatus){
                         _exportStatus.value = ResultState1.success(R.string.monthlyReport_ExportSuccess)

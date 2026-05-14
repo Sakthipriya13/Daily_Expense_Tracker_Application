@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/idDashBoard"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.Dashboard"
+        android:name="com.example.expensetrackerapplication.ui.main.childs.Dashboard"
         android:label="DashBoard">
         <action android:id="@+id/action_dashBoard_to_ParentReport"
             app:destination="@id/idParentReport"/>
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/idParentReport"
         android:label="ParentReport"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.parent.ParentReport">
+        android:name="com.example.expensetrackerapplication.ui.main.childs.reports.parent.ParentReport">
         <action
             android:id="@+id/action_idParentReport_to_dashBoard"
             app:destination="@id/idDashBoard"/>
@@ -33,7 +33,7 @@
             app:destination="@id/idProfile"/>
     </fragment>
     <fragment android:id="@+id/idNewExpense"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.NewExpense"
+        android:name="com.example.expensetrackerapplication.ui.main.childs.NewExpense"
         android:label="NewExpense">
         <action android:id="@+id/action_newExpense_to_dashBoard"
             app:destination="@id/idDashBoard"/>
@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/idSettings"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.Settings"
+        android:name="com.example.expensetrackerapplication.ui.main.childs.Settings"
         android:label="Settings">
         <action android:id="@+id/action_settings_to_dashBoard"
             app:destination="@id/idDashBoard"/>
@@ -60,7 +60,7 @@
     <fragment
         android:id="@+id/idProfile"
         android:label="Profile"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.Profile">
+        android:name="com.example.expensetrackerapplication.ui.main.childs.Profile">
         <action android:id="@+id/action_profile_to_dashBoard"
             app:destination="@id/idDashBoard"/>
         <action android:id="@+id/action_profile_to_ParentReport"

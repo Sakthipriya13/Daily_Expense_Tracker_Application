@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.main.fragments.reports
+package com.example.expensetrackerapplication.ui.main.childs.reports
 
 import android.app.DatePickerDialog
 import android.content.Context
@@ -208,10 +208,22 @@ class CategoryWiseReport : Fragment() {
                 when(status)
                 {
                     is ResultState1.success ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.bg_success)
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.bg_success,
+                            logger,
+                            LOG_TAG
+                        )
                     }
                     is ResultState1.fail ->{
-                        fnShowMessage(getString(status.message),requireContext(),R.drawable.error_bg)
+                        fnShowMessage(
+                            getString(status.message),
+                            requireContext(),
+                            R.drawable.error_bg,
+                            logger,
+                            LOG_TAG
+                        )
                     }
                 }
             }

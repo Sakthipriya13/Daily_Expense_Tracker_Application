@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.expensetrackerapplication.logger.FileLogger
-import com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.AuthViewModel
 import com.example.expensetrackerapplication.viewmodel.CalendarMonthViewModel
@@ -30,7 +29,6 @@ import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.example.expensetrackerapplication.viewmodel.SplitViewModel
 import com.example.expensetrackerapplication.viewmodel.ToastViewModel
 import com.example.expensetrackerapplication.viewmodel.YearlySummaryReportViewModel
-import kotlin.math.log
 
 class AppViewModelFactory(
     private val application: Application,

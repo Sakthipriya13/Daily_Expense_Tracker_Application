@@ -19,10 +19,12 @@ class LoginViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application)
 {
-    var userRepository : UserRepository
+    private lateinit var userRepository : UserRepository
     init {
-        val userDao= AppDatabase.getdatabase(application).userDao()
-        userRepository= UserRepository(userDao,application,logger)
+        val userDao= AppDatabase.getdatabase(application,logger)?.userDao()
+        userDao?.let {
+            userRepository= UserRepository(userDao,application,logger)
+        }
     }
 
     //User Name Variable
@@ -57,7 +59,7 @@ class LoginViewModel(
     var _isLoading = MutableLiveData<Boolean>(false)
     var isLoading : LiveData<Boolean> = _isLoading
 
-    var loginDataStore : LoginDataStore = LoginDataStore(application)
+    var loginDataStore : LoginDataStore = LoginDataStore(application,logger)
 
     val LOG_TAG = "LOGIN_VIEW_MODEL"
 

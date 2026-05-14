@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.datastore.LanguageDataStore
 import com.example.expensetrackerapplication.datastore.ThemeColorDataStore
+import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.LocaleManager
 import kotlinx.coroutines.launch
@@ -14,12 +15,37 @@ import kotlinx.coroutines.runBlocking
 
 abstract class BaseActivity : AppCompatActivity()
 {
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private lateinit var logger : FileLogger
 
-//        lifecycleScope.launch {
-//            val themeColorCode = ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()
+    val LOG_TAG = "BASE_ACTIVITY"
+
+    override fun attachBaseContext(newBase: Context?)
+    {
+        if (newBase == null) {
+            super.attachBaseContext(newBase)
+            return
+        }
+
+        val safeLogger = FileLogger(newBase.applicationContext)
+
+        try {
+            val languageCode = runBlocking {
+                LanguageDataStore(newBase, logger = safeLogger).fnGetLanguage()
+            }
+
+            val context = LocaleManager.fnSetLocale(newBase, languageCode, safeLogger)
+            super.attachBaseContext(context)
+
+        } catch (e: Exception) {
+            safeLogger.logError(LOG_TAG, "Attach Base Context: ${e.message}")
+            super.attachBaseContext(newBase)
+        }
+    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        logger = FileLogger(this.applicationContext)
+        try {
             val colorCode = runBlocking {
-                ThemeColorDataStore(this@BaseActivity).fnGetThemeColor()
+                ThemeColorDataStore(this@BaseActivity,logger).fnGetThemeColor()
             }
             when(colorCode){
                 Global.COLOR_CODE1 -> setTheme(R.style.Theme_App_Color1)
@@ -29,6 +55,12 @@ abstract class BaseActivity : AppCompatActivity()
                 Global.COLOR_CODE5 -> setTheme(R.style.Theme_App_Color5)
                 else -> setTheme(R.style.Theme_App_Color1)
             }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Get Theme Color From DataStore And Set Theme Color: ${e.message}")
+        }
+
 //        }
 
 //        val colorCode = runBlocking {
@@ -81,15 +113,4 @@ abstract class BaseActivity : AppCompatActivity()
 //            }
 //        }
 //    }
-
-    override fun attachBaseContext(newBase: Context?) {
-        val languageCode = runBlocking {
-            LanguageDataStore(newBase).fnGetLanguage()
-        }
-//        lifecycleScope.launch {
-//            val languageCode = LanguageDataStore(newBase).fnGetLanguage()
-            val context = LocaleManager.fnSetLocale(newBase,languageCode)
-            super.attachBaseContext(context)
-//        }
-    }
 }

@@ -12,7 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.fragments.reports.menu.ReportMenu">
+        tools:context=".ui.main.childs.reports.menu.ReportMenu">
         <GridLayout
             android:id="@+id/idOptionsLayout"
             android:layout_width="wrap_content"

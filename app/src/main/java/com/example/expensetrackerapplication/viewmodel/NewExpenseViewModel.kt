@@ -22,18 +22,20 @@ class NewExpenseViewModel(
 ) : AndroidViewModel(application)
 {
     //Expense Repository Variable
-    var expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
 
     init{
-        var expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao,logger)
+        var expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository = ExpenseRepository(expenseDao,logger)
+        }
     }
 
     //Date
-    var _selectedDate = MutableLiveData<String?>(Global.fnGetCurrentDate() )
+    var _selectedDate = MutableLiveData<String?>(Global.fnGetCurrentDate(logger) )
     var selectedDate : LiveData<String?> = _selectedDate
 
-    var _selectedDateUi = MutableLiveData<String?>(Global.fnGetCurrentDateUi() )
+    var _selectedDateUi = MutableLiveData<String?>(Global.fnGetCurrentDateUi(logger) )
     var selectedDateUi : LiveData<String?> = _selectedDateUi
 
     //ExpenseAmount
@@ -123,8 +125,8 @@ class NewExpenseViewModel(
         try {
             _clearAllFields.value=true
 
-            _selectedDate.value=Global.fnGetCurrentDate()
-            _selectedDateUi.value=Global.fnGetCurrentDateUi()
+            _selectedDate.value=Global.fnGetCurrentDate(logger)
+            _selectedDateUi.value=Global.fnGetCurrentDateUi(logger)
 
             _expenseAmt.value=""
             _selectedCategoryId.value=-1
@@ -271,7 +273,7 @@ class NewExpenseViewModel(
         try {
             _selectedPaymentType.value= R.id.idCashPayment
             val paymentType = PaymentType(
-                cash = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull() ?:0.0f,
+                cash = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger).toFloatOrNull() ?:0.0f,
                 card = 0.0f,
                 upi = 0.0f,
                 others = 0.0f
@@ -314,7 +316,7 @@ class NewExpenseViewModel(
             _selectedPaymentType.value= R.id.idCardPayment
             val paymentType = PaymentType(
                 cash = 0.0f,
-                card = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull() ?:0.0f,
+                card = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger).toFloatOrNull() ?:0.0f,
                 upi = 0.0f,
                 others = 0.0f
             )
@@ -338,7 +340,7 @@ class NewExpenseViewModel(
             val paymentType = PaymentType(
                 cash = 0.0f,
                 card = 0.0f,
-                upi = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull() ?:0.0f,
+                upi = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger).toFloatOrNull() ?:0.0f,
                 others = 0.0f
             )
             _selectedPaymentTypeAmt.value = paymentType
@@ -362,7 +364,7 @@ class NewExpenseViewModel(
                 cash = 0.0f,
                 card = 0.0f,
                 upi = 0.0f,
-                others = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat()).toFloatOrNull() ?:0.0f
+                others = Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger).toFloatOrNull() ?:0.0f
             )
             _selectedPaymentTypeAmt.value = paymentType
         }

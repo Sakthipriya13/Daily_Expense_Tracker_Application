@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/idReportMenu"
         android:label="ReportMenu"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.menu.ReportMenu">
+        android:name="com.example.expensetrackerapplication.ui.main.childs.reports.menu.ReportMenu">
         <action android:id="@+id/action_report_menu_to_day_wise_report"
             app:destination="@id/idDayWiseReport"/>
         <action android:id="@+id/action_report_menu_to_monthly_report"
@@ -20,7 +20,7 @@
             app:destination="@id/idYearlyReport"/>
     </fragment>
 
-    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.DayWiseReport"
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.childs.reports.DayWiseReport"
         android:id="@+id/idDayWiseReport"
         android:label="DayWiseReport">
         <action android:id="@+id/action_day_wise_report_to_report_menu"
@@ -29,26 +29,26 @@
 
     <fragment android:id="@+id/idMonthlySummaryReport"
         android:label="MonthlySummaryReport"
-        android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.MonthlyReport">
+        android:name="com.example.expensetrackerapplication.ui.main.childs.reports.MonthlyReport">
         <action android:id="@+id/action_monthly_summary_report_to_report_menu"
             app:destination="@id/idReportMenu"/>
     </fragment>
 
-    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.CategoryWiseReport"
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.childs.reports.CategoryWiseReport"
         android:label="CategoryWiseReport"
         android:id="@+id/idCategoryWiseReport">
         <action android:id="@+id/action_category_wise_report_to_report_menu"
             app:destination="@id/idReportMenu"/>
     </fragment>
 
-    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.PaymentTypeReport"
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.childs.reports.PaymentTypeReport"
         android:label="PaymentTypeReport"
         android:id="@+id/idPaymentTypeReport">
         <action android:id="@+id/action_payment_type_report_to_report_menu"
             app:destination="@id/idReportMenu"/>
     </fragment>
 
-    <fragment android:name="com.example.expensetrackerapplication.ui.main.fragments.reports.YearlySummaryReport"
+    <fragment android:name="com.example.expensetrackerapplication.ui.main.childs.reports.YearlySummaryReport"
         android:label="YearlyReport"
         android:id="@+id/idYearlyReport">
         <action android:id="@+id/action_yearly_report_to_report_menu"

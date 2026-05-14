@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.main.fragments
+package com.example.expensetrackerapplication.ui.main.childs
 
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -106,7 +106,7 @@ class Dashboard : Fragment() {
             {
                 logger.logInfo(LOG_TAG,"Start Sync Work1")
                 Log.e("SYNC_WORKER","Start Sync Work Now1")
-                Global.startSyncWork(requireContext())
+                Global.startSyncWork(requireContext(),logger)
                 Log.e("SYNC_WORKER","Start Sync Work Now2")
                 logger.logInfo(LOG_TAG,"Start Sync Work2")
             }

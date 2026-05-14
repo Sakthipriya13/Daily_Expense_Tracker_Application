@@ -19,18 +19,20 @@ class AddInComeViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application)
 {
-    val incomeRepository : IncomeRepository
+    private lateinit var incomeRepository : IncomeRepository
 
     init{
-        var incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao,logger)
+        var incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        incomeDao?.let {
+            incomeRepository = IncomeRepository(incomeDao,logger)
+        }
     }
 
     //Date Field
-    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
+    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate(logger))
     var selectedDate : LiveData<String> = _selectedDate
 
-    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
+    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi(logger))
     var selectedDateUi : LiveData<String> = _selectedDateUi
 
     //Income
@@ -122,8 +124,8 @@ class AddInComeViewModel(
     {
         try{
 
-            _selectedDate.value = Global.fnGetCurrentDate()
-            _selectedDateUi.value = Global.fnGetCurrentDateUi()
+            _selectedDate.value = Global.fnGetCurrentDate(logger)
+            _selectedDateUi.value = Global.fnGetCurrentDateUi(logger)
             _income.value =""
         }
         catch (e: Exception)

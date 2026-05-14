@@ -18,12 +18,8 @@ import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.CurrentDayReportModel
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
-import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -33,20 +29,22 @@ class DayWiseReportViewModel(
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
-    val expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
     init {
-         val dao = AppDatabase.getdatabase(application).ExpenseDao()
-         expenseRepository= ExpenseRepository(dao,logger)
+         val dao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+         dao?.let {
+             expenseRepository= ExpenseRepository(dao,logger)
+         }
     }
     // Close Day Wise Report
     var _isClosed = MutableLiveData<Boolean>()
     var isClosed : LiveData<Boolean> = _isClosed
 
     // Date
-    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
+    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi(logger))
     var selectedDateUi : LiveData<String> = _selectedDateUi
 
-    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
+    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate(logger))
     var selectedDate : LiveData<String> = _selectedDate
 
 
@@ -87,8 +85,8 @@ class DayWiseReportViewModel(
         try
         {
             _isClosed.value=true
-            _selectedDateUi.value = Global.fnGetCurrentDateUi()
-            _selectedDate.value = Global.fnGetCurrentDate()
+            _selectedDateUi.value = Global.fnGetCurrentDateUi(logger)
+            _selectedDate.value = Global.fnGetCurrentDate(logger)
         }
         catch (e: Exception)
         {
@@ -150,7 +148,7 @@ class DayWiseReportViewModel(
                             expenseId = ex.expenseId,
                             categoryId= ex.expenseCategoryId,
                             catgeoryName= ex.expenseCategoryName,
-                            expenseAmt = Global.fnFormatFloatTwoDigits(ex.expenseAmt.toFloat() ?:0.00f),
+                            expenseAmt = Global.fnFormatFloatTwoDigits(ex.expenseAmt.toFloat() ?:0.00f,logger),
                             expenseRemarks = ex.expenseRemarks,
                             isDelete = if (ex.expenseStatus == Global.EXPENSE_STATUS_DELETED) "DELETED" else "NOT DELETED",
 
@@ -178,9 +176,9 @@ class DayWiseReportViewModel(
 
                     }
                     _expenseList.value = list
-                    _totalExpenseSummary.value= Global.fnFormatFloatTwoDigits(totalExpenseAmtSum)
-                    _addedExpenseSummary.value =Global.fnFormatFloatTwoDigits(addedExpenseAmtSum)
-                    _deletedExpenseSummary.value = Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum)
+                    _totalExpenseSummary.value= Global.fnFormatFloatTwoDigits(totalExpenseAmtSum,logger)
+                    _addedExpenseSummary.value =Global.fnFormatFloatTwoDigits(addedExpenseAmtSum,logger)
+                    _deletedExpenseSummary.value = Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum,logger)
 
                 }
                 else
@@ -231,7 +229,7 @@ class DayWiseReportViewModel(
 
                     delay(1000L)
                     
-                    var start = Global.fnGetCurrentTime()
+                    var start = Global.fnGetCurrentTime(logger)
 
                     var workBook = XSSFWorkbook()
                     var sheet = workBook.createSheet("DAY WISE REPORT")
@@ -243,19 +241,19 @@ class DayWiseReportViewModel(
                     sheet.setColumnWidth(4,20*256)
 
 
-                    val headerFont = Global.fnHeaderFont(workBook)
-                    val subHeaderFont = Global.fnHeaderFont(workBook)
-                    val summaryFont =  Global.fnSummaryFont(workBook)
+                    val headerFont = Global.fnHeaderFont(workBook,logger)
+                    val subHeaderFont = Global.fnHeaderFont(workBook,logger)
+                    val summaryFont =  Global.fnSummaryFont(workBook,logger)
                     //Header Style
-                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont)
+                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont,logger)
                     //Sub Header Style
-                    val subHeaderStyle = Global.fnHeaderStyle(workBook,subHeaderFont)
+                    val subHeaderStyle = Global.fnHeaderStyle(workBook,subHeaderFont,logger)
                     //Summary Style
-                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont)
+                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont,logger)
                     //Create Table Header Style
-                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook)
+                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook,logger)
                     //Create Table Date Style
-                    val dataStyle = Global.fnTableDateStyle(workBook)
+                    val dataStyle = Global.fnTableDateStyle(workBook,logger)
 
                     //Header Row
                     var headerRow = sheet.createRow(0)
@@ -283,7 +281,7 @@ class DayWiseReportViewModel(
 
                     var dateRow2 = sheet.createRow(3)
                     var dateCell20 = dateRow2.createCell(0)
-                    dateCell20.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi()}")
+                    dateCell20.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi(logger)}")
                     dateCell20.cellStyle=summaryStyle
 
                     sheet.addMergedRegion(
@@ -292,7 +290,7 @@ class DayWiseReportViewModel(
 
                     var timeRow = sheet.createRow(4)
                     var timeCell0 = timeRow.createCell(0)
-                    timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime()}")
+                    timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime(logger)}")
                     timeCell0.cellStyle=summaryStyle
 
 
@@ -377,7 +375,7 @@ class DayWiseReportViewModel(
                         dataCell4.cellStyle=dataStyle
 
                     }
-                    var exportResult = fnExportReportToDownloads(workBook,"DayWiseReport_${Global.fnGetCurrentDateUi()}_${Global.fnGetCurrentTime()}.xlsx")
+                    var exportResult = fnExportReportToDownloads(workBook,"DayWiseReport_${Global.fnGetCurrentDateUi(logger)}_${Global.fnGetCurrentTime(logger)}.xlsx")
                     if(exportResult)
                     {
                         _isExportLoading.value=false

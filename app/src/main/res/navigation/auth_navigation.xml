@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/splashScreen"
-        android:name="com.example.expensetrackerapplication.ui.auth.fragments.SplashScreen"
+        android:name="com.example.expensetrackerapplication.ui.auth.Childs.SplashScreen"
         android:label="SplashScreen">
         <action
             android:id="@+id/action_splash_to_login"
@@ -17,7 +17,7 @@
     <fragment
         android:id="@+id/loginScreen"
         android:label="LoginScreen"
-        android:name="com.example.expensetrackerapplication.ui.auth.fragments.Login">
+        android:name="com.example.expensetrackerapplication.ui.auth.Childs.Login">
 
         <action
             android:id="@+id/action_login_to_signup"
@@ -26,7 +26,7 @@
 
     <fragment
         android:id="@+id/signUpScreen"
-        android:name="com.example.expensetrackerapplication.ui.auth.fragments.SignUp"
+        android:name="com.example.expensetrackerapplication.ui.auth.Childs.SignUp"
         android:label="SignUpScreen">
         <action
             android:id="@+id/action_signup_to_login"

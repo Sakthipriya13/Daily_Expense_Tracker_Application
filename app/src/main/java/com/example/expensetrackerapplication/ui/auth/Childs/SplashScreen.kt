@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.auth.fragments
+package com.example.expensetrackerapplication.ui.auth.Childs
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

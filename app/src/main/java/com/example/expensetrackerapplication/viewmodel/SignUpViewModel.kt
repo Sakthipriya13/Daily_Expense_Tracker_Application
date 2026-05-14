@@ -22,15 +22,18 @@ class SignUpViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application)
 {
-    var userRepository: UserRepository
-    var categoryRepository : CategoryRepository
+    private lateinit var userRepository: UserRepository
+    private lateinit var categoryRepository : CategoryRepository
 
     init {
-        val userDao= AppDatabase.getdatabase(application).userDao()
-        userRepository= UserRepository(userDao,application,logger)
-
-        val categoryDao = AppDatabase.getdatabase(application).CategoryDao()
-        categoryRepository= CategoryRepository(categoryDao,logger)
+        val userDao= AppDatabase.getdatabase(application,logger)?.userDao()
+        userDao?.let {
+            userRepository= UserRepository(userDao,application,logger)
+        }
+        val categoryDao = AppDatabase.getdatabase(application,logger)?.CategoryDao()
+        categoryDao?.let {
+            categoryRepository= CategoryRepository(categoryDao,logger)
+        }
     }
 
     //User Name Field
@@ -126,12 +129,10 @@ class SignUpViewModel(
                         _insertStatus.value = ResultState1.fail(R.string.signup_EmailFieldEmpty)
                     }
 
-                    Global.fnIsEmailValid(email.value) == false -> {
+                    Global.fnIsEmailValid(email.value,logger) == false -> {
                         _email.value = ""
                         _insertStatus.value = ResultState1.fail(R.string.signup_InvalidEmail)
                     }
-
-
                     isEmailExists(email.value) == true ->{
                         _email.value = ""
                         _insertStatus.value = ResultState1.fail(R.string.signup_AlreadyEmailWasUsed)
@@ -148,7 +149,7 @@ class SignUpViewModel(
 
                     else -> {
                         _isLoading.value=true
-                        val isNetworkAvail = Global.isNetworkAvailable(application)
+                        val isNetworkAvail = Global.isNetworkAvailable(application,logger)
                         if(isNetworkAvail)
                         {
                             Log.i("INTERNET","Internet was connected, User Creation Started")
@@ -182,7 +183,7 @@ class SignUpViewModel(
                     !name.value.isNullOrBlank() &&
                     !mobileNo.value.isNullOrBlank() &&
                     !email.value.isNullOrBlank() &&
-                    Global.fnIsEmailValid(email.value)==true &&
+                    Global.fnIsEmailValid(email.value,logger)==true &&
                     !password.value.isNullOrBlank()
                 ) {
                     var usersCount = userRepository.fnUsersCount()
@@ -193,7 +194,7 @@ class SignUpViewModel(
                         userEmail = email.value,
                         userPassword = password.value,
                         userId = usersCount + 1,
-                        signUpDate = Global.fnGetCurrentDate(),
+                        signUpDate = Global.fnGetCurrentDate(logger),
                         cloudId = "",
                         isSynced = 0
                     )
@@ -210,7 +211,7 @@ class SignUpViewModel(
                                 categoryId = 0,
                                 categoryName = it,
                                 userId = sUserId,
-                                signUpDate = Global.fnGetCurrentDate(),
+                                signUpDate = Global.fnGetCurrentDate(logger),
                                 cloudId = Global.cloudUserId ?: "",
                                 isSynced = 0
                             )

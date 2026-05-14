@@ -16,11 +16,13 @@ class MainViewModel(
 {
 
     // User Repository Variable Initialization
-    private  var userRepository  : UserRepository
+    private lateinit var userRepository  : UserRepository
 
     init{
-        var userDao = AppDatabase.getdatabase(application).userDao()
-        userRepository= UserRepository(userDao,application,log)
+        var userDao = AppDatabase.getdatabase(application,log)?.userDao()
+        userDao?.let {
+            userRepository= UserRepository(userDao,application,log)
+        }
     }
 
     // Logout Status Variable Initialization

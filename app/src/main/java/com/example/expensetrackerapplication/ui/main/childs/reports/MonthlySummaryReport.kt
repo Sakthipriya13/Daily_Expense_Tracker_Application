@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.main.fragments.reports
+package com.example.expensetrackerapplication.ui.main.childs.reports
 
 import android.app.AlertDialog
 import android.content.Context
@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.ui.graphics.LinearGradient
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -329,11 +328,16 @@ class MonthlyReport : Fragment() {
                         fnShowMessage(
                             getString(status.message),
                             requireContext(),
-                            R.drawable.bg_success
+                            R.drawable.bg_success,
+                            logger,
+                            LOG_TAG
                         )
                     }
                     is ResultState1.fail -> {
-                        fnShowMessage(getString(status.message), requireContext(), R.drawable.error_bg)
+                        fnShowMessage(getString(status.message), requireContext(),
+                            R.drawable.error_bg,
+                            logger,
+                            LOG_TAG)
                     }
                 }
             }
@@ -566,9 +570,15 @@ class MonthlySummaryReportAdapter(applicationContext: Context) : RecyclerView.Ad
     }
 
     inner class ListViewHolder(val binding : YearlySummaryReportListItemViewBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(ob : ExpenseDetailsPerMonth){
-            binding.expense = ob
-            binding.executePendingBindings()
+        fun bind(ob : ExpenseDetailsPerMonth)
+        {
+            try {
+                binding.expense = ob
+                binding.executePendingBindings()
+            }
+            catch (e: Exception){
+                logger.logError(LOG_TAG,"Bind: ${e.message}")
+            }
         }
     }
 

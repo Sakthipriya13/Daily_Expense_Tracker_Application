@@ -18,11 +18,13 @@ class ForgetViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
-    var userRepository : UserRepository
+    private lateinit var userRepository : UserRepository
 
     init {
-        var userDao = AppDatabase.getdatabase(application).userDao()
-        userRepository = UserRepository(userDao,application,logger)
+        var userDao = AppDatabase.getdatabase(application,logger)?.userDao()
+        userDao?.let {
+            userRepository = UserRepository(userDao,application,logger)
+        }
     }
 
     //Email Field
@@ -78,7 +80,7 @@ class ForgetViewModel(
                     _resetStatus.value=ResultState1.fail(R.string.forget_EmailFieldEmpty)
                 }
 
-                Global.fnIsEmailValid(email.value) == false -> {
+                Global.fnIsEmailValid(email.value,logger) == false -> {
                     _email.value = ""
                     _resetStatus.value = ResultState1.fail(R.string.forget_InvalidEmail)
                 }

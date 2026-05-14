@@ -22,15 +22,19 @@ class DashBoardViewModel(
 {
 
     // Expense And Income Repository Variable Initialization
-    private var newExpenseRepository : ExpenseRepository
-    private var incomeRepository: IncomeRepository
+    private lateinit var newExpenseRepository : ExpenseRepository
+    private lateinit var incomeRepository: IncomeRepository
     
     init{
-        val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        newExpenseRepository = ExpenseRepository(expenseDao,logger)
-        
-        val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao,logger)
+        val expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            newExpenseRepository = ExpenseRepository(expenseDao,logger)
+        }
+
+        val incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        incomeDao?.let {
+            incomeRepository = IncomeRepository(incomeDao,logger)
+        }
     }
 
     // Income Variable Initialization
@@ -87,7 +91,7 @@ class DashBoardViewModel(
         viewModelScope.launch {
             try{
 
-                Log.i(LOG_TAG,"Current Month: ${Global.fnGetCurrentMonth()}")
+                Log.i(LOG_TAG,"Current Month: ${Global.fnGetCurrentMonth(logger)}")
 
                 _isLoading.postValue(true)
 
@@ -97,27 +101,27 @@ class DashBoardViewModel(
 
                 _clickBtnThisMonth.postValue(true)
                 _clickBtnThisYear.postValue(false)
-                var income = incomeRepository.fnGetIncomePerMonth(Global.fnGetCurrentMonth())
-                var expense = newExpenseRepository.fnGetMonthSummary(Global.fnGetCurrentMonth())
+                var income = incomeRepository.fnGetIncomePerMonth(Global.fnGetCurrentMonth(logger))
+                var expense = newExpenseRepository.fnGetMonthSummary(Global.fnGetCurrentMonth(logger))
                 var balance = income-expense
 
                 Log.i("INCOME & EXPENSE & BALANCE DETAILS FOR CUR MONTH","Income:$income & Expense:$expense & Balance:$balance")
 
                 if(income != 0.0f){
-                    _income.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _income.postValue(Global.fnFormatFloatTwoDigits(income,logger))
                 }
                 if(expense != 0.0f){
-                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense,logger))
                 }
                 if(balance != 0.0f){
-                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
                 else{
                     _balance.postValue(0.00f.toString())
                 }
 
 
-                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerMonth(Global.fnGetCurrentMonth())
+                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerMonth(Global.fnGetCurrentMonth(logger))
                 var p_ChartList : MutableList<PaymentTypeChartModel> = mutableListOf()
                 if(p_ChartRes.isNotEmpty()){
                     p_ChartRes.forEach { ob ->
@@ -156,24 +160,24 @@ class DashBoardViewModel(
 
                 _clickBtnThisYear.postValue(true)
                 _clickBtnThisMonth.postValue(false)
-                val income = incomeRepository.fnGetIncomePerYear(Global.fnGetCurrentYear())
-                val expense = newExpenseRepository.fnGetYearSummary(Global.fnGetCurrentYear())
+                val income = incomeRepository.fnGetIncomePerYear(Global.fnGetCurrentYear(logger))
+                val expense = newExpenseRepository.fnGetYearSummary(Global.fnGetCurrentYear(logger))
                 val balance = income-expense
 
                 if(income != 0.0f){
-                    _income.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _income.postValue(Global.fnFormatFloatTwoDigits(income,logger))
                 }
                 if(expense != 0.0f){
-                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expense.postValue(Global.fnFormatFloatTwoDigits(expense,logger))
                 }
                 if(balance != 0.0f){
-                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
                 else{
                     _balance.postValue(0.00f.toString())
                 }
 
-                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerYear(Global.fnGetCurrentYear())
+                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerYear(Global.fnGetCurrentYear(logger))
                 var p_ChartList : MutableList<PaymentTypeChartModel> = mutableListOf()
                 if(p_ChartRes.isNotEmpty()){
                     p_ChartRes.forEach { ob ->
@@ -204,7 +208,7 @@ class DashBoardViewModel(
     fun fnGetCateDetailsPerDay(){
         viewModelScope.launch {
             try{
-                var res= newExpenseRepository.fnGetCateDetailsPerDay(Global.fnGetCurrentDate())
+                var res= newExpenseRepository.fnGetCateDetailsPerDay(Global.fnGetCurrentDate(logger))
                 var list : MutableList<CategoryChartModel> = mutableListOf()
                 if (res.isNotEmpty()) {
                     res.forEach { ob ->

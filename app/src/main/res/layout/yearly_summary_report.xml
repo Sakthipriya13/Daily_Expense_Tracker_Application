@@ -12,7 +12,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.fragments.reports.YearlySummaryReport"
+        tools:context=".ui.main.childs.reports.YearlySummaryReport"
         >
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

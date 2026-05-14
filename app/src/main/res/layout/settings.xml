@@ -17,7 +17,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".ui.main.fragments.Settings"
+            tools:context=".ui.main.childs.Settings"
             android:fillViewport="true"
             android:padding="0dp"
             android:clipToPadding="false">

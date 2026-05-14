@@ -19,12 +19,13 @@ class ChangePasswordViewModel(
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     //User Repository Variable
-    private var userRepository : UserRepository
+    private lateinit var userRepository : UserRepository
 
     init{
-        var userDao = AppDatabase.getdatabase(application).userDao()
-        userRepository = UserRepository(userDao,application,logger)
-
+        var userDao = AppDatabase.getdatabase(application,logger)?.userDao()
+        userDao?.let {
+            userRepository = UserRepository(userDao,application,logger)
+        }
     }
 
     //Current Password

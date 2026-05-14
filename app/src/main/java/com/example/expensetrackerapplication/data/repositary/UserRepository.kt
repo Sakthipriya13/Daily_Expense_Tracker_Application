@@ -25,6 +25,10 @@ class UserRepository(
     val firebaseAuth = FirebaseAuth.getInstance()
     var fireStore = FirebaseFirestore.getInstance()
 
+    var incomeInsertStatus = emptyList<Long>()
+    var expenseInsertStatus = emptyList<Long>()
+    var categoryInsertStatus = emptyList<Long>()
+
     suspend fun fnGetSignUpUserId(email: String?):Int
     {
         return try {
@@ -256,73 +260,81 @@ class UserRepository(
                 Log.i("STORE USER DETAILS", "Store userDetails Error: $userInsertStatus")
 
             }
+            val catDao = AppDatabase.getdatabase(application,logger)?.CategoryDao()
+            catDao?.let {
+                val caterpository = CategoryRepository(catDao,logger)
+                var categoryDoc = fireStore.collection("ExpenseTrackerUser")
+                    .document(Global.cloudUserId)
+                    .collection("Categories")
+                    .get()
+                    .await()
+                var categoryList = categoryDoc.toObjects(CategoryEntitty::class.java)
 
-            val catDao = AppDatabase.getdatabase(application).CategoryDao()
-            val caterpository = CategoryRepository(catDao,logger)
-
-            var categoryDoc = fireStore.collection("ExpenseTrackerUser")
-                .document(Global.cloudUserId)
-                .collection("Categories")
-                .get()
-                .await()
-            var categoryList = categoryDoc.toObjects(CategoryEntitty::class.java)
-
-            Log.i("CATEGORY DETAILS", "Category Details: $categoryList")
-            for(cat in categoryList){
-                cat.isSynced = 1
-            }
-            var categoryInsertStatus = caterpository.fnInsertAllCategoryDb(categoryList)
-            if(categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it != -1L })
-            {
-                Log.i("STORE CATEGORY DETAILS", "Store Category Details: Success")
-            }
-            else
-            {
-                Log.i("STORE CATEGORY DETAILS", "Store Category Details: Fail")
-            }
-
-            val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-            val expenserpository = ExpenseRepository(expenseDao,logger)
-
-            var expenseDoc = fireStore.collection("ExpenseTrackerUser")
-                .document(Global.cloudUserId)
-                .collection("Expenses")
-                .get()
-                .await()
-            var expenseList = expenseDoc.toObjects(ExpenseEntity::class.java)
-            for(ex in expenseList){
-                ex.isSynced = 1
-            }
-            var expenseInsertStatus = expenserpository.fnInsertAllExpense(expenseList)
-            if(expenseInsertStatus.isNotEmpty() && expenseInsertStatus.all { it != -1L })
-            {
-                Log.i("STORE EXPENSE DETAILS", "Store Expense Details: Success")
-            }
-            else
-            {
-                Log.i("STORE EXPENSE DETAILS", "Store Expense Details: Fail")
+                Log.i("CATEGORY DETAILS", "Category Details: $categoryList")
+                for(cat in categoryList){
+                    cat.isSynced = 1
+                }
+                categoryInsertStatus = caterpository.fnInsertAllCategoryDb(categoryList)
+                if(categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it != -1L })
+                {
+                    Log.i("STORE CATEGORY DETAILS", "Store Category Details: Success")
+                }
+                else
+                {
+                    logger.logError(LOG_TAG,"Store Category Details: Fail")
+                    Log.i("STORE CATEGORY DETAILS", "Store Category Details: Fail")
+                }
             }
 
-            val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-            val incomerpository = IncomeRepository(incomeDao,logger)
 
-            var incomeDoc = fireStore.collection("ExpenseTrackerUser")
-                .document(Global.cloudUserId)
-                .collection("Incomes")
-                .get()
-                .await()
-            var incomeList = incomeDoc.toObjects(IncomeEntity::class.java)
-            for(income in incomeList){
-                income.isSynced = 1
+            val expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+            expenseDao?.let {
+                val expenserpository = ExpenseRepository(expenseDao,logger)
+                var expenseDoc = fireStore.collection("ExpenseTrackerUser")
+                    .document(Global.cloudUserId)
+                    .collection("Expenses")
+                    .get()
+                    .await()
+                var expenseList = expenseDoc.toObjects(ExpenseEntity::class.java)
+                for(ex in expenseList){
+                    ex.isSynced = 1
+                }
+                expenseInsertStatus = expenserpository.fnInsertAllExpense(expenseList)
+                if(expenseInsertStatus.isNotEmpty() && expenseInsertStatus.all { it != -1L })
+                {
+                    Log.i("STORE EXPENSE DETAILS", "Store Expense Details: Success")
+                }
+                else
+                {
+                    logger.logError(LOG_TAG,"Store Expense Details: Fail")
+                    Log.i("STORE EXPENSE DETAILS", "Store Expense Details: Fail")
+                }
             }
-            var incomeInsertStatus = incomerpository.fnInsertAllIncomes(incomeList)
-            if(incomeInsertStatus.isNotEmpty() && incomeInsertStatus.all { it != -1L })
-            {
-                Log.i("STORE INCOME DETAILS", "Store INCOME Details: Success")
-            }
-            else
-            {
-                Log.i("STORE INCOME DETAILS", "Store INCOME Details: Fail")
+
+            val incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+            incomeDao?.let {
+                val incomerpository = IncomeRepository(incomeDao,logger)
+
+                var incomeDoc = fireStore.collection("ExpenseTrackerUser")
+                    .document(Global.cloudUserId)
+                    .collection("Incomes")
+                    .get()
+                    .await()
+                var incomeList = incomeDoc.toObjects(IncomeEntity::class.java)
+                for(income in incomeList){
+                    income.isSynced = 1
+                }
+                incomeInsertStatus = incomerpository.fnInsertAllIncomes(incomeList)
+                if(incomeInsertStatus.isNotEmpty() && incomeInsertStatus.all { it != -1L })
+                {
+                    Log.i("STORE INCOME DETAILS", "Store INCOME Details: Success")
+                }
+                else
+                {
+                    logger.logError(LOG_TAG,"Store INCOME Details: Fail")
+                    Log.i("STORE INCOME DETAILS", "Store INCOME Details: Fail")
+                }
+
             }
 
             if(incomeInsertStatus.isNotEmpty() && incomeInsertStatus.all { it != -1L } &&

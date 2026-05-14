@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.main.fragments
+package com.example.expensetrackerapplication.ui.main.childs
 
 import android.app.AlertDialog
 import android.content.Context
@@ -169,10 +169,10 @@ class Settings : Fragment()
         }
 
         // Datastore Variables Initialization
-        loginDataStore= LoginDataStore(requireContext())
-        languageDataStore= LanguageDataStore(requireContext())
-        themeColorDataStore = ThemeColorDataStore(requireContext())
-        themeDataStore = ThemeDataStore(requireContext())
+        loginDataStore= LoginDataStore(requireContext(),logger)
+        languageDataStore= LanguageDataStore(requireContext(),logger)
+        themeColorDataStore = ThemeColorDataStore(requireContext(),logger)
+        themeDataStore = ThemeDataStore(requireContext(),logger)
 
 //        settingsViewModel.fnGetUnSyncedcategories()
 //        settingsViewModel.fnGetDefaultCategories()
@@ -305,7 +305,7 @@ class Settings : Fragment()
                     is ResultState1.success ->{}
                     is ResultState1.fail ->{
                         settingsViewModel._isLoading.value = false
-                        fnShowMessage(getString(isAvailable.message),requireContext(),R.drawable.error_bg)
+                        fnShowMessage(getString(isAvailable.message),requireContext(),R.drawable.error_bg,logger,LOG_TAG)
                     }
                 }
             }
@@ -372,11 +372,11 @@ class Settings : Fragment()
                     when(state){
                         is ResultState1.success ->
                         {
-                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
                         }
                         is ResultState1.fail ->
                         {
-                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg,logger,LOG_TAG)
 
                             if(state.message == R.string.set_NewCategoryFieldEmpty){
                                 settingsBinding.idECat.isFocusable = true
@@ -398,11 +398,11 @@ class Settings : Fragment()
                 state?.let {
                     when(state){
                         is ResultState1.success -> {
-                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
                         }
                         is ResultState1.fail ->
                         {
-                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg,logger,LOG_TAG)
                         }
                     }
                 }

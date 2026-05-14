@@ -14,13 +14,14 @@ import com.example.expensetrackerapplication.utils.ResultState1
 class SplitViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application = application) {
-    var expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
 
     init {
 
-        var expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao,logger)
-
+        var expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository = ExpenseRepository(expenseDao,logger)
+        }
     }
 
     // Total Amount Variable
@@ -101,7 +102,7 @@ class SplitViewModel(
             val total = totAmt.value?.toFloatOrNull() ?: 0f
             val cash = amtInCash.value?.toFloatOrNull() ?: 0f
 
-            val remaining = Global.fnFormatFloatTwoDigits(total - cash)
+            val remaining = Global.fnFormatFloatTwoDigits((total - cash),logger)
 
             _amtInCard.value = if (remaining.toFloat() > 0) remaining else "0.00"
 
@@ -120,7 +121,7 @@ class SplitViewModel(
             val cash = amtInCash.value?.toFloatOrNull() ?: 0f
             val card = amtInCard.value?.toFloatOrNull() ?: 0f
 
-            var remaining = Global.fnFormatFloatTwoDigits(total-cash-card)
+            var remaining = Global.fnFormatFloatTwoDigits((total-cash-card),logger)
 
             _amtInUpi.value = if (remaining.toFloat() > 0) remaining else "0.00"
         }

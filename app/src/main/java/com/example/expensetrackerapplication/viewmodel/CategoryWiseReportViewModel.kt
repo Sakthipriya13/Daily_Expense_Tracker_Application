@@ -29,18 +29,20 @@ class CategoryWiseReportViewModel(
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense Repository Variable Initialization
-    private var expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
 
     init{
-        var expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao,logger)
+        var expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository = ExpenseRepository(expenseDao,logger)
+        }
     }
 
     // Date Variables Initialization
-    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate())
+    var _selectedDate = MutableLiveData<String>(Global.fnGetCurrentDate(logger))
     var selectedDate : LiveData<String> = _selectedDate
 
-    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi())
+    var _selectedDateUi = MutableLiveData<String>(Global.fnGetCurrentDateUi(logger))
     var selectedDateUi : LiveData<String> = _selectedDateUi
 
     // Category List Variable Initialization
@@ -147,7 +149,7 @@ class CategoryWiseReportViewModel(
 
                     delay(1000L)
 
-                    var start = Global.fnGetCurrentTime()
+                    var start = Global.fnGetCurrentTime(logger)
 
                     var workBook = XSSFWorkbook()
                     var sheet = workBook.createSheet("CATEGORY-WISE REPORT")
@@ -155,16 +157,16 @@ class CategoryWiseReportViewModel(
                     sheet.setColumnWidth(0,30*256)
                     sheet.setColumnWidth(1,20*256)
 
-                    val headerFont = Global.fnHeaderFont(workBook)
-                    val summaryFont =  Global.fnSummaryFont(workBook)
+                    val headerFont = Global.fnHeaderFont(workBook,logger)
+                    val summaryFont =  Global.fnSummaryFont(workBook,logger)
                     //Header Style
-                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont)
+                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont,logger)
                     //Summary Style
-                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont)
+                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont,logger)
                     //Create Table Header Style
-                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook)
+                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook,logger)
                     //Create Table Date Style
-                    val dataStyle = Global.fnTableDateStyle(workBook)
+                    val dataStyle = Global.fnTableDateStyle(workBook,logger)
 
                     //Header Row
                     var headerRow = sheet.createRow(0)
@@ -192,7 +194,7 @@ class CategoryWiseReportViewModel(
 
                     var dateRow2 = sheet.createRow(3)
                     var dateCell20 = dateRow2.createCell(0)
-                    dateCell20.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi()}")
+                    dateCell20.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi(logger)}")
                     dateCell20.cellStyle=summaryStyle
 
                     sheet.addMergedRegion(
@@ -201,7 +203,7 @@ class CategoryWiseReportViewModel(
 
                     var timeRow = sheet.createRow(4)
                     var timeCell0 = timeRow.createCell(0)
-                    timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime()}")
+                    timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime(logger)}")
                     timeCell0.cellStyle=summaryStyle
 
 
@@ -231,7 +233,7 @@ class CategoryWiseReportViewModel(
 
                     }
 
-                    val result = fnExportReportToDownloads(workBook,"CategoryWiseReport_${selectedDate.value}_${Global.fnGetCurrentTime()}.xlsx")
+                    val result = fnExportReportToDownloads(workBook,"CategoryWiseReport_${selectedDate.value}_${Global.fnGetCurrentTime(logger)}.xlsx")
 
                     if(result){
                         _exportStatus.value = ResultState1.success(R.string.cateReport_ExportSuccess)

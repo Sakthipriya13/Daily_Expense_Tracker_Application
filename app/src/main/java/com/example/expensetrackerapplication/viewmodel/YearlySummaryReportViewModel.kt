@@ -31,17 +31,21 @@ class YearlySummaryReportViewModel(
     private val logger: FileLogger) : AndroidViewModel(application = application)
 {
     // Expense And Income Repository Variable Initialization
-    val expenseRepository : ExpenseRepository
+    private lateinit var expenseRepository : ExpenseRepository
 
-    private var incomeRepository: IncomeRepository
+    private lateinit var incomeRepository: IncomeRepository
 
 
     init{
-        val expenseDao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository = ExpenseRepository(expenseDao,logger)
+        val expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository = ExpenseRepository(expenseDao,logger)
+        }
 
-        val incomeDao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository = IncomeRepository(incomeDao,logger)
+        val incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        incomeDao?.let {
+            incomeRepository = IncomeRepository(incomeDao,logger)
+        }
     }
 
     // Income Amount Variable Initialization
@@ -61,7 +65,7 @@ class YearlySummaryReportViewModel(
     var isClosed : LiveData<Boolean> = _isClosed
 
     // Selected Year Variable Initialization
-    var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear())
+    var _selectedYear = MutableLiveData<String>(Global.fnGetCurrentYear(logger))
     var selectedYear : LiveData<String> = _selectedYear
 
     // Yearly Summary List Variable Initialization
@@ -129,15 +133,15 @@ class YearlySummaryReportViewModel(
 
                 if(income != 0.0f)
                 {
-                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income))
+                    _incomeAmt.postValue(Global.fnFormatFloatTwoDigits(income,logger))
                 }
                 if(expense != 0.0f)
                 {
-                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense))
+                    _expenseAmt.postValue(Global.fnFormatFloatTwoDigits(expense,logger))
                 }
                 if(balance != 0.0f)
                 {
-                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance)))
+                    _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
 
                 var resList = expenseRepository.fnGetExpenseDetailsPerYear(year)
@@ -211,7 +215,7 @@ class YearlySummaryReportViewModel(
 
                     delay(1000L)
 
-                    var start = Global.fnGetCurrentTime()
+                    var start = Global.fnGetCurrentTime(logger)
 
                     var workBook = XSSFWorkbook()
                     var sheet = workBook.createSheet("YEARLY SUMMARY REPORT")
@@ -221,16 +225,16 @@ class YearlySummaryReportViewModel(
                     sheet.setColumnWidth(2,30*256)
 
 
-                    val headerFont = Global.fnHeaderFont(workBook)
-                    val summaryFont =  Global.fnSummaryFont(workBook)
+                    val headerFont = Global.fnHeaderFont(workBook,logger)
+                    val summaryFont =  Global.fnSummaryFont(workBook,logger)
                     //Header Style
-                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont)
+                    val headerStyle = Global.fnHeaderStyle(workBook,headerFont,logger)
                     //Summary Style
-                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont)
+                    val summaryStyle = Global.fnSummaryStyle(workBook,summaryFont,logger)
                     //Create Table Header Style
-                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook)
+                    val tableHeaderStyle = Global.fnTableHeaderStyle(workBook,logger)
                     //Create Table Date Style
-                    val dataStyle = Global.fnTableDateStyle(workBook)
+                    val dataStyle = Global.fnTableDateStyle(workBook,logger)
 
                     //Header Row
                     var headerRow = sheet.createRow(0)
@@ -257,7 +261,7 @@ class YearlySummaryReportViewModel(
 
                     var dateRow = sheet.createRow(3)
                     var dateCell1 = dateRow.createCell(0)
-                    dateCell1.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi()}")
+                    dateCell1.setCellValue("EXPORT DATE:    ${Global.fnGetCurrentDateUi(logger)}")
                     dateCell1.cellStyle=summaryStyle
                     sheet.addMergedRegion(
                         CellRangeAddress(3,3,0,4)
@@ -265,7 +269,7 @@ class YearlySummaryReportViewModel(
 
                     var timeRow = sheet.createRow(4)
                     var dateCell2 = timeRow.createCell(0)
-                    dateCell2.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime()}")
+                    dateCell2.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime(logger)}")
                     dateCell2.cellStyle=summaryStyle
                     sheet.addMergedRegion(
                         CellRangeAddress(4,4,0,4)
@@ -337,7 +341,7 @@ class YearlySummaryReportViewModel(
 
                     }
 
-                    var result =  fnExportReportToDownloads(workBook,"YearlySummaryReport${Global.fnGetCurrentDate()}_${Global.fnGetCurrentTime()}.xlsx")
+                    var result =  fnExportReportToDownloads(workBook,"YearlySummaryReport${Global.fnGetCurrentDate(logger)}_${Global.fnGetCurrentTime(logger)}.xlsx")
 
                     if(result == true)
                     {

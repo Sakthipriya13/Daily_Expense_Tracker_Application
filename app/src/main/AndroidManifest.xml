@@ -20,7 +20,7 @@
         android:theme="@style/Theme.App.Color2"
         android:requestLegacyExternalStorage="true">
         <activity
-            android:name=".ui.auth.Auth"
+            android:name=".ui.auth.parent.Auth"
             android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden" >
             <intent-filter>
@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.main.Main"
+            android:name=".ui.main.parent.Main"
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden" >
         </activity>

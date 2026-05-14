@@ -1,4 +1,4 @@
-package com.example.expensetrackerapplication.ui.auth.fragments
+package com.example.expensetrackerapplication.ui.auth.Childs
 
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +17,7 @@ import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
+import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -174,11 +175,23 @@ class SignUp : Fragment() {
                     is ResultState1.success -> {
                         Log.d("DATA_INSERT_STATUS", "Data Successfully Inserted")
                         findNavController().navigate(R.id.action_signup_to_login)
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success)
+                        fnShowMessage(
+                            getString(state.message),
+                            requireContext(),
+                            R.drawable.bg_success,
+                            logger,
+                            LOG_TAG
+                        )
                     }
                     is ResultState1.fail -> {
                         Log.d("DATA_INSERT_STATUS", "Data Insterted Failed")
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg)
+                        fnShowMessage(
+                            getString(state.message),
+                            requireContext(),
+                            R.drawable.error_bg,
+                            logger,
+                            LOG_TAG
+                        )
 
                         if(state.message == R.string.signup_AllFieldsEmpty){
                             signUpDataBinding.idUserName.isFocusable=true

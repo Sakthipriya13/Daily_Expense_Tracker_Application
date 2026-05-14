@@ -39,24 +39,30 @@ class SettingsViewModel(
     application: Application,
     private val logger: FileLogger) : AndroidViewModel(application)
 {
-    var categoryRepository : CategoryRepository
-    var expenseRepository : ExpenseRepository
-    var incomeRepository : IncomeRepository
+    private lateinit var categoryRepository : CategoryRepository
+    private lateinit var expenseRepository : ExpenseRepository
+    private lateinit var incomeRepository : IncomeRepository
     val languageDataStore: LanguageDataStore
     val themeColorDataStore : ThemeColorDataStore
     val themeDataStore: ThemeDataStore
 
     init {
-        var dao = AppDatabase.getdatabase(application).CategoryDao()
-        categoryRepository= CategoryRepository(dao,logger)
-        var exdao = AppDatabase.getdatabase(application).ExpenseDao()
-        expenseRepository= ExpenseRepository(exdao,logger)
-        var indao = AppDatabase.getdatabase(application).IncomeDao()
-        incomeRepository= IncomeRepository(indao,logger)
+        var dao = AppDatabase.getdatabase(application,logger)?.CategoryDao()
+        dao?.let {
+            categoryRepository= CategoryRepository(dao,logger)
+        }
+        var exdao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        exdao?.let {
+            expenseRepository= ExpenseRepository(exdao,logger)
+        }
+        var indao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        indao?.let {
+            incomeRepository= IncomeRepository(indao,logger)
+        }
 
-        languageDataStore= LanguageDataStore(application)
-        themeColorDataStore = ThemeColorDataStore(application)
-        themeDataStore = ThemeDataStore(application)
+        languageDataStore= LanguageDataStore(application,logger)
+        themeColorDataStore = ThemeColorDataStore(application,logger)
+        themeDataStore = ThemeDataStore(application,logger)
 
     }
 
@@ -159,7 +165,7 @@ class SettingsViewModel(
         viewModelScope.launch {
             try
             {
-                var expenseDate = Global.fnGetCurrentDate()
+                var expenseDate = Global.fnGetCurrentDate(logger)
                 var newCategory = CategoryEntitty(
                     userId = Global.lUserId,
                     cloudId = Global.cloudUserId ?:"",
@@ -253,7 +259,7 @@ class SettingsViewModel(
 
                 _isLoading.value = true
 
-                val isNetworkAvail = Global.isNetworkAvailable(application)
+                val isNetworkAvail = Global.isNetworkAvailable(application,logger)
 
                 if(isNetworkAvail)
                 {
@@ -439,7 +445,7 @@ class SettingsViewModel(
         {
             Log.i(LOG_TAG,"Start Export3")
 
-            var isNetworkAvailable = Global.isNetworkAvailable(application)
+            var isNetworkAvailable = Global.isNetworkAvailable(application,logger)
 
 //            if(isNetworkAvailable)
 //            {
@@ -617,6 +623,4 @@ class SettingsViewModel(
             }
         }
     }
-
-
 }

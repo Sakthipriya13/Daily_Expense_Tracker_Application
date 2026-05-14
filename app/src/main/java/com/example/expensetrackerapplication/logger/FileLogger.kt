@@ -64,6 +64,7 @@ class FileLogger(private val context: Context) : Logger {
         }
         catch (e: Exception)
         {
+            log(Level.ERROR,"FILE_LOGGER","Error Writing Log: ${e.message}")
             Log.e("FILE_LOGGER", "Error Writing Log: ${e.message}")
         }
     }
