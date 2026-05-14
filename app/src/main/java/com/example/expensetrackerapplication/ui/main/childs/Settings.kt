@@ -326,7 +326,33 @@ class Settings : Fragment()
             }
             catch (e: Exception)
             {
+                settingsViewModel._isLoading.value = false
                 logger.logError(LOG_TAG,"Send Email Event: ${e.message}")
+            }
+        }
+
+        settingsViewModel.shareDataStatus.observe(viewLifecycleOwner){ state ->
+            try
+            {
+                state?.let {
+                    when(state){
+                        is ResultState1.success ->
+                        {
+                            settingsViewModel._isLoading.value = false
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
+                        }
+                        is ResultState1.fail ->
+                        {
+                            settingsViewModel._isLoading.value = false
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.error_bg,logger,LOG_TAG)
+                        }
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                settingsViewModel._isLoading.value = false
+                logger.logError(LOG_TAG,"Share Data Status: ${e.message}")
             }
         }
 

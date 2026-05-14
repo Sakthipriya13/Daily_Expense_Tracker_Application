@@ -22,6 +22,7 @@ import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.time.YearMonth
@@ -140,8 +141,13 @@ class MonthlySummaryViewModel(
                 _expenseAmt.postValue("0.00")
                 _balanceAmt.postValue("0.00")
 
-                var income = incomeRepository.fnGetIncomePerMonthAndYear(month,year)
-                var expense = expenseRepository.fnGetExpensePerMonthAndYear(month,year)
+                var income = withContext(Dispatchers.IO){
+                    incomeRepository.fnGetIncomePerMonthAndYear(month,year)
+                }
+                var expense = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetExpensePerMonthAndYear(month,year)
+                }
+
                 var balance = income-expense
 
                 if(income != 0.0f)
@@ -161,31 +167,32 @@ class MonthlySummaryViewModel(
                 val startDate = yearMonth.atDay(1).toString()
                 val endDate = yearMonth.atEndOfMonth().toString()
 
-                var resList = expenseRepository.fnGetExpenseDetailsPerMonth(month,year)
-
+                var resList = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetExpenseDetailsPerMonth(month,year)
+                }
                 var list : MutableList<ExpenseDetailsPerMonth> = mutableListOf<ExpenseDetailsPerMonth>()
-
                 if(resList.isNotEmpty()){
                     resList.forEach { ob ->
                         list.add(
                             ExpenseDetailsPerMonth(
                                 expenseDate = ob.expenseDate,
                                 transactionsCount = ob.transactionsCount,
-                                expenseSummaryAmt = ob.expenseSummaryAmt
+                                expenseSummaryAmt = Global.fnFormatFloatTwoDigits(ob.expenseSummaryAmt,logger).toFloat()
                             )
                         )
                     }
 
-                    _monthlySummaryReportList.value = list
+                    _monthlySummaryReportList.postValue(list)
                 }
                 else
                 {
-                    _monthlySummaryReportList.value = emptyList<ExpenseDetailsPerMonth>()
+                    _monthlySummaryReportList.postValue(emptyList<ExpenseDetailsPerMonth>())
                 }
 
             }
             catch(e : Exception)
             {
+                _monthlySummaryReportList.postValue(emptyList<ExpenseDetailsPerMonth>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Month: ${e.message}")
                 Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Month: ${e.message}")
             }
@@ -275,7 +282,7 @@ class MonthlySummaryViewModel(
 
                     var totalExpenseRow = sheet.createRow(7)
                     var totalExpenseCell0 = totalExpenseRow.createCell(0)
-                    totalExpenseCell0.setCellValue("INCOME:    ${incomeAmt.value}")
+                    totalExpenseCell0.setCellValue("INCOME:    ${Global.fnFormatFloatTwoDigits(incomeAmt.value?.toFloat(),logger)}")
                     totalExpenseCell0.cellStyle=summaryStyle
 
 
@@ -285,7 +292,7 @@ class MonthlySummaryViewModel(
 
                     var addedExpenseRow = sheet.createRow(8)
                     var addedExpenseCell0 = addedExpenseRow.createCell(0)
-                    addedExpenseCell0.setCellValue("EXPENSE:   ${expenseAmt.value}")
+                    addedExpenseCell0.setCellValue("EXPENSE:   ${Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger)}")
                     addedExpenseCell0.cellStyle=summaryStyle
 
 
@@ -295,7 +302,7 @@ class MonthlySummaryViewModel(
 
                     var deletedExpenseRow = sheet.createRow(9)
                     var deletedExpenseCell0 = deletedExpenseRow.createCell(0)
-                    deletedExpenseCell0.setCellValue("BALANCE:  ${balanceAmt.value}")
+                    deletedExpenseCell0.setCellValue("BALANCE:  ${Global.fnFormatFloatTwoDigits(balanceAmt.value?.toFloat(),logger)}")
                     deletedExpenseCell0.cellStyle=summaryStyle
 
                     sheet.addMergedRegion(
@@ -325,7 +332,7 @@ class MonthlySummaryViewModel(
                         dataCell1.setCellValue("${ob.transactionsCount}")
                         dataCell1.cellStyle=dataStyle
                         var dataCell2=dataRow.createCell(2)
-                        dataCell2.setCellValue("${ob.expenseSummaryAmt}")
+                        dataCell2.setCellValue(Global.fnFormatFloatTwoDigits(ob.expenseSummaryAmt,logger))
                         dataCell2.cellStyle=dataStyle
 
                     }
@@ -387,20 +394,20 @@ class MonthlySummaryViewModel(
 
     }
 
-    fun fnPreWarmExcelEngine()
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            try
-            {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
-            }
-        }
-    }
+//    fun fnPreWarmExcelEngine()
+//    {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try
+//            {
+//                val wb = XSSFWorkbook()
+//                wb.createSheet("warmup")
+//                wb.close()
+//            }
+//            catch (e: Exception)
+//            {
+//                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+//            }
+//        }
+//    }
 }

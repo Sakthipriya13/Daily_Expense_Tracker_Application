@@ -21,6 +21,7 @@ import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
@@ -77,6 +78,10 @@ class PaymentTypeReportViewModel(
     var _othersAmt = MutableLiveData<Float>(0.00f)
     var othersAmt : LiveData<Float> = _othersAmt
 
+    // Total Expense Variable Initialization
+    var _totalExpense = MutableLiveData<Float>(0.00f)
+    var totalExpense : LiveData<Float> = _totalExpense
+
     val LOG_TAG = "PAYMENT_TYPE_REPORT_VIEW_MODEL"
     
     fun isBack()
@@ -116,8 +121,11 @@ class PaymentTypeReportViewModel(
                 _cardAmt.postValue(0.00f)
                 _upiAmt.postValue(0.00f)
                 _othersAmt.postValue(0.00f)
+                _totalExpense.postValue(0.00f)
 
-                var res = expenseRepository.fnGetPaymentTypeAmtSummaryPerDay(date)
+                var res = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetPaymentTypeAmtSummaryPerDay(date)
+                }
                 var list : MutableList<PaymentTypeChartModel> = mutableListOf()
                 if(res.isNotEmpty())
                 {
@@ -125,16 +133,18 @@ class PaymentTypeReportViewModel(
                         list.add(
                             PaymentTypeChartModel(
                                 userId = ob.userId,
-                                paymentType_CashAmt=ob.paymentType_CashAmt,
-                                paymentType_CardAmt=ob.paymentType_CardAmt,
-                                paymentType_UpiAmt=ob.paymentType_UpiAmt,
-                                paymentType_OthersAmt=ob.paymentType_OthersAmt
+                                paymentType_CashAmt=Global.fnFormatFloatTwoDigits(ob.paymentType_CashAmt,logger).toFloat(),
+                                paymentType_CardAmt=Global.fnFormatFloatTwoDigits(ob.paymentType_CardAmt,logger).toFloat(),
+                                paymentType_UpiAmt= Global.fnFormatFloatTwoDigits(ob.paymentType_UpiAmt,logger).toFloat(),
+                                paymentType_OthersAmt= Global.fnFormatFloatTwoDigits(ob.paymentType_OthersAmt,logger).toFloat(),
+                                totalExpense = Global.fnFormatFloatTwoDigits(ob.totalExpense,logger).toFloat()
                             )
                         )
                         _cashAmt.postValue(ob.paymentType_CashAmt)
                         _cardAmt.postValue(ob.paymentType_CardAmt)
                         _upiAmt.postValue(ob.paymentType_UpiAmt)
                         _othersAmt.postValue(ob.paymentType_OthersAmt)
+                        _totalExpense.postValue(ob.totalExpense)
                     }
                     _paymentTypeList.postValue(list)
                 }
@@ -145,6 +155,7 @@ class PaymentTypeReportViewModel(
             }
             catch(e : Exception)
             {
+                _paymentTypeList.postValue(emptyList<PaymentTypeChartModel>())
                 logger.logError(LOG_TAG,"Get Payment Type List: ${e.message}")
                 Log.e(LOG_TAG,"Get Payment Type List: ${e.message}")
             }
@@ -214,19 +225,26 @@ class PaymentTypeReportViewModel(
                         CellRangeAddress(3,3,0,4)
                     )
 
-
                     var timeRow = sheet.createRow(4)
                     var timeCell0 = timeRow.createCell(0)
                     timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime(logger)}")
                     timeCell0.cellStyle=summaryStyle
 
-
                     sheet.addMergedRegion(
                         CellRangeAddress(4,4,0,4)
                     )
 
+                    var totalExpenseRow = sheet.createRow(5)
+                    var totalExpenseCell = totalExpenseRow.createCell(0)
+                    totalExpenseCell.setCellValue("TOTAL EXPENSE:    ${Global.fnFormatFloatTwoDigits(totalExpense.value,logger)}")
+                    totalExpenseCell.cellStyle=summaryStyle
+
+                    sheet.addMergedRegion(
+                        CellRangeAddress(5,5,0,4)
+                    )
+
                     //Table Header Row
-                    var tableHeaderRow = sheet.createRow(6)
+                    var tableHeaderRow = sheet.createRow(7)
                     var cell0 = tableHeaderRow.createCell(0)
                     cell0.setCellValue("PAYMENT TYPE")
                     cell0.cellStyle=tableHeaderStyle
@@ -235,40 +253,40 @@ class PaymentTypeReportViewModel(
                     cell1.cellStyle=tableHeaderStyle
 
                     //Table Data Row
-                    var dataRow4 = sheet.createRow(7)
+                    var dataRow4 = sheet.createRow(8)
                     var dataCell40=dataRow4.createCell(0)
                     dataCell40.setCellValue("Cash")
                     dataCell40.cellStyle=dataStyle
                     var dataCell41=dataRow4.createCell(1)
-                    dataCell41.setCellValue("${cashAmt.value}")
+                    dataCell41.setCellValue(Global.fnFormatFloatTwoDigits(cashAmt.value,logger))
                     dataCell41.cellStyle=dataStyle
 
                     //Table Data Row
-                    var dataRow5 = sheet.createRow(8)
+                    var dataRow5 = sheet.createRow(9)
                     var dataCell50=dataRow5.createCell(0)
                     dataCell50.setCellValue("Upi")
                     dataCell50.cellStyle=dataStyle
                     var dataCell51=dataRow5.createCell(1)
-                    dataCell51.setCellValue("${upiAmt.value}")
+                    dataCell51.setCellValue(Global.fnFormatFloatTwoDigits(upiAmt.value,logger))
                     dataCell51.cellStyle=dataStyle
 
                     //Table Data Row
-                    var dataRow6 = sheet.createRow(9)
+                    var dataRow6 = sheet.createRow(10)
                     var dataCell60=dataRow6.createCell(0)
                     dataCell60.setCellValue("Card")
                     dataCell60.cellStyle=dataStyle
                     var dataCell61=dataRow6.createCell(1)
-                    dataCell61.setCellValue("${cardAmt.value}")
+                    dataCell61.setCellValue(Global.fnFormatFloatTwoDigits(cardAmt.value,logger))
                     dataCell61.cellStyle=dataStyle
 
 
                     //Table Data Row
-                    var dataRow7 = sheet.createRow(10)
+                    var dataRow7 = sheet.createRow(11)
                     var dataCell70=dataRow7.createCell(0)
                     dataCell70.setCellValue("Others")
                     dataCell70.cellStyle=dataStyle
                     var dataCell71=dataRow7.createCell(1)
-                    dataCell71.setCellValue("${upiAmt.value}")
+                    dataCell71.setCellValue(Global.fnFormatFloatTwoDigits(othersAmt.value,logger))
                     dataCell71.cellStyle=dataStyle
 
                     var result = fnExportReportToDownloads(workBook,"PaymentTypeReport_${selectedDate.value}_${Global.fnGetCurrentTime(logger)}.xlsx")
@@ -286,7 +304,7 @@ class PaymentTypeReportViewModel(
             catch (e : Exception)
             {
                 _isExportLoading.value = false
-                _exportStatus.value = ResultState1.fail(R.string.paymentTypeReport_ExportFailed)
+                _exportStatus.value = ResultState1.fail(R.string.somethingWrong)
                 Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
                 logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
@@ -330,21 +348,21 @@ class PaymentTypeReportViewModel(
 
     }
 
-    fun fnPreWarmExcelEngine()
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            try
-            {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-            }
-        }
-    }
+//    fun fnPreWarmExcelEngine()
+//    {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try
+//            {
+//                val wb = XSSFWorkbook()
+//                wb.createSheet("warmup")
+//                wb.close()
+//            }
+//            catch (e: Exception)
+//            {
+//                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//            }
+//        }
+//    }
 
 }

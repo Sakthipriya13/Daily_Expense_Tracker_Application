@@ -13,7 +13,9 @@ import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.datastore.LoginDataStore
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginViewModel(
     application: Application,
@@ -102,11 +104,15 @@ class LoginViewModel(
 
                     else -> {
                         _isLoading.value=true
-                        _userDetailList.value=userRepository.fnGetUserDetailsBasedOnUserName(userName.value,userPassword.value)
+                        _userDetailList.value= withContext(Dispatchers.IO){
+                            userRepository.fnGetUserDetailsBasedOnUserName(userName.value,userPassword.value)
+                        }
                         var result= _userDetailList.value?.isNotEmpty()
                         if(result==false)
                         {
-                            var res = userRepository.fnLoginCloudAccount(userName.value,userPassword.value)
+                            var res = withContext(Dispatchers.IO){
+                                userRepository.fnLoginCloudAccount(userName.value,userPassword.value)
+                            }
                             if(res.isSuccess)
                             {
                                 _loginStatus.postValue(ResultState1.success(R.string.login_Success))
@@ -165,6 +171,13 @@ class LoginViewModel(
             }
             catch (e: Exception)
             {
+                Global.lUserId =-1
+                Global.lUserName=""
+                Global.lUserPassword=""
+                Global.lUserMobileNo=""
+                Global.lUssrEmail=""
+                _loginStatus.postValue(ResultState1.fail(R.string.somethingWrong))
+
                 logger.logError(LOG_TAG, "On Click Login Button Operation: ${e.message}")
             }
 

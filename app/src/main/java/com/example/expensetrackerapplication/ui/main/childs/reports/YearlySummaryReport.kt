@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +36,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
+import kotlinx.coroutines.launch
 import kotlin.collections.forEach
 
 // TODO: Rename parameter arguments, choose names that match
@@ -103,7 +105,9 @@ class YearlySummaryReport : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        yearlySummaryReportViewModel.fnPreWarmExcelEngine()
+        lifecycleScope.launch {
+            Global.fnPreWarmExcelEngine(logger)
+        }
 
         try
         {

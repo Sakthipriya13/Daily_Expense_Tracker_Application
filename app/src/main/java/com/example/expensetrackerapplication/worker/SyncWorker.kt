@@ -18,14 +18,14 @@ import kotlinx.coroutines.tasks.await
 
 class SyncWorker(
     val context: Context,
-    workerParams: WorkerParameters,
-    val logger : FileLogger
+    workerParams: WorkerParameters
 )
     : CoroutineWorker(
     context, workerParams
     )
 {
     val LOG_TAG = "SYNC_WORKER"
+    val logger : FileLogger = FileLogger(context.applicationContext)
 
     override suspend fun doWork(): Result {
         return try

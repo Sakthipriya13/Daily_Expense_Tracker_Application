@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +24,7 @@ import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.CategoryWiseReportViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -84,8 +86,9 @@ class CategoryWiseReport : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        categoryWiseReportViewModel.fnPreWarmExcelEngine()
-
+        lifecycleScope.launch {
+            Global.fnPreWarmExcelEngine(logger)
+        }
         try {
             categoryAdapter = CategoryAdapter(requireContext().applicationContext)
             categoryWiseReportBinding.idCategoryListView.adapter = categoryAdapter

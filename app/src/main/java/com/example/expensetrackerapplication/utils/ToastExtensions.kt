@@ -43,12 +43,14 @@ fun Fragment.fnShowMessage(msg: String, context: Context, bg: Int,logger: FileLo
 
         var toast = Toast(context.applicationContext).apply {
             duration = Toast.LENGTH_LONG
-            setGravity(Gravity.TOP,0,150)
+//            setGravity(Gravity.TOP,0,150)
             this.view =toastBinding.root
         }
         Log.i("TOAST_MESSAGE","Toast Message2")
 
         toast.show()
+
+//        Toast.makeText(context,msg, Toast.LENGTH_LONG).show()
 
         Log.i("TOAST_MESSAGE","Toast Message3")
 
@@ -74,14 +76,18 @@ fun AppCompatActivity.fnShowMessage(msg: String, context: Context, bg: Int,logge
 
         var toast = Toast(context.applicationContext).apply {
             duration = Toast.LENGTH_LONG
-            setGravity(Gravity.TOP,0,150)
+//            setGravity(Gravity.TOP,0,150)
             this.view =toastBinding.root
         }
         Log.i("TOAST_MESSAGE","Toast Message2")
 
         toast.show()
 
+//        Toast.makeText(context,msg, Toast.LENGTH_LONG).show()
+
+
         Log.i("TOAST_MESSAGE","Toast Message3")
+
 
     }
     catch(e : Exception)

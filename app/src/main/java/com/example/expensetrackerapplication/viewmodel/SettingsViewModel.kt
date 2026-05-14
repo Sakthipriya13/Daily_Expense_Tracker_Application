@@ -174,23 +174,26 @@ class SettingsViewModel(
                     signUpDate = expenseDate,
                     categoryName=newCategory.value
                 )
-                var result = categoryRepository.fnInsertCategoriesToDb(
-                    newCategory
-                )
+                var result = withContext(Dispatchers.IO){
+                    categoryRepository.fnInsertCategoriesToDb(
+                        newCategory
+                    )
+                }
 
                 if(result){
                     fnGetAllCategories()
                     fnClearNewCategoryField()
-                    _insertCategoryStatus.value = ResultState1.success(R.string.set_InsertCategorySuccess)
+                    _insertCategoryStatus.postValue(ResultState1.success(R.string.set_InsertCategorySuccess))
                     logger.logInfo(LOG_TAG,"Category successfully stored")
                 }
                 else{
-                    _insertCategoryStatus.value = ResultState1.fail(R.string.set_InsertCategoryFailed)
+                    _insertCategoryStatus.postValue(ResultState1.fail(R.string.set_InsertCategoryFailed))
                     logger.logError(LOG_TAG,"Store Category Failed")
                 }
             }
             catch (e : Exception)
             {
+                _insertCategoryStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 logger.logError(LOG_TAG,"Insert New Category: ${e.message}")
                 Log.e("INSERT_NEW_CATEGORY","Insert New Category2: ${e.message}")
             }
@@ -219,11 +222,19 @@ class SettingsViewModel(
         viewModelScope.launch {
             try
             {
-                var category_List=categoryRepository.fnGetAllCategoriesFromDb()
-                _categoryList.value=category_List
+                var category_List= withContext(Dispatchers.IO){
+                    categoryRepository.fnGetAllCategoriesFromDb()
+                }
+                if(category_List.isNotEmpty()){
+                    _categoryList.postValue(category_List)
+                }
+                else{
+                    _categoryList.postValue(emptyList<CategoryEntitty>())
+                }
             }
             catch (e : Exception)
             {
+                _categoryList.postValue(emptyList<CategoryEntitty>())
                 logger.logError(LOG_TAG,"Get All Categories From Db: ${e.message}")
                 Log.e("GET ALL CATEGORIES FROM DB","Get All Categories From Db: ${e.message}")
             }
@@ -234,16 +245,19 @@ class SettingsViewModel(
     {
         viewModelScope.launch {
             try {
-                var status = categoryRepository.fnDeleteCategory(categoryId,userId)
+                var status = withContext(Dispatchers.IO){
+                    categoryRepository.fnDeleteCategory(categoryId,userId)
+                }
                 if(status) {
                     fnGetAllCategories()
-                    _deleteCategoryStatus.value = ResultState1.success(R.string.set_DeleteCategorySuccess)
+                    _deleteCategoryStatus.postValue(ResultState1.success(R.string.set_DeleteCategorySuccess))
                 }
                 else
-                    _deleteCategoryStatus.value = ResultState1.fail(R.string.set_DeleteCategoryFailed)
+                    _deleteCategoryStatus.postValue(ResultState1.fail(R.string.set_DeleteCategoryFailed))
             }
             catch (e: Exception)
             {
+                _deleteCategoryStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 logger.logError(LOG_TAG,"Delete Category: ${e.message}")
                 Log.e("DELETE_CATEGORY","Delete Category: ${e.message}")
             }
@@ -258,6 +272,8 @@ class SettingsViewModel(
                 Log.i(LOG_TAG,"Start Export1")
 
                 _isLoading.value = true
+
+                Log.i(LOG_TAG,"Cloud user ID: ${Global.cloudUserId}")
 
                 val isNetworkAvail = Global.isNetworkAvailable(application,logger)
 
@@ -278,7 +294,7 @@ class SettingsViewModel(
                     if(cateList.isEmpty() && expenseList.isEmpty() &&
                         incomeList.isEmpty())
                     {
-                        _shareDataStatus.value = ResultState1.fail(R.string.set_ShareData_NoData)
+                        _shareDataStatus.postValue(ResultState1.fail(R.string.set_ShareData_NoData))
                         return@launch
                     }
                     if(cateList.isNotEmpty())
@@ -329,20 +345,21 @@ class SettingsViewModel(
                     }
                     else
                     {
-                        _shareDataStatus.value = ResultState1.fail(R.string.set_ShareData_NoData)
+                        _shareDataStatus.postValue(ResultState1.fail(R.string.set_ShareData_NoData))
                         return@launch
                     }
                 }
                 else
                 {
-                    _shareDataStatus.value= ResultState1.fail(R.string.noInternet)
+                    _shareDataStatus.postValue(ResultState1.fail(R.string.noInternet))
                 }
             }
             catch (e : Exception)
             {
+                _isLoading.value = false
                 logger.logError(LOG_TAG,"Share Data: ${e.message}")
                 Log.e("SHARE DATA","Share Data: ${e.message}")
-                _shareDataStatus.value = ResultState1.fail(R.string.set_ShareDataFailed)
+                _shareDataStatus.postValue(ResultState1.fail(R.string.somethingWrong))
             }
         }
     }
@@ -354,11 +371,11 @@ class SettingsViewModel(
 
             var writer = FileWriter(file)
 
-            writer.append("UserId,Date,CategoryId,CategoryName\n")
+            writer.append("Date,CategoryName\n")
 
             for(cat in list){
                 writer.append(
-                    "${cat.userId},${cat.signUpDate},${cat.categoryId},${cat.categoryName}\n"
+                    "${cat.signUpDate},${cat.categoryName}\n"
                 )
             }
 
@@ -369,6 +386,7 @@ class SettingsViewModel(
         }
         catch (e: Exception)
         {
+            _isLoading.value = false
             logger.logError(LOG_TAG,"Convert Category List To Csv File: ${e.message}")
             Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Category List To Csv File: ${e.message}")
             return null
@@ -381,7 +399,7 @@ class SettingsViewModel(
 
             var writer = FileWriter(file)
 
-            writer.append("UserId,ExpenseId,ExpenseDate,CategoryName,Expense,PaymentType,ExpenseInCash,ExpenseInCard,ExpenseInUpi," +
+            writer.append("ExpenseDate,CategoryName,Expense,PaymentType,ExpenseInCash,ExpenseInCard,ExpenseInUpi," +
                     "ExpenseInOthers,Remarks\n")
 
             for(cat in list){
@@ -394,7 +412,7 @@ class SettingsViewModel(
                     }
                 }
                 writer.append(
-                    "${cat.userId},${cat.expenseId},${cat.expenseDate}," +
+                    "${cat.expenseDate}," +
                             "${cat.expenseCategoryName}," +
                             "${cat.expenseAmt},$paymentType,${cat.expenseAmtInCash}," +
                             "${cat.expenseAmtInCard},${cat.expenseAmtInUpi},${cat.expenseAmtInOthers}," +
@@ -409,6 +427,7 @@ class SettingsViewModel(
         }
         catch (e: Exception)
         {
+            _isLoading.value = false
             logger.logError(LOG_TAG,"Convert Expense List To Csv File: ${e.message}")
             Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Expense List To Csv File: ${e.message}")
             return null
@@ -420,11 +439,11 @@ class SettingsViewModel(
 
             var writer = FileWriter(file)
 
-            writer.append("UserId,IncomeID,IncomeDate,Income\n")
+            writer.append("IncomeDate,Income\n")
 
             for(cat in list){
                 writer.append(
-                    "${cat.userId},${cat.incomeId},${cat.date},${cat.income}\n"
+                    "${cat.date},${cat.income}\n"
                 )
             }
 
@@ -435,75 +454,57 @@ class SettingsViewModel(
         }
         catch (e: Exception)
         {
+            _isLoading.value = false
             logger.logError(LOG_TAG,"Convert Income List To Csv File: ${e.message}")
             Log.e("CONVERT_CATEGORY_LIST_TO_CSV_FILE","Convert Income List To Csv File: ${e.message}")
             return null
         }
     }
     fun fnSendFilesViaEmail(file: ArrayList<Uri>){
-        try
-        {
-            Log.i(LOG_TAG,"Start Export3")
-
-            var isNetworkAvailable = Global.isNetworkAvailable(application,logger)
-
-//            if(isNetworkAvailable)
-//            {
-//
-//                Log.i(LOG_TAG,"Start Export4")
-//
-//                val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
-//
-//                intent.type ="text/csv"
-//                intent.putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
-//                intent.putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
-//
-//                intent.putExtra(Intent.EXTRA_STREAM,file)
-//
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//
-//                _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
-//            }
-
-            if(isNetworkAvailable)
+        viewModelScope.launch {
+            try
             {
-                Log.i(LOG_TAG,"Start Export4")
+                Log.i(LOG_TAG,"Start Export3")
 
-                val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                    type ="text/csv"
+                var isNetworkAvailable = Global.isNetworkAvailable(application,logger)
 
-                    putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
-                    putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
+                if(isNetworkAvailable)
+                {
+                    Log.i(LOG_TAG,"Start Export4")
 
-//                    putExtra(Intent.EXTRA_STREAM,file[0])
-//                    putExtra(Intent.EXTRA_STREAM,file[1])
-//                    putExtra(Intent.EXTRA_STREAM,file[2])
+                    val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                        type ="text/csv"
 
-                    putParcelableArrayListExtra(Intent.EXTRA_STREAM,file)
+                        putExtra(Intent.EXTRA_SUBJECT,"EXPENSE TRACKER")
+                        putExtra(Intent.EXTRA_TEXT,"Open These Files In Excel")
 
-                    // Important for Gmail / Outlook
-                    clipData = ClipData.newRawUri("", file[0])
-                    file.drop(1).forEach { uri ->
-                        clipData?.addItem(ClipData.Item(uri))
+                        putParcelableArrayListExtra(Intent.EXTRA_STREAM,file)
+
+                        // Important for Gmail / Outlook
+                        clipData = ClipData.newRawUri("", file[0])
+                        file.drop(1).forEach { uri ->
+                            clipData?.addItem(ClipData.Item(uri))
+                        }
+
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
 
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
                 }
-
-                _sendEmailEvent.value = Intent.createChooser(intent, "Send Email")
+                else
+                {
+                    Log.i(LOG_TAG,"Start Export5")
+                    _internetStatus.value = ResultState1.fail(R.string.noInternet)
+                }
             }
-            else
+            catch (e: Exception)
             {
-                Log.i(LOG_TAG,"Start Export5")
-                _internetStatus.value = ResultState1.fail(R.string.noInternet)
+                _isLoading.value = false
+                _internetStatus.value = ResultState1.fail(R.string.somethingWrong)
+                logger.logError(LOG_TAG,"Send Data Via Email: ${e.message}")
+                Log.e("SEND_FILE_VIA_EMAIL","Send Via Email: ${e.message}")
             }
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Send Data Via Email: ${e.message}")
-            Log.e("SEND_FILE_VIA_EMAIL","Send Via Email: ${e.message}")
         }
     }
 

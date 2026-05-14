@@ -82,20 +82,20 @@ interface ExpenseDao {
     )
     suspend fun fnGetCatDetailsPerYear(year : String,luserId : Int,expenseStatus : Int,): List<CategoryChartModel>
 
-    @Query("SELECT UserId AS userId,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
+    @Query("SELECT UserId AS userId,SUM(ExpenseAmountt) AS totalExpense,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
             "SUM(ExpenseAmtInUpi) AS paymentType_UpiAmt,SUM(ExpenseAmtInOthers) AS paymentType_OthersAmt " +
             "FROM ExpenseTable WHERE SUBSTR(ExpenseDate,6,2)= :curMonth AND ExpenseStatus = :expenseStatus AND UserId= :luserId " +
             "GROUP BY ExpenseAmtInCash AND ExpenseAmtInCard AND ExpenseAmtInUpi AND ExpenseAmtInOthers")
     suspend fun fnGetPaymentTypesForCurMonth(curMonth : String,expenseStatus : Int,luserId : Int) : List<PaymentTypeChartModel>
 
-    @Query("SELECT UserId AS userId,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
+    @Query("SELECT UserId AS userId,SUM(ExpenseAmountt) AS totalExpense,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
             "SUM(ExpenseAmtInUpi) AS paymentType_UpiAmt,SUM(ExpenseAmtInOthers) AS paymentType_OthersAmt " +
             "FROM ExpenseTable WHERE ExpenseDate= :day AND ExpenseStatus = :expenseStatus " +
             "AND UserId= :luserId " +
             "GROUP BY ExpenseAmtInCash AND ExpenseAmtInCard AND ExpenseAmtInUpi AND ExpenseAmtInOthers")
     suspend fun fnGetPaymentTypesPerDay(day : String,expenseStatus : Int,luserId : Int) : List<PaymentTypeChartModel>
 
-    @Query("SELECT UserId AS userId,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
+    @Query("SELECT UserId AS userId,SUM(ExpenseAmountt) AS totalExpense,SUM(ExpenseAmtInCash) AS paymentType_CashAmt,SUM(ExpenseAmtInCard) AS paymentType_CardAmt," +
             "SUM(ExpenseAmtInUpi) AS paymentType_UpiAmt,SUM(ExpenseAmtInOthers) AS paymentType_OthersAmt FROM ExpenseTable WHERE SUBSTR(ExpenseDate,1,4)= :curYear " +
             "AND ExpenseStatus = :expenseStatus AND UserId= :luserId GROUP BY ExpenseAmtInCash AND ExpenseAmtInCard AND ExpenseAmtInUpi AND ExpenseAmtInOthers")
     suspend fun fnGetPaymentTypesForCurYear(curYear : String,expenseStatus : Int,luserId : Int) : List<PaymentTypeChartModel>

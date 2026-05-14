@@ -16,7 +16,9 @@ import com.example.expensetrackerapplication.data.repositary.CategoryRepository
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SignUpViewModel(
     application: Application,
@@ -199,13 +201,16 @@ class SignUpViewModel(
                         isSynced = 0
                     )
 
-                    val userInsertStatus = userRepository.fnInsertUserDetails(user)
+                    val userInsertStatus = withContext(Dispatchers.IO){
+                        userRepository.fnInsertUserDetails(user)
+                    }
 
                     if (userInsertStatus.isSuccess) {
                         Log.i("New user INSERT STATUS", "New User Insert Status: $userInsertStatus")
 
-                        var sUserId = userRepository.fnGetSignUpUserId(email.value)
-
+                        var sUserId = withContext(Dispatchers.IO){
+                            userRepository.fnGetSignUpUserId(email.value)
+                        }
                         var categoryEntities = Global.defaultCategories.map {
                             CategoryEntitty(
                                 categoryId = 0,
@@ -217,27 +222,28 @@ class SignUpViewModel(
                             )
                         }
 
-                        var categoryInsertStatus =
+                        var categoryInsertStatus = withContext(Dispatchers.IO){
                             categoryRepository.fnInsertDefaultCategoriesToDb(categoryEntities)
+                        }
 
                         if (categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it > 0 })
                         {
                             logger.logError(LOG_TAG,"New User Creation: Success")
-                            _insertStatus.value = ResultState1.success(R.string.signup_NewUserAccountCreated)
-                            _isLoading.value=false
+                            _insertStatus.postValue(ResultState1.success(R.string.signup_NewUserAccountCreated))
+                            _isLoading.postValue(false)
                         }
                         else
                         {
                             logger.logError(LOG_TAG,"New User Creation: Failed1")
-                            _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
-                            _isLoading.value=false
+                            _insertStatus.postValue(ResultState1.fail(R.string.signup_NewUserCreationFailed))
+                            _isLoading.postValue(false)
                         }
                     }
                     else
                     {
                         logger.logError(LOG_TAG,"New User Creation Failed: ${userInsertStatus.isFailure}")
                         _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
-                        _isLoading.value=false
+                        _isLoading.postValue(false)
                     }
                 }
             }
@@ -245,8 +251,8 @@ class SignUpViewModel(
             {
                 logger.logError(LOG_TAG,"New User Creation: ${e.message}")
                 Log.e("NEW USER CREATION","New User Creation: ${e.message}")
-                _insertStatus.value = ResultState1.fail(R.string.signup_MayBeTheEmailAlreadyUsed)
-                _isLoading.value=false
+                _insertStatus.postValue(ResultState1.fail(R.string.somethingWrong))
+                _isLoading.postValue(false)
             }
         }
     }

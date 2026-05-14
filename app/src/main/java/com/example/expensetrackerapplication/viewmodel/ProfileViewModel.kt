@@ -12,7 +12,9 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ProfileViewModel(
     application: Application,
@@ -148,22 +150,23 @@ class ProfileViewModel(
         viewModelScope.launch {
             try
             {
-                val result = userRepository.fnDeleteUser(Global.lUserId)
-
+                val result = withContext(Dispatchers.IO){
+                    userRepository.fnDeleteUser(Global.lUserId)
+                }
                 if (result)
                 {
-                    _deleteUserAcStatus.value = ResultState1.success(R.string.deleteAccount_Success)
+                    _deleteUserAcStatus.postValue(ResultState1.success(R.string.deleteAccount_Success))
                 }
                 else
                 {
-                    _deleteUserAcStatus.value = ResultState1.fail(R.string.deleteAccount_Failed)
+                    _deleteUserAcStatus.postValue(ResultState1.fail(R.string.deleteAccount_Failed))
                 }
             }
             catch (e : Exception)
             {
                 logger.logError(LOG_TAG,"Delete User Account: ${e.message}")
                 Log.e("DELETE USER ACCOUNT","Delete User Account: ${e.message}")
-                _deleteUserAcStatus.value = ResultState1.fail(R.string.deleteAccount_Failed)
+                _deleteUserAcStatus.postValue(ResultState1.fail(R.string.somethingWrong))
             }
         }
     }

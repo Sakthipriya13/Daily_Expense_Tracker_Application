@@ -15,10 +15,12 @@ import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditExpenseViewModel(
     application: Application,
@@ -151,6 +153,7 @@ class EditExpenseViewModel(
             try
             {
                 fnDeleteExpense(editedExpenseId.value,editedExpenseDate.value)
+
             }
             catch (e: Exception)
             {
@@ -190,11 +193,13 @@ class EditExpenseViewModel(
                     cloudId = Global.cloudUserId ?:"",
                     isSynced = 0
                 )
-                var result = expenseRepository.fnInsertExpenseDatasToDb(expenseEntity)
+                var result = withContext(Dispatchers.IO){
+                    expenseRepository.fnInsertExpenseDatasToDb(expenseEntity)
+                }
                 if(result)
                 {
-                    _insertFlag.value = 0
-                    _expenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
+                    _insertFlag.postValue( 0)
+                    _expenseInsertStatus.postValue(ResultState1.success(R.string.newEx_InsertExpenseSuccess))
                     onClickClear()
                     logger.logInfo(LOG_TAG,"Expense successfully Stored")
                     _uiEvent.emit(UiEvent.RecreateActivity)
@@ -202,8 +207,8 @@ class EditExpenseViewModel(
                 }
                 else
                 {
-                    _insertFlag.value = 0
-                    _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
+                    _insertFlag.postValue(0)
+                    _expenseInsertStatus.postValue(ResultState1.fail(R.string.newEx_InsertExpenseFailed))
                     onClickClear()
                     logger.logError(LOG_TAG,"Store Expense Failed")
                 }
@@ -212,7 +217,7 @@ class EditExpenseViewModel(
         catch (e: Exception)
         {
             logger.logError(LOG_TAG,"Insert Expense: ${e.message}")
-            _expenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
+            _expenseInsertStatus.postValue(ResultState1.fail(R.string.newEx_InsertExpenseFailed))
             Log.e("EDIT_EXPENSE_VIEW_MODEL","Insert Expense: ${e.message}")
         }
     }
@@ -364,19 +369,21 @@ class EditExpenseViewModel(
     {
         viewModelScope.launch {
             try{
-                var list = expenseRepository.fnGetExpenseDetails(expenseId)
-
+                var list = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetExpenseDetails(expenseId)
+                }
                 if(list.isNotEmpty())
                 {
-                    _expenseList.value = list
+                    _expenseList.postValue(list)
                 }
                 else
                 {
-                    _expenseList.value = emptyList<ExpenseEntity>()
+                    _expenseList.postValue(emptyList<ExpenseEntity>())
                 }
             }
             catch(e : Exception)
             {
+                _expenseList.postValue(emptyList<ExpenseEntity>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Id: ${e.message}")
                 Log.e("EDIT_EXPENSE_VIEW_MODEL","Get Expense Details Per Id: ${e.message}")
             }
@@ -413,7 +420,9 @@ class EditExpenseViewModel(
                     else -> {
                         if(insertFlag.value==0)
                         {
-                            var delRes= expenseRepository.fnDeleteExpense(expenseId,expenseDate)
+                            var delRes= withContext(Dispatchers.IO){
+                                expenseRepository.fnDeleteExpense(expenseId,expenseDate)
+                            }
                             if(delRes ==  true)
                             {
                                 fnInsertExpense()

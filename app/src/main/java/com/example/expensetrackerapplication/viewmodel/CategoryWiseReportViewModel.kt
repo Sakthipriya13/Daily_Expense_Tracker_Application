@@ -21,6 +21,7 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
@@ -62,8 +63,8 @@ class CategoryWiseReportViewModel(
     var exportStatus : LiveData<ResultState1> = _exportStatus
 
     // Total Expense Summary Variable Initialization
-    var _totalExpenseSummary = MutableLiveData<String>("0.00")
-    var totalExpenseSummary : LiveData<String> = _totalExpenseSummary
+    var _totalExpense = MutableLiveData<Float>(0.00f)
+    var totalExpense: LiveData<Float> = _totalExpense
 
     // Added Expense Summary Variable Initialization
     var _addedExpenseSummary = MutableLiveData<String>("0.00")
@@ -82,30 +83,38 @@ class CategoryWiseReportViewModel(
         viewModelScope.launch {
             try
             {
-                _isExportLoading.postValue(true)
-                var res = expenseRepository.fnGetCateDetailsPerDay(date)
+                _isExportLoading.value = true
+                var res = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetCateDetailsPerDay(date)
+                }
                 var list : MutableList<CategoryChartModel> = mutableListOf()
                 if(res.isNotEmpty())
                 {
+                    var totalAmt = 0.00f
                     res.forEach { ob ->
                         list.add(
                             CategoryChartModel(
                                 userId = ob.userId,
                                 categoryId = ob.categoryId,
                                 categoryName = ob.categoryName,
-                                expenseAmt = ob.expenseAmt
+                                expenseAmt = Global.fnFormatFloatTwoDigits(ob.expenseAmt,logger).toFloat(),
                             )
                         )
+                        totalAmt+=ob.expenseAmt
                     }
                     _categoryList.postValue(list)
+                    _totalExpense.postValue(Global.fnFormatFloatTwoDigits(totalAmt,logger).toFloat())
                 }
                 else
                 {
+                    _totalExpense.postValue(0.00f)
                     _categoryList.postValue(mutableListOf<CategoryChartModel>())
                 }
             }
             catch (ex : Exception)
             {
+                _totalExpense.postValue(0.00f)
+                _categoryList.postValue(mutableListOf<CategoryChartModel>())
                 logger.logError(LOG_TAG,"Get Category List Per Day: ${ex.message}")
                 Log.e(LOG_TAG,"Get Category List Per Day: ${ex.message}")
             }
@@ -206,13 +215,21 @@ class CategoryWiseReportViewModel(
                     timeCell0.setCellValue("EXPORT TIME:    ${Global.fnGetCurrentTime(logger)}")
                     timeCell0.cellStyle=summaryStyle
 
-
                     sheet.addMergedRegion(
                         CellRangeAddress(4,4,0,4)
                     )
 
+                    var totalExRow = sheet.createRow(5)
+                    var totalExCell = totalExRow.createCell(0)
+                    totalExCell.setCellValue("TOTAL EXPENSE:    ${Global.fnFormatFloatTwoDigits(totalExpense.value,logger)}")
+                    totalExCell.cellStyle=summaryStyle
+
+                    sheet.addMergedRegion(
+                        CellRangeAddress(5,5,0,4)
+                    )
+
                     //Table Header Row
-                    var tableHeaderRow = sheet.createRow(6)
+                    var tableHeaderRow = sheet.createRow(7)
                     var cell0 = tableHeaderRow.createCell(0)
                     cell0.setCellValue("CATEGORY")
                     cell0.cellStyle=tableHeaderStyle
@@ -222,13 +239,13 @@ class CategoryWiseReportViewModel(
 
                     //Table Data Row
                     categoryList.value?.forEachIndexed { index, expense ->
-                        var dataRow = sheet.createRow(index+7)
+                        var dataRow = sheet.createRow(index+8)
 
                         var dataCell0=dataRow.createCell(0)
                         dataCell0.setCellValue(expense.categoryName)
                         dataCell0.cellStyle=dataStyle
                         var dataCell1=dataRow.createCell(1)
-                        dataCell1.setCellValue("${expense.expenseAmt}")
+                        dataCell1.setCellValue(Global.fnFormatFloatTwoDigits(expense.expenseAmt,logger))
                         dataCell1.cellStyle=dataStyle
 
                     }
@@ -246,7 +263,7 @@ class CategoryWiseReportViewModel(
             catch (e : Exception)
             {
                 _isExportLoading.value = false
-                _exportStatus.value = ResultState1.fail(R.string.cateReport_ExportFailed)
+                _exportStatus.value = ResultState1.fail(R.string.somethingWrong)
                 logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
                 Log.e(LOG_TAG,"Excel File Creation: ${e.message}")
             }
@@ -291,21 +308,21 @@ class CategoryWiseReportViewModel(
 
     }
 
-    fun fnPreWarmExcelEngine()
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            try
-            {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-            }
-        }
-    }
+//    fun fnPreWarmExcelEngine()
+//    {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try
+//            {
+//                val wb = XSSFWorkbook()
+//                wb.createSheet("warmup")
+//                wb.close()
+//            }
+//            catch (e: Exception)
+//            {
+//                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//                Log.e(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//            }
+//        }
+//    }
 
 }

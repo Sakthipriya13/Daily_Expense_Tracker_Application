@@ -13,7 +13,9 @@ import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
 import com.example.expensetrackerapplication.utils.Global
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class DashBoardViewModel(
@@ -101,11 +103,16 @@ class DashBoardViewModel(
 
                 _clickBtnThisMonth.postValue(true)
                 _clickBtnThisYear.postValue(false)
-                var income = incomeRepository.fnGetIncomePerMonth(Global.fnGetCurrentMonth(logger))
-                var expense = newExpenseRepository.fnGetMonthSummary(Global.fnGetCurrentMonth(logger))
-                var balance = income-expense
 
-                Log.i("INCOME & EXPENSE & BALANCE DETAILS FOR CUR MONTH","Income:$income & Expense:$expense & Balance:$balance")
+
+                var income = withContext(Dispatchers.IO){
+                    incomeRepository.fnGetIncomePerMonth(Global.fnGetCurrentMonth(logger))
+                }
+                var expense = withContext(Dispatchers.IO){
+                    newExpenseRepository.fnGetMonthSummary(Global.fnGetCurrentMonth(logger))
+                }
+
+                var balance = income-expense
 
                 if(income != 0.0f){
                     _income.postValue(Global.fnFormatFloatTwoDigits(income,logger))
@@ -120,8 +127,9 @@ class DashBoardViewModel(
                     _balance.postValue(0.00f.toString())
                 }
 
-
-                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerMonth(Global.fnGetCurrentMonth(logger))
+                var p_ChartRes = withContext(Dispatchers.IO){
+                    newExpenseRepository.fnGetPaymentTypeAmtSummaryPerMonth(Global.fnGetCurrentMonth(logger))
+                }
                 var p_ChartList : MutableList<PaymentTypeChartModel> = mutableListOf()
                 if(p_ChartRes.isNotEmpty()){
                     p_ChartRes.forEach { ob ->
@@ -131,7 +139,8 @@ class DashBoardViewModel(
                                 paymentType_CashAmt = ob.paymentType_CashAmt,
                                 paymentType_CardAmt = ob.paymentType_CardAmt,
                                 paymentType_UpiAmt = ob.paymentType_UpiAmt,
-                                paymentType_OthersAmt = ob.paymentType_OthersAmt
+                                paymentType_OthersAmt = ob.paymentType_OthersAmt,
+                                totalExpense = ob.totalExpense
                             )
                         )
                     }
@@ -143,6 +152,7 @@ class DashBoardViewModel(
             }
             catch (e : Exception)
             {
+                _paymentTypeChartList.postValue(mutableListOf<PaymentTypeChartModel>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Month: ${e.message}")
                 Log.e("GET INCOME PER MONTH","Get Income Per Month: ${e.message}")
             }
@@ -160,8 +170,13 @@ class DashBoardViewModel(
 
                 _clickBtnThisYear.postValue(true)
                 _clickBtnThisMonth.postValue(false)
-                val income = incomeRepository.fnGetIncomePerYear(Global.fnGetCurrentYear(logger))
-                val expense = newExpenseRepository.fnGetYearSummary(Global.fnGetCurrentYear(logger))
+
+                val income = withContext(Dispatchers.IO){
+                    incomeRepository.fnGetIncomePerYear(Global.fnGetCurrentYear(logger))
+                }
+                val expense = withContext(Dispatchers.IO){
+                    newExpenseRepository.fnGetYearSummary(Global.fnGetCurrentYear(logger))
+                }
                 val balance = income-expense
 
                 if(income != 0.0f){
@@ -177,7 +192,9 @@ class DashBoardViewModel(
                     _balance.postValue(0.00f.toString())
                 }
 
-                var p_ChartRes = newExpenseRepository.fnGetPaymentTypeAmtSummaryPerYear(Global.fnGetCurrentYear(logger))
+                var p_ChartRes = withContext(Dispatchers.IO){
+                    newExpenseRepository.fnGetPaymentTypeAmtSummaryPerYear(Global.fnGetCurrentYear(logger))
+                }
                 var p_ChartList : MutableList<PaymentTypeChartModel> = mutableListOf()
                 if(p_ChartRes.isNotEmpty()){
                     p_ChartRes.forEach { ob ->
@@ -187,7 +204,8 @@ class DashBoardViewModel(
                                 paymentType_CashAmt = ob.paymentType_CashAmt,
                                 paymentType_CardAmt = ob.paymentType_CardAmt,
                                 paymentType_UpiAmt = ob.paymentType_UpiAmt,
-                                paymentType_OthersAmt = ob.paymentType_OthersAmt
+                                paymentType_OthersAmt = ob.paymentType_OthersAmt,
+                                totalExpense = ob.totalExpense
                             )
                         )
                     }
@@ -199,6 +217,7 @@ class DashBoardViewModel(
             }
             catch (e : Exception)
             {
+                _paymentTypeChartList.postValue(mutableListOf<PaymentTypeChartModel>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Year: ${e.message}")
                 Log.e("GET INCOME PER YEAR","Get Income Per Year: ${e.message}")
             }
@@ -208,7 +227,9 @@ class DashBoardViewModel(
     fun fnGetCateDetailsPerDay(){
         viewModelScope.launch {
             try{
-                var res= newExpenseRepository.fnGetCateDetailsPerDay(Global.fnGetCurrentDate(logger))
+                var res= withContext(Dispatchers.IO){
+                    newExpenseRepository.fnGetCateDetailsPerDay(Global.fnGetCurrentDate(logger))
+                }
                 var list : MutableList<CategoryChartModel> = mutableListOf()
                 if (res.isNotEmpty()) {
                     res.forEach { ob ->
@@ -229,6 +250,7 @@ class DashBoardViewModel(
             }
             catch (e : Exception)
             {
+                _categoryChartList.postValue(mutableListOf<CategoryChartModel>())
                 logger.logError(LOG_TAG,"Get Category Details Per Day: ${e.message}")
                 Log.e("GET CATEGORY LIST PER DAY","Get Category Details Per Day: ${e.message}")
             }

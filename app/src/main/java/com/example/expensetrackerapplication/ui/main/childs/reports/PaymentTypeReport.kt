@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.logger.FileLogger
@@ -27,6 +28,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.color.MaterialColors
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
 // TODO: Rename parameter arguments, choose names that match
@@ -86,8 +88,9 @@ class PaymentTypeReport : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        paymentTypeReportViewModel.fnPreWarmExcelEngine()
-
+        lifecycleScope.launch {
+            Global.fnPreWarmExcelEngine(logger)
+        }
         paymentTypeReportBinding.idBtnCalendar.setOnClickListener {
             try
             {

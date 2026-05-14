@@ -12,7 +12,9 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ForgetViewModel(
     application: Application,
@@ -111,14 +113,16 @@ class ForgetViewModel(
     {
         viewModelScope.launch {
             try{
-                var updateStatus = userRepository.fnResetLoginUserPassword(newPassword =newPassword.value?.trim(),email =email.value?.trim())
-
+                var updateStatus = withContext(Dispatchers.IO){
+                    userRepository.fnResetLoginUserPassword(newPassword =newPassword.value?.trim(),email =email.value?.trim())
+                }
                 if (updateStatus)
                     _resetStatus.postValue(ResultState1.success(R.string.forget_PasswordResetSuccess))
                 else
                     _resetStatus.postValue(ResultState1.fail(R.string.forget_PasswordResetFailed))
             }
             catch (e : Exception){
+                _resetStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 Log.e("PASSWORD RESET","Password Reset: ${e.message}")
                 logger.logError(LOG_TAG,"Reset Password: ${e.message}")
                 _resetStatus.postValue(ResultState1.fail(R.string.forget_PasswordResetFailed))

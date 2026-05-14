@@ -6,4 +6,5 @@ data class PaymentTypeChartModel(
     var paymentType_UpiAmt : Float,
     var paymentType_CardAmt : Float,
     var paymentType_OthersAmt : Float,
+    var totalExpense : Float
 )

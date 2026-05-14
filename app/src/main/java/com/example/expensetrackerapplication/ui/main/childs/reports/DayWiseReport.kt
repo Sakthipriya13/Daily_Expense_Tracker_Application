@@ -165,8 +165,9 @@ class DayWiseReport : Fragment() {
         }
 
 
-        DayWiseReportViewModel.fnPreWarmExcelEngine()
-
+        lifecycleScope.launch {
+            Global.fnPreWarmExcelEngine(logger)
+        }
         try {
             listAdapter = ListAdapter(requireContext().applicationContext)
             DayWiseReportBinding.idDayWiseReportView.adapter = listAdapter

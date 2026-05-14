@@ -299,6 +299,7 @@
     <string name="main_AlreadyInNewExpense">Already You Are In Add Expense</string>
     <string name="main_AlreadyInReport">Already You Are In Report</string>
     <string name="main_AlreadyInDashboard">Already You Are In Dashboard</string>
+    <string name="total_expense">TOTAL EXPENSE</string>
 
 
 </resources>

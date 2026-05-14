@@ -196,6 +196,50 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/idTotalExpenseLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:text="@string/total_expense"
+                        android:gravity="center"
+                        android:textSize="@dimen/sub_header_size"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorPrimary"
+                        app:layout_constraintEnd_toStartOf="@id/idTotalExpense"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintWidth_percent="0.50"
+                        />
+
+                    <TextView
+                        android:id="@+id/idTotalExpense"
+                        android:layout_width="0dp"
+                        android:layout_height="50dp"
+                        android:text='@{String.format("%.2f",categoryWiseReportViewModel._totalExpense)}'
+                        android:gravity="start|center"
+                        android:textSize="@dimen/app_header_size"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_color"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/idTotalExpenseLabel"
+                        app:layout_constraintWidth_percent="0.40"
+                        />
+
+                    <androidx.constraintlayout.helper.widget.Flow
+                        android:id="@+id/idFlow2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:flow_horizontalStyle="spread_inside"
+                        app:flow_horizontalGap="2dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:constraint_referenced_ids="idTotalExpenseLabel,idTotalExpense"
+                        tools:ignore="MissingConstraints" />
+
                     <TextView
                         android:id="@+id/idChartHeading"
                         android:layout_width="match_parent"
@@ -210,7 +254,7 @@
                         android:textStyle="bold"
                         android:textColor="?attr/colorPrimary"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/idFlow2"
                         />
 <!--                    <RelativeLayout-->
 <!--                        android:id="@+id/idChartLayout"-->

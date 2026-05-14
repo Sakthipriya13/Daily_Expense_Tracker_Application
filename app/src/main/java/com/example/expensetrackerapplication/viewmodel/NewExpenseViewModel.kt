@@ -14,7 +14,9 @@ import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
 import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class NewExpenseViewModel(
     application: Application,
@@ -231,18 +233,20 @@ class NewExpenseViewModel(
                     isSynced = 0
                 )
 
-                var result = expenseRepository.fnInsertExpenseDatasToDb(expenseEntity)
+                var result = withContext(Dispatchers.IO){
+                    expenseRepository.fnInsertExpenseDatasToDb(expenseEntity)
+                }
                 if(result)
                 {
-                    _insertFlag.value = 0
-                    _newExpenseInsertStatus.value = ResultState1.success(R.string.newEx_InsertExpenseSuccess)
+                    _insertFlag.postValue(0)
+                    _newExpenseInsertStatus.postValue(ResultState1.success(R.string.newEx_InsertExpenseSuccess))
                     fnClearAllFieldsValue()
                     logger.logInfo(LOG_TAG,"Expense successfully stored")
                 }
                 else
                 {
-                    _insertFlag.value = 0
-                    _newExpenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
+                    _insertFlag.postValue(0)
+                    _newExpenseInsertStatus.postValue(ResultState1.fail(R.string.newEx_InsertExpenseFailed))
                     fnClearAllFieldsValue()
                     logger.logError(LOG_TAG,"Store Expense Failed")
                 }
@@ -250,7 +254,7 @@ class NewExpenseViewModel(
         }
         catch (e : Exception)
         {
-            _newExpenseInsertStatus.value = ResultState1.fail(R.string.newEx_InsertExpenseFailed)
+            _newExpenseInsertStatus.postValue(ResultState1.fail(R.string.newEx_InsertExpenseFailed))
             Log.e("INSERT_EXPENSE","Insert_Expense: ${e.message}")
             logger.logError(LOG_TAG,"Insert Expense: ${e.message}")
         }

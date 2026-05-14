@@ -13,7 +13,9 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddInComeViewModel(
     application: Application,
@@ -92,7 +94,7 @@ class AddInComeViewModel(
         viewModelScope.launch {
             try
             {
-                if(!selectedDate.value.isNullOrBlank() && !income.value.isNullOrBlank()){
+//                if(!selectedDate.value.isNullOrBlank() && !income.value.isNullOrBlank()){
                     var income = IncomeEntity(
                         incomeId = 0,
                         userId = Global.lUserId,
@@ -101,7 +103,9 @@ class AddInComeViewModel(
                         cloudId = Global.cloudUserId ?:"",
                         isSynced = 0
                     )
-                    var result = incomeRepository.fnInsertIncome(income)
+                    var result = withContext(Dispatchers.IO){
+                        incomeRepository.fnInsertIncome(income)
+                    }
                     if(result) {
                         _insertStatus.postValue(ResultState1.success(R.string.income_InsertIncomeSuccess))
                         logger.logInfo(LOG_TAG,"Insert Income Success")
@@ -110,10 +114,11 @@ class AddInComeViewModel(
                         _insertStatus.postValue(ResultState1.fail(R.string.income_InsertIncomeFailed))
                         logger.logError(LOG_TAG,"Insert Income Failed")
                     }
-                }
+//                }
             }
             catch (e : Exception)
             {
+                _insertStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 logger.logError(LOG_TAG,"Insert Income Status: ${e.message}")
                 Log.e("INSERT INCOME STATUS","Insert Income Status: ${e.message}")
             }

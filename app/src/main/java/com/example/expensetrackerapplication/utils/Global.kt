@@ -3,7 +3,9 @@ package com.example.expensetrackerapplication.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
 import android.util.Patterns
+import androidx.lifecycle.viewModelScope
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
@@ -11,6 +13,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.worker.SyncWorker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.apache.poi.ss.usermodel.BorderStyle
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.Font
@@ -386,6 +390,21 @@ object Global {
         {
             logger.logError(LOG_TAG,"Start Sync Work: ${e.message}")
         }
+    }
+
+    fun fnPreWarmExcelEngine(logger: FileLogger)
+    {
+//        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val wb = XSSFWorkbook()
+                wb.createSheet("warmup")
+                wb.close()
+            }
+            catch (e: Exception) {
+                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+            }
+//        }
     }
 
 }

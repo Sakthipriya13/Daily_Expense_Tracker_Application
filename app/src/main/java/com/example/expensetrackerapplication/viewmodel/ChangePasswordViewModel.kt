@@ -12,7 +12,9 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ChangePasswordViewModel(
     application: Application,
@@ -87,7 +89,7 @@ class ChangePasswordViewModel(
           {
               logger.logError(LOG_TAG,"On CLick Confirm Button: ${e.message}")
               Log.e("CHANGE_PASSWORD","Change Password: ${e.message}")
-              _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
+              _changePasswordStatus.value = ResultState1.fail(R.string.somethingWrong)
           }
     }
 
@@ -95,21 +97,22 @@ class ChangePasswordViewModel(
     {
         viewModelScope.launch {
             try{
-                var updateStatus = userRepository.fnUpdateLoginUserPassword(newPassword =newPassword.value, userId =Global.lUserId, currentPassword = currentPassword.value)
-
+                var updateStatus = withContext(Dispatchers.IO){
+                    userRepository.fnUpdateLoginUserPassword(newPassword =newPassword.value, userId =Global.lUserId, currentPassword = currentPassword.value)
+                }
                 Log.i("CHANGE PASSWORD STATUS","Change password Status: $updateStatus")
                 if (updateStatus)
-                    _changePasswordStatus.value = ResultState1.success(R.string.cp_PasswordChangesSuccess)
+                    _changePasswordStatus.postValue(ResultState1.success(R.string.cp_PasswordChangesSuccess))
 
                 else
-                    _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
+                    _changePasswordStatus.postValue(ResultState1.fail(R.string.cp_PasswordChangeFailed))
 
             }
             catch (e : Exception)
             {
                 logger.logError(LOG_TAG,"Change Password Function: ${e.message}")
                 Log.e("CHANGE_PASSWORD","Change Password: ${e.message}")
-                _changePasswordStatus.value = ResultState1.fail(R.string.cp_PasswordChangeFailed)
+                _changePasswordStatus.value = ResultState1.fail(R.string.somethingWrong)
             }
         }
     }

@@ -21,6 +21,7 @@ import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
@@ -138,7 +139,9 @@ class DayWiseReportViewModel(
                 _deletedExpenseSummary.value ="0.00"
 
 
-                val res = expenseRepository.fnGetExpenseDetailsPerDate(date)
+                val res = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetExpenseDetailsPerDate(date)
+                }
                 var list : MutableList<CurrentDayReportModel> = mutableListOf()
                 var exPaymentType = ""
                 if(res.isNotEmpty())
@@ -175,10 +178,10 @@ class DayWiseReportViewModel(
                         if(ex.expenseStatus == Global.EXPENSE_STATUS_DELETED) deletedExpenseAmtSum = deletedExpenseAmtSum + (ex.expenseAmt?.toFloat() ?:0.0f ) else addedExpenseAmtSum=addedExpenseAmtSum+ (ex.expenseAmt?.toFloat() ?:0.0f )
 
                     }
-                    _expenseList.value = list
-                    _totalExpenseSummary.value= Global.fnFormatFloatTwoDigits(totalExpenseAmtSum,logger)
-                    _addedExpenseSummary.value =Global.fnFormatFloatTwoDigits(addedExpenseAmtSum,logger)
-                    _deletedExpenseSummary.value = Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum,logger)
+                    _expenseList.postValue(list)
+                    _totalExpenseSummary.postValue(Global.fnFormatFloatTwoDigits(totalExpenseAmtSum,logger))
+                    _addedExpenseSummary.postValue(Global.fnFormatFloatTwoDigits(addedExpenseAmtSum,logger))
+                    _deletedExpenseSummary.postValue(Global. fnFormatFloatTwoDigits(deletedExpenseAmtSum,logger))
 
                 }
                 else
@@ -188,6 +191,7 @@ class DayWiseReportViewModel(
             }
             catch (e : Exception)
             {
+                _expenseList.postValue(emptyList<CurrentDayReportModel>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Date: ${e.message}")
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","Get Expense Details Per Date: ${e.message}")
             }
@@ -199,21 +203,23 @@ class DayWiseReportViewModel(
         viewModelScope.launch {
             try
             {
-                var delStatus = expenseRepository.fnDeleteExpense(expenseId)
+                var delStatus = withContext(Dispatchers.IO){
+                    expenseRepository.fnDeleteExpense(expenseId)
+                }
 
                 if(delStatus)
                 {
-                    _expenseDeleteStatus.value = ResultState1.success(R.string.dayWiseReport_DeleteExpenseSuccess)
+                    _expenseDeleteStatus.postValue(ResultState1.success(R.string.dayWiseReport_DeleteExpenseSuccess))
                     fnGetExpenseDetails(selectedDate.value)
                 }
                 else{
-                    _expenseDeleteStatus.value = ResultState1.fail(R.string.dayWiseReport_DeleteExpenseFailed)
+                    _expenseDeleteStatus.postValue(ResultState1.fail(R.string.dayWiseReport_DeleteExpenseFailed))
                 }
             }
             catch(e : Exception)
             {
                 logger.logError(LOG_TAG,"Delete Expense: ${e.message}")
-                _expenseDeleteStatus.value = ResultState1.fail(R.string.dayWiseReport_DeleteExpenseFailed)
+                _expenseDeleteStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 Log.e("DAY_WISE_REPORT_VIEW_MODEL","Delete Expense: ${e.message}")
             }
         }
@@ -435,21 +441,21 @@ class DayWiseReportViewModel(
 
     }
 
-    fun fnPreWarmExcelEngine()
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            try
-            {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            } 
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e("DAY_WISE_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
-            }
-        }
-    }
+//    fun fnPreWarmExcelEngine()
+//    {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try
+//            {
+//                val wb = XSSFWorkbook()
+//                wb.createSheet("warmup")
+//                wb.close()
+//            }
+//            catch (e: Exception)
+//            {
+//                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//                Log.e("DAY_WISE_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+//            }
+//        }
+//    }
 
 }

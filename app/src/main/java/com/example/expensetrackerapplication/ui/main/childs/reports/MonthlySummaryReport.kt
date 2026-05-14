@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.viewmodel.CalendarMonthViewModel
 import com.example.expensetrackerapplication.viewmodel.MonthlySummaryViewModel
+import kotlinx.coroutines.launch
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -102,8 +104,9 @@ class MonthlyReport : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        monthlySummaryViewModel.fnPreWarmExcelEngine()
-
+        lifecycleScope.launch {
+            Global.fnPreWarmExcelEngine(logger)
+        }
         try
         {
             monthBinding = DataBindingUtil.inflate(layoutInflater,R.layout.month_calendar,null,false)

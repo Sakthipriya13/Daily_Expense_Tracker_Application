@@ -22,6 +22,7 @@ import com.example.expensetrackerapplication.utils.ResultState1
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import kotlin.math.abs
@@ -127,8 +128,12 @@ class YearlySummaryReportViewModel(
                 _expenseAmt.postValue("0.00")
                 _balanceAmt.postValue("0.00")
 
-                var income = incomeRepository.fnGetIncomePerYear(year)
-                var expense = expenseRepository.fnGetYearSummary(year)
+                var income = withContext(Dispatchers.IO){
+                    incomeRepository.fnGetIncomePerYear(year)
+                }
+                var expense = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetYearSummary(year)
+                }
                 var balance = income-expense
 
                 if(income != 0.0f)
@@ -144,7 +149,9 @@ class YearlySummaryReportViewModel(
                     _balanceAmt.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
 
-                var resList = expenseRepository.fnGetExpenseDetailsPerYear(year)
+                var resList = withContext(Dispatchers.IO){
+                    expenseRepository.fnGetExpenseDetailsPerYear(year)
+                }
                 var list : MutableList<ExpenseDetailsPerMonth> = mutableListOf<ExpenseDetailsPerMonth>()
                 if(resList.isNotEmpty())
                 {
@@ -167,7 +174,7 @@ class YearlySummaryReportViewModel(
                                     else -> "Invalid"
                                 },
                                 transactionsCount = ob.transactionsCount,
-                                expenseSummaryAmt = ob.expenseSummaryAmt
+                                expenseSummaryAmt = Global.fnFormatFloatTwoDigits(ob.expenseSummaryAmt,logger).toFloat()
                             )
                         )
                     }
@@ -180,6 +187,7 @@ class YearlySummaryReportViewModel(
             }
             catch (e : Exception)
             {
+                _yearSummaryList.postValue(emptyList<ExpenseDetailsPerMonth>())
                 logger.logError(LOG_TAG,"Get Expense Details Per Year: ${e.message}")
                 Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Get Expense Details Per Year: ${e.message}")
             }
@@ -286,7 +294,7 @@ class YearlySummaryReportViewModel(
 
                     var totalExpenseRow = sheet.createRow(8)
                     var totalExpenseCell0 = totalExpenseRow.createCell(0)
-                    totalExpenseCell0.setCellValue("INCOME:    ${incomeAmt.value}")
+                    totalExpenseCell0.setCellValue("INCOME:    ${Global.fnFormatFloatTwoDigits(incomeAmt.value?.toFloat(),logger)}")
                     totalExpenseCell0.cellStyle=summaryStyle
 
 
@@ -296,9 +304,8 @@ class YearlySummaryReportViewModel(
 
                     var addedExpenseRow = sheet.createRow(9)
                     var addedExpenseCell0 = addedExpenseRow.createCell(0)
-                    addedExpenseCell0.setCellValue("EXPENSE:   ${expenseAmt.value}")
+                    addedExpenseCell0.setCellValue("EXPENSE:   ${Global.fnFormatFloatTwoDigits(expenseAmt.value?.toFloat(),logger)}")
                     addedExpenseCell0.cellStyle=summaryStyle
-
 
                     sheet.addMergedRegion(
                         CellRangeAddress(9,9,0,4)
@@ -306,7 +313,7 @@ class YearlySummaryReportViewModel(
 
                     var deletedExpenseRow = sheet.createRow(10)
                     var deletedExpenseCell0 = deletedExpenseRow.createCell(0)
-                    deletedExpenseCell0.setCellValue("BALANCE:  ${balanceAmt.value}")
+                    deletedExpenseCell0.setCellValue("BALANCE:  ${Global.fnFormatFloatTwoDigits(balanceAmt.value?.toFloat(),logger)}")
                     deletedExpenseCell0.cellStyle=summaryStyle
 
                     sheet.addMergedRegion(
@@ -336,7 +343,7 @@ class YearlySummaryReportViewModel(
                         dataCell1.setCellValue("${ob.transactionsCount}")
                         dataCell1.cellStyle=dataStyle
                         var dataCell2=dataRow.createCell(2)
-                        dataCell2.setCellValue("${ob.expenseSummaryAmt}")
+                        dataCell2.setCellValue(Global.fnFormatFloatTwoDigits(ob.expenseSummaryAmt,logger))
                         dataCell2.cellStyle=dataStyle
 
                     }
@@ -357,7 +364,7 @@ class YearlySummaryReportViewModel(
             catch (e : Exception)
             {
                 _isExportLoading.value=false
-                _exportStatus.value = ResultState1.fail(R.string.yearlyReport_ExportFailed)
+                _exportStatus.value = ResultState1.fail(R.string.somethingWrong)
                 Log.e("YEARLY_SUMMARY_REPORT_VIEW_MODEL","Excel File Creation: ${e.message}")
                 logger.logError(LOG_TAG,"Excel File Creation: ${e.message}")
             }
@@ -401,20 +408,20 @@ class YearlySummaryReportViewModel(
 
     }
 
-    fun fnPreWarmExcelEngine()
-    {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            }
-            catch (e: Exception) {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
-            }
-        }
-    }
+//    fun fnPreWarmExcelEngine()
+//    {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            try {
+//                val wb = XSSFWorkbook()
+//                wb.createSheet("warmup")
+//                wb.close()
+//            }
+//            catch (e: Exception) {
+//                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+//                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+//            }
+//        }
+//    }
 
 
 }
