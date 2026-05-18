@@ -125,7 +125,7 @@ class CategoryRepository(
         return try
         {
 //            var res= categoryDao.fnDeleteCategoryFromDb(categoryId = categoryId,userId)
-            var res = categoryDao.fnUpdateCategoryDeleteStatus(Global.CATEGORY_DELETED,categoryId,userId)
+            var res = categoryDao.fnUpdateCategoryDeleteStatus(Global.CATEGORY_DELETED,categoryId,userId,0)
             if(res > 0)
                 true
             else
@@ -165,7 +165,8 @@ class CategoryRepository(
             var cateCount = categoryDao.fnGetCategoryCountPerUser(userId, Global.CATEGORY_ADDED)
             if(cateCount > 0)
             {
-                var result = categoryDao.DeleteCategoryPerUserId(userId,Global.CATEGORY_DELETED)
+                var result = categoryDao.DeleteCategoryPerUserId(userId,Global.CATEGORY_DELETED,
+                    0)
                 if(result > 0) true else false
             }
             else
