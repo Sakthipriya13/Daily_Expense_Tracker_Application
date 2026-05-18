@@ -129,6 +129,7 @@ class SyncWorker(
                     "categoryId" to cat.categoryId,
                     "signUpDate" to cat.signUpDate,
                     "categoryName" to cat.categoryName,
+                    "deleteStatus" to cat.deleteStatus
                 )
 
                 docRef.set(map).await()
