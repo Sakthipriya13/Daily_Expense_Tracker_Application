@@ -25,7 +25,7 @@ interface CategoryDao {
 //    @Query("DELETE FROM Categories WHERE categoryId = :categoryId AND UserId= :userId")
 //    suspend fun fnDeleteCategoryFromDb(categoryId : Int?, userId : Int?) : Int
 
-    @Query("UPDATE Categories Set DeleteStatus= :deleteStatus AND IsSynced= :syncStatus WHERE categoryId = :categoryId AND UserId= :userId")
+    @Query("UPDATE Categories Set DeleteStatus= :deleteStatus , IsSynced= :syncStatus WHERE categoryId = :categoryId AND UserId= :userId")
     suspend fun fnUpdateCategoryDeleteStatus(deleteStatus: Int,categoryId : Int?, userId : Int?,syncStatus: Int):Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -37,7 +37,7 @@ interface CategoryDao {
     @Query("SELECT * FROM Categories WHERE UserId = :lUserId AND IsSynced=0")
     suspend fun fnGetUnSyncedCategories(lUserId: Int) : List<CategoryEntitty>
 
-    @Query("UPDATE Categories SET DeleteStatus= :deleteStatus AND IsSynced= :syncStatus WHERE UserId= :userId")
+    @Query("DELETE FROM Categories WHERE UserId= :userId")
     suspend fun DeleteCategoryPerUserId(userId:Int,deleteStatus: Int,syncStatus: Int): Int
 
     @Query("SELECT COUNT(*) FROM Categories WHERE UserId= :userId AND DeleteStatus= :AddedStatus")

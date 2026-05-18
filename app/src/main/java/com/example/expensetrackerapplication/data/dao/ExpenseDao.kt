@@ -19,13 +19,12 @@ interface ExpenseDao {
     @Insert
     suspend fun fnInsertAllExpense(expense: List<ExpenseEntity>) : List<Long>
 
-    @Query("SELECT * FROM ExpenseTable")
-    suspend fun fnGetAllExpense(): List<ExpenseEntity>
+//    @Query("SELECT * FROM ExpenseTable")
+//    suspend fun fnGetAllExpense(): List<ExpenseEntity>
 
-    @Query("SELECT * FROM ExpenseTable WHERE ExpenseDate= :date AND UserId= :luserId")
-    suspend fun fnGetExpensePerDate(date: String?,luserId : Int): List<ExpenseEntity>
+//    @Query("SELECT * FROM ExpenseTable WHERE ExpenseDate= :date AND UserId= :luserId")
+//    suspend fun fnGetExpensePerDate(date: String?,luserId : Int): List<ExpenseEntity>
 
-    //28-03-2026
     @Query("SELECT * FROM ExpenseTable WHERE ExpenseDate= :date AND UserId= :luserId AND ExpenseStatus != :editStatus")
     suspend fun fnGetExpensePerDate(date: String?,luserId : Int,editStatus : Int): List<ExpenseEntity>
 
@@ -157,13 +156,16 @@ interface ExpenseDao {
     @Query("SELECT * FROM ExpenseTable WHERE UserId = :lUserId AND IsSynced=0")
     suspend fun fnGetUnSyncedExpense(lUserId: Int) : List<ExpenseEntity>
 
-    @Query("SELECT * FROM ExpenseTable WHERE expenseId = :expenseId")
-    suspend fun fnGetExpenseDetailsPerId(expenseId: Int?): List<ExpenseEntity>
+    @Query("SELECT * FROM ExpenseTable WHERE expenseId = :expenseId AND ExpenseStatus= :status")
+    suspend fun fnGetExpenseDetailsPerId(expenseId: Int?,status: Int): List<ExpenseEntity>
 
     @Query("DELETE FROM ExpenseTable WHERE UserId= :userId")
-    suspend fun DeleteExpensePerUserId(userId:Int): Int
+    suspend fun DeleteExpensePerUserId(userId:Int,deleteStatus: Int): Int
 
-    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId")
-    suspend fun fnGetExpenseCountPerUser(userId: Int) : Int
+    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId AND ExpenseStatus= :status ")
+    suspend fun fnGetExpenseCountPerUser(userId: Int,status: Int) : Int
+
+    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId AND ExpenseStatus= :status AND ExpenseCategoryId= :categoryId")
+    suspend fun fnCheckExpenseExistForSelectedCate(userId: Int?, categoryId: Int?, status: Int) : Int
 
 }

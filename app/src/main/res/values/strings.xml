@@ -89,6 +89,7 @@
 
     <string name="do_you_want_to_delete_the_expense">Do You Want To Delete This Expense?</string>
     <string name="do_you_want_to_delete_the_category">Do You Want To Delete This Category?</string>
+    <string name="del_Category">This category already has expenses added.If you want to delete the category,edit the category for the added expenses or delete those expenses first.</string>
 
     <string name="edit">EDIT</string>
 

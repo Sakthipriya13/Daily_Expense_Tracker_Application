@@ -306,4 +306,7 @@
     <string name="income_EditIncomeSuccess">successfully Income Was Edited"</string>
     <string name="income_EditIncomeFailed">Edit Income Failed"</string>
 
+    <string name="del_Category">This category already has expenses added.If you want to delete the category,edit the category for the added expenses or delete those expenses first.</string>
+
+
 </resources>

@@ -130,7 +130,6 @@ class Settings : Fragment()
         super.onViewCreated(view, savedInstanceState)
 
         try {
-
             deletePromptBinding = DataBindingUtil.inflate(layoutInflater,R.layout.confirmation_prompt,null,false)
             deletePromptBinding.prompt = deletePromptViewModel
             deletePromptBinding.lifecycleOwner = viewLifecycleOwner
@@ -156,9 +155,18 @@ class Settings : Fragment()
                         deletePromptDialog.dismiss()
                     }
                     is ResultState.fail ->{
-                        settingsViewModel.fnDeleteCategory(deleteCategory?.categoryId,deleteCategory?.userId)
-                        Global.displayDialogPrompt=false
-                        deletePromptDialog.dismiss()
+                        if(settingsViewModel.displayCateWarning.value == true)
+                        {
+                            Global.displayDialogPrompt=false
+                            deletePromptDialog.dismiss()
+                        }
+                        else
+                        {
+                            settingsViewModel.fnDeleteCategory(deleteCategory?.categoryId,deleteCategory?.userId)
+                            Global.displayDialogPrompt=false
+                            deletePromptDialog.dismiss()
+                        }
+
                     }
                 }
             }
@@ -372,13 +380,10 @@ class Settings : Fragment()
                     override fun onRemoveClick(category: CategoryModel) {
                         try
                         {
-//                            fnShowDeletePrompt(category)
                             deleteCategory = category
-                            // Assign Title
-                            deletePromptViewModel._title.value = getString(R.string.warning)
-                            //Assign Content
-                            deletePromptViewModel._message.value = getString(R.string.do_you_want_to_delete_the_category)
-                            deletePromptDialog.show()
+
+                            settingsViewModel.fnCheckExpenseExistForCategory(deleteCategory?.userId,deleteCategory?.categoryId)
+
                         }
                         catch(e: Exception)
                         {
@@ -391,6 +396,32 @@ class Settings : Fragment()
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Category List Observed: ${e.message}")
+            }
+        }
+
+        settingsViewModel.displayCateWarning.observe(viewLifecycleOwner){ status ->
+            try
+            {
+                if(status == true)
+                {
+                    // Assign Title
+                    deletePromptViewModel._title.value = getString(R.string.warning)
+                    //Assign Content
+                    deletePromptViewModel._message.value = getString(R.string.del_Category)
+                    deletePromptDialog.show()
+                }
+                else
+                {
+                    // Assign Title
+                    deletePromptViewModel._title.value = getString(R.string.warning)
+                    //Assign Content
+                    deletePromptViewModel._message.value = getString(R.string.do_you_want_to_delete_the_category)
+                    deletePromptDialog.show()
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Category Warning: ${e.message}")
             }
         }
 

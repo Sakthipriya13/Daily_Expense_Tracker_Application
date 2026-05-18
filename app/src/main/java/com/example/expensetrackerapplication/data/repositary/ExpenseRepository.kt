@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.expensetrackerapplication.data.dao.ExpenseDao
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.logger.FileLogger
-import com.example.expensetrackerapplication.logger.Logger
 import com.example.expensetrackerapplication.model.CategoryChartModel
 import com.example.expensetrackerapplication.model.ExpenseDetailsPerMonth
 import com.example.expensetrackerapplication.model.PaymentTypeChartModel
@@ -315,7 +314,7 @@ class ExpenseRepository(
     suspend fun  fnGetExpenseDetails(expenseId: Int?) : List<ExpenseEntity> {
         return try
         {
-            return expenseDao.fnGetExpenseDetailsPerId(expenseId)
+            return expenseDao.fnGetExpenseDetailsPerId(expenseId, Global.EXPENSE_STATUS_ADDED)
         }
         catch(e:Exception)
         {
@@ -328,10 +327,10 @@ class ExpenseRepository(
     suspend fun fnDeleteExpensePerUser(userId : Int) : Boolean{
         return try
         {
-            var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId)
+            var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId, Global.EXPENSE_STATUS_ADDED)
             if(expenseCount > 0)
             {
-                val result = expenseDao.DeleteExpensePerUserId(userId)
+                val result = expenseDao.DeleteExpensePerUserId(userId, Global.EXPENSE_STATUS_DELETED)
                 if(result > 0) true else false
             }
             else
@@ -342,6 +341,26 @@ class ExpenseRepository(
         catch (e: Exception)
         {
             logger.logError(LOG_TAG,"Delete User: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun fnCheckExpenseExistForSelCate(userId: Int?, categoryId: Int?): Boolean {
+        return try
+        {
+            var count = expenseDao.fnCheckExpenseExistForSelectedCate(userId,categoryId, Global.EXPENSE_STATUS_ADDED)
+            if(count>0)
+            {
+                true
+            }
+            else
+            {
+                false
+            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Check Expense Exist Selected Category: ${e.message}")
             false
         }
     }

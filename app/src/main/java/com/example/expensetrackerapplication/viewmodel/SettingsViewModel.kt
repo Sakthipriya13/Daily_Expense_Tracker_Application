@@ -111,6 +111,9 @@ class SettingsViewModel(
 
     val LOG_TAG = "SETTINGS_VIEW_MODEL"
 
+    var _displayCateDelWarning = MutableLiveData<Boolean>()
+    var displayCateWarning : LiveData<Boolean> = _displayCateDelWarning
+
 //    var _uiEvent = MutableLiveData<UiEvent>()
 //    var uiEvent : LiveData<UiEvent> = _uiEvent
 
@@ -255,6 +258,7 @@ class SettingsViewModel(
                 }
                 else
                     _deleteCategoryStatus.postValue(ResultState1.fail(R.string.set_DeleteCategoryFailed))
+
             }
             catch (e: Exception)
             {
@@ -622,6 +626,32 @@ class SettingsViewModel(
             finally
             {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    fun fnCheckExpenseExistForCategory(userId: Int?, categoryId: Int?)
+    {
+        viewModelScope.launch {
+            try
+            {
+                var isExpenseExistForSelectedCategory = withContext(Dispatchers.IO){
+                    expenseRepository.fnCheckExpenseExistForSelCate(userId,categoryId)
+                }
+
+                if(isExpenseExistForSelectedCategory ==  true)
+                {
+                    _displayCateDelWarning.value = true
+                }
+                else
+                {
+                    _displayCateDelWarning.value = false
+                }
+
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Fun Check Expense Exist For Category: ${e.message}")
             }
         }
     }
