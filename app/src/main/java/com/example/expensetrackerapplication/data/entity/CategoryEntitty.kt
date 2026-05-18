@@ -30,6 +30,8 @@ data class CategoryEntitty(
     @ColumnInfo(name = "SignUpDate")
     var signUpDate : String="",
     @ColumnInfo(name = "CategoryName")
-    var categoryName : String?=""
+    var categoryName : String?="",
+    @ColumnInfo(name="DeleteStatus")
+    var deleteStatus : Int = 0
 
 )

@@ -99,6 +99,9 @@ object Global {
 
     val LOG_TAG = "GLOBAL"
 
+    val CATEGORY_ADDED = 0
+    val CATEGORY_DELETED = 1
+
     fun isNetworkAvailable(context: Context,logger: FileLogger): Boolean {
         try
         {

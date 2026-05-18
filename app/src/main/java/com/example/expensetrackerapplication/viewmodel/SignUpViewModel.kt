@@ -220,7 +220,8 @@ class SignUpViewModel(
                                 userId = sUserId,
                                 signUpDate = Global.fnGetCurrentDate(logger),
                                 cloudId = Global.cloudUserId ?: "",
-                                isSynced = 0
+                                isSynced = 0,
+                                deleteStatus = Global.CATEGORY_ADDED
                             )
                         }
 

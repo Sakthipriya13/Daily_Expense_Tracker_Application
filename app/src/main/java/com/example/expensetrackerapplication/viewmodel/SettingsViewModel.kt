@@ -172,7 +172,8 @@ class SettingsViewModel(
                     isSynced = 0,
                     categoryId = 0,
                     signUpDate = expenseDate,
-                    categoryName=newCategory.value
+                    categoryName=newCategory.value,
+                    deleteStatus = Global.CATEGORY_ADDED
                 )
                 var result = withContext(Dispatchers.IO){
                     categoryRepository.fnInsertCategoriesToDb(

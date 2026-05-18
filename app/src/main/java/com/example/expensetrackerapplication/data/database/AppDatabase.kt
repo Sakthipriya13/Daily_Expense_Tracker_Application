@@ -21,7 +21,7 @@ import com.example.expensetrackerapplication.logger.FileLogger
 import java.io.File
 
 @Database(entities = [UserEntity::class, CategoryEntitty :: class, ExpenseEntity :: class, IncomeEntity :: class],
-    version = 15,
+    version = 16,
     exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao

@@ -96,7 +96,7 @@ class CategoryRepository(
     suspend fun fnGetAllCategoriesFromDb() : List<CategoryEntitty>{
         try
         {
-            var categoryList = categoryDao.fnGetAllCategories(Global.lUserId)
+            var categoryList = categoryDao.fnGetAllCategories(Global.lUserId, Global.CATEGORY_ADDED)
             return categoryList
         }
         catch (e: Exception)
@@ -124,8 +124,8 @@ class CategoryRepository(
     suspend fun fnDeleteCategory(categoryId: Int?, userId: Int?):Boolean{
         return try
         {
-            var res= categoryDao.fnDeleteCategoryFromDb(categoryId = categoryId,userId)
-
+//            var res= categoryDao.fnDeleteCategoryFromDb(categoryId = categoryId,userId)
+            var res = categoryDao.fnUpdateCategoryDeleteStatus(Global.CATEGORY_DELETED,categoryId,userId)
             if(res > 0)
                 true
             else
@@ -162,10 +162,10 @@ class CategoryRepository(
     suspend fun fnDeleteCategoryPerUser(userId : Int) : Boolean{
         return try
         {
-            var cateCount = categoryDao.fnGetCategoryCountPerUser(userId)
+            var cateCount = categoryDao.fnGetCategoryCountPerUser(userId, Global.CATEGORY_ADDED)
             if(cateCount > 0)
             {
-                var result = categoryDao.DeleteCategoryPerUserId(userId)
+                var result = categoryDao.DeleteCategoryPerUserId(userId,Global.CATEGORY_DELETED)
                 if(result > 0) true else false
             }
             else
