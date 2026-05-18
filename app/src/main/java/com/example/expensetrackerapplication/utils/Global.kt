@@ -338,16 +338,30 @@ object Global {
 
     fun fnIsEmailValid(email: String?,logger: FileLogger):Boolean
     {
-        return try
-        {
-            !email.isNullOrEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Is Email Valid: ${e.message}")
-            false
+        try {
+            val emailRegex = Regex(
+                pattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+            )
+            return email?.matches(emailRegex) ?: false
+
+        } catch (e: Exception) {
+            logger.logError(LOG_TAG, "Is Email Valid: ${e.message}")
+            return false
         }
     }
+
+//    fun fnIsEmailValid(email: String?,logger: FileLogger):Boolean
+//    {
+//        return try
+//        {
+//            !email.isNullOrEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
+//        }
+//        catch (e: Exception)
+//        {
+//            logger.logError(LOG_TAG,"Is Email Valid: ${e.message}")
+//            false
+//        }
+//    }
 
 //    fun fnCopyImageToInternalStorage(context: Context, uri: Uri): String {
 //
@@ -394,17 +408,17 @@ object Global {
 
     fun fnPreWarmExcelEngine(logger: FileLogger)
     {
-//        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val wb = XSSFWorkbook()
-                wb.createSheet("warmup")
-                wb.close()
-            }
-            catch (e: Exception) {
-                logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
-                Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
-            }
-//        }
+        try {
+            val wb = XSSFWorkbook()
+            wb.createSheet("warmup")
+            wb.close()
+        }
+        catch (e: Exception) {
+            logger.logError(LOG_TAG,"PreWarm Excel Engine: ${e.message}")
+            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","PreWarm Excel Engine: ${e.message}")
+        }
     }
+
+
 
 }

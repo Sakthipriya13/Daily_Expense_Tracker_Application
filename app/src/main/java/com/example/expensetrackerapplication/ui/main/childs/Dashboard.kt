@@ -177,7 +177,6 @@ class Dashboard : Fragment() {
                 if(list.isNotEmpty())
                 {
                     dashBoardViewModel._isLoading.value=false
-                    Log.i("PAYMENT TYPE CHART LIST","payment Type Chart List: List Was Observed")
                     renderBarChart(list)
                 }
                 else{
@@ -196,7 +195,6 @@ class Dashboard : Fragment() {
                 if(list.isNotEmpty())
                 {
                     dashBoardViewModel._isLoading.value=false
-                    Log.i("CATEGORY LIST","Category List: List Was Observed")
                     renderPieChart(list)
                 }
                 else{

@@ -216,7 +216,7 @@
     <string name="signup_NewUserCreationFailed">New user Account Creation Failed</string>
     <string name="signup_AlreadyEmailWasUsed">The Email Already Used</string>
 
-    <string name="signup_MayBeTheEmailAlreadyUsed">New user Account Creation Failed.he Email Already Used</string>
+    <string name="signup_MayBeTheEmailAlreadyUsed">New user Account Creation Failed.The Email Already Used</string>
 
     <string name="noInternet">Internet Is Needed</string>
 
@@ -231,6 +231,9 @@
     <string name="income_IncomeFieldEmpty">Income Field Was Empty</string>
     <string name="income_InsertIncomeSuccess">successfully Income Was Added"</string>
     <string name="income_InsertIncomeFailed">Add Income Failed"</string>
+
+    <string name="income_EditIncomeSuccess">successfully Income Was Edited"</string>
+    <string name="income_EditIncomeFailed">Edit Income Failed"</string>
 
     <string name="cp_NewPasswordFieldEmpty">New Password Field Was Empty</string>
     <string name="cp_PasswordChangeFailed">Password Changes Failed</string>
@@ -285,5 +288,7 @@
     <string name="main_AlreadyInReport">Already You Are In Report</string>
     <string name="main_AlreadyInDashboard">Already You Are In Dashboard</string>
     <string name="total_expense">TOTAL EXPENSE</string>
+
+    <string name="alreadyIncomeAdded">Do You Want To Edit The Income</string>
 
 </resources>

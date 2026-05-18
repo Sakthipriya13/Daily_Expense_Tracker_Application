@@ -8,10 +8,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.data.database.AppDatabase
+import com.example.expensetrackerapplication.data.repositary.CategoryRepository
+import com.example.expensetrackerapplication.data.repositary.ExpenseRepository
+import com.example.expensetrackerapplication.data.repositary.IncomeRepository
 import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.data.repositary.UserRepository
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
+import com.google.android.play.core.assetpacks.ca
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,11 +26,26 @@ class ProfileViewModel(
 {
     // User Repository Variable Initialization
     private lateinit var userRepository  : UserRepository
+    private lateinit var expenseRepository : ExpenseRepository
+    private lateinit var incomeRepository: IncomeRepository
+    private lateinit var categoryRepository: CategoryRepository
 
     init{
         var userDao = AppDatabase.getdatabase(application,logger)?.userDao()
         userDao?.let {
             userRepository= UserRepository(userDao,application,logger)
+        }
+        var expenseDao = AppDatabase.getdatabase(application,logger)?.ExpenseDao()
+        expenseDao?.let {
+            expenseRepository = ExpenseRepository(expenseDao,logger)
+        }
+        var incomeDao = AppDatabase.getdatabase(application,logger)?.IncomeDao()
+        incomeDao?.let {
+            incomeRepository = IncomeRepository(incomeDao,logger)
+        }
+        var categoryDao = AppDatabase.getdatabase(application,logger)?.CategoryDao()
+        categoryDao?.let {
+            categoryRepository = CategoryRepository(categoryDao,logger)
         }
     }
 
@@ -150,10 +169,32 @@ class ProfileViewModel(
         viewModelScope.launch {
             try
             {
-                val result = withContext(Dispatchers.IO){
+                Log.i(LOG_TAG,"User Id: ${Global.lUserId}")
+                val userDeleteResult = withContext(Dispatchers.IO){
+                    Log.i(LOG_TAG,"User Delete Start")
+
                     userRepository.fnDeleteUser(Global.lUserId)
                 }
-                if (result)
+                val expenseDeleteResult = withContext(Dispatchers.IO){
+                    Log.i(LOG_TAG,"User Expense Start")
+
+                    expenseRepository.fnDeleteExpensePerUser(Global.lUserId)
+                }
+                val cateDeleteResult = withContext(Dispatchers.IO){
+                    Log.i(LOG_TAG,"User Category Start")
+
+                    categoryRepository.fnDeleteCategoryPerUser(Global.lUserId)
+                }
+                val incomeDeleteResult = withContext(Dispatchers.IO){
+                    Log.i(LOG_TAG,"User Income Start")
+
+                    incomeRepository.fnDeleteIncomePerUser(Global.lUserId)
+                }
+                Log.i(LOG_TAG,"UserDelRes:$userDeleteResult\nExpenseDelRes:$expenseDeleteResult\nCateDelRes:$cateDeleteResult\nIncomeDelRes:$incomeDeleteResult")
+                if (userDeleteResult == true &&
+                    expenseDeleteResult == true &&
+                    cateDeleteResult == true &&
+                    incomeDeleteResult == true )
                 {
                     _deleteUserAcStatus.postValue(ResultState1.success(R.string.deleteAccount_Success))
                 }
@@ -165,7 +206,6 @@ class ProfileViewModel(
             catch (e : Exception)
             {
                 logger.logError(LOG_TAG,"Delete User Account: ${e.message}")
-                Log.e("DELETE USER ACCOUNT","Delete User Account: ${e.message}")
                 _deleteUserAcStatus.postValue(ResultState1.fail(R.string.somethingWrong))
             }
         }

@@ -6,31 +6,38 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.icu.util.Calendar
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.expensetrackerapplication.R
 import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.databinding.AddIncomeBinding
 import com.example.expensetrackerapplication.databinding.ChangePasswordBinding
 import com.example.expensetrackerapplication.databinding.ConfirmationPromptBinding
+import com.example.expensetrackerapplication.databinding.EditIncomeWarningBinding
 import com.example.expensetrackerapplication.databinding.ProfileBinding
 import com.example.expensetrackerapplication.factory.AppViewModelFactory
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.ui.auth.parent.Auth
+import com.example.expensetrackerapplication.ui.main.parent.Main
 import com.example.expensetrackerapplication.utils.ResultState
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.AddInComeViewModel
 import com.example.expensetrackerapplication.viewmodel.ChangePasswordViewModel
 import com.example.expensetrackerapplication.viewmodel.DeletePromptViewModel
+import com.example.expensetrackerapplication.viewmodel.MainViewModel
 import com.example.expensetrackerapplication.viewmodel.ProfileViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.play.core.assetpacks.ca
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -58,6 +65,10 @@ class Profile : Fragment() {
         )
     }
     private val profileViewModel : ProfileViewModel by viewModels{
+        appViewModelFactory
+    }
+
+    private val mainViewModel : MainViewModel by activityViewModels {
         appViewModelFactory
     }
 
@@ -104,7 +115,8 @@ class Profile : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         try {
-            deletePromptBinding = DataBindingUtil.inflate(layoutInflater,R.layout.confirmation_prompt,null,false)
+            deletePromptBinding =
+                DataBindingUtil.inflate(layoutInflater, R.layout.confirmation_prompt, null, false)
             deletePromptBinding.prompt = deletePromptViewModel
             deletePromptBinding.lifecycleOwner = viewLifecycleOwner
 
@@ -113,233 +125,122 @@ class Profile : Fragment() {
                 .setCancelable(false)
                 .create()
             deletePromptDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        }
-        catch (e: Exception)
-        {
-            logger.logError(LOG_TAG,"Delete Prompt Screen Creation: ${e.message}")
+        } catch (e: Exception) {
+            logger.logError(LOG_TAG, "Delete Prompt Screen Creation: ${e.message}")
         }
 
-        deletePromptViewModel.isClose.observe(viewLifecycleOwner){ isClose ->
-            try
-            {
-                when(isClose){
-                    is ResultState.Success ->{
+        deletePromptViewModel.isClose.observe(viewLifecycleOwner) { isClose ->
+            try {
+                when (isClose) {
+                    is ResultState.Success -> {
                         Global.isCalendarSelected = false
                         deletePromptDialog.dismiss()
                     }
-                    is ResultState.fail ->{
-                        Global.isCalendarSelected = false
-                        profileViewModel.fnDeleteUserAccount()
+
+                    is ResultState.fail -> {
+                        try
+                        {
+                            Global.isCalendarSelected = false
+                            profileViewModel.fnDeleteUserAccount()
+                        }
+                        catch (e: Exception)
+                        {
+                            logger.logError(LOG_TAG,"Logout Status: ${e.message}")
+                        }
                     }
                 }
             }
             catch (e: Exception)
             {
-                logger.logError(LOG_TAG,"Is Close Value Observed From DeletePromptViewModel: ${e.message}")
+                logger.logError(
+                    LOG_TAG,
+                    "Is Close Value Observed From DeletePromptViewModel: ${e.message}"
+                )
             }
         }
 
-        profileViewModel.isDelAccount.observe(viewLifecycleOwner){ isDelAc ->
-            try
-            {
-                if(isDelAc)
-                {
-                    if(Global.isCalendarSelected==false)
-                    {
+        profileViewModel.isDelAccount.observe(viewLifecycleOwner) { isDelAc ->
+            try {
+                if (isDelAc) {
+                    if (Global.isCalendarSelected == false) {
                         //Flag Value
                         Global.isCalendarSelected = true
 
                         deletePromptViewModel._title.value = getString(R.string.deleteAccount_Title)
-                        deletePromptViewModel._message.value = getString(R.string.deleteAccount_Content)
+                        deletePromptViewModel._message.value =
+                            getString(R.string.deleteAccount_Content)
                         //Display Dialog Screen
                         deletePromptDialog.show()
                     }
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Display Delete User Account Prompt Screen: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Display Delete User Account Prompt Screen: ${e.message}")
             }
         }
 
-        profileViewModel.deleteUserAcStatus.observe(viewLifecycleOwner){ isDeleted ->
-            try
-            {
-                when(isDeleted)
-                {
-                    is ResultState1.success ->{
-                        fnShowMessage(getString(isDeleted.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
-                        var intent = Intent(requireContext(),Auth::class.java)
-                        startActivity(intent)
+        profileViewModel.deleteUserAcStatus.observe(viewLifecycleOwner) { isDeleted ->
+            try {
+                when (isDeleted) {
+                    is ResultState1.success -> {
+                        fnShowMessage(
+                            getString(isDeleted.message),
+                            requireContext(),
+                            R.drawable.bg_success,
+                            logger,
+                            LOG_TAG
+                        )
+
+                        deletePromptDialog.dismiss()
+
+                        mainViewModel._logoutSatus.value = true
+
+//                        var intent = Intent(requireContext(), Auth::class.java)
+//                        startActivity(intent)
                     }
 
-                    is ResultState1.fail ->{
-                        fnShowMessage(getString(isDeleted.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
+                    is ResultState1.fail -> {
+                        fnShowMessage(
+                            getString(isDeleted.message),
+                            requireContext(),
+                            R.drawable.error_bg,
+                            logger,
+                            LOG_TAG
+                        )
                     }
                 }
             }
             catch (e: Exception)
             {
-                logger.logError(LOG_TAG,"Delete User Account Status: ${e.message}")
+                logger.logError(LOG_TAG, "Delete User Account Status: ${e.message}")
             }
         }
 
-        profileViewModel.isChangePassword.observe(viewLifecycleOwner){ status ->
-            try
-            {
-                if(status)
-                {
-                    if(Global.isBottomSheetSelected==false)
-                    {
+        profileViewModel.isChangePassword.observe(viewLifecycleOwner) { status ->
+            try {
+                if (status) {
+                    if (Global.isBottomSheetSelected == false) {
                         Global.isBottomSheetSelected = true
                         ChangePassword().show(parentFragmentManager, "ChangePasswordBottomSheet")
                     }
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Display Change Password Screen: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Display Change Password Screen: ${e.message}")
             }
         }
 
-        profileViewModel.isAddIncome.observe(viewLifecycleOwner){ status ->
-            try
-            {
-                if(status)
-                {
-                    if(Global.isBottomSheetSelected==false)
-                    {
-                        Global.isBottomSheetSelected=true
-                        AddIncome().show(parentFragmentManager,"AddIncomeBottomSheet")
+        profileViewModel.isAddIncome.observe(viewLifecycleOwner) { status ->
+            try {
+                if (status) {
+                    if (Global.isBottomSheetSelected == false) {
+                        Global.isBottomSheetSelected = true
+                        AddIncome().show(parentFragmentManager, "AddIncomeBottomSheet")
                     }
                 }
-            }
-            catch (e: Exception)
-            {
-                logger.logError(LOG_TAG,"Display Add Income Screen: ${e.message}")
+            } catch (e: Exception) {
+                logger.logError(LOG_TAG, "Display Add Income Screen: ${e.message}")
             }
         }
-
-//        profileViewModel.isEdit.observe(viewLifecycleOwner){ status ->
-//            if(status == true ){
-//                if(Global.isCalendarSelected==false) {
-//                    Global.isCalendarSelected = true
-//                    val view = EditProfilePhotoBinding.inflate(layoutInflater)
-//
-//                    var delAcPrompt = AlertDialog.Builder(requireContext())
-//                        .setView(view.root)
-//                        .setCancelable(false)
-//                        .create()
-//                    delAcPrompt.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//
-//                    view.idGalleryFlow.setOnClickListener {
-//                        try{
-//                            galleryLauncher.launch("image/*")
-//                            Global.isCalendarSelected = false
-//                            delAcPrompt.dismiss()
-//                        }
-//                        catch (e : Exception) {
-//                            Log.e("GET IMAGE FROM GALLERY","Get Image From Gallery: ${e.message}")
-//                            fnShowMessage("Something To Wrong To Get Image From Gallery",requireContext(),R.drawable.error_bg)
-//                        }
-//                    }
-//
-//                    view.idCameraFlow.setOnClickListener {
-//                        try{
-//                            checkCameraPermissions()
-//                            Global.isCalendarSelected = false
-//                            delAcPrompt.dismiss()
-//                        }
-//                        catch (e : Exception){
-//                            Log.e("GET IMAGE FROM CAMERA","Get Image From Camera: ${e.message}")
-//                            fnShowMessage("Get Image From Camera: ${e.message}",requireContext(),R.drawable.error_bg)
-//                        }
-//                    }
-//
-//                    view.idBtnDelProfilePhoto.setOnClickListener {
-//                        profileBinding.idProfileImage.setImageResource(R.drawable.user)
-//                        profileViewModel.fnUpdateUserProfilePhoto(null)
-//                        Global.isCalendarSelected = false
-//                        delAcPrompt.dismiss()
-//                    }
-//
-//                    view.idBtnCancel.setOnClickListener {
-//                        Global.isCalendarSelected = false
-//                        delAcPrompt.dismiss()
-//                    }
-//                    delAcPrompt.show()
-//                }
-//            }
-//        }
-
-//        profileViewModel.profileUri.observe(viewLifecycleOwner){ uri ->
-//            if(uri!=null){
-//                Log.i("PROFILE URI","Profile Uri: $uri")
-//                profileBinding.idProfileImage.setImageURI(uri)
-//                mainViewModel.fnGetUserProfilePhotoUri()
-//            }
-//            else{
-//                profileBinding.idProfileImage.setImageResource(R.drawable.user)
-//                fnShowMessage("Something Wrong , Can't Load Profile Photo",requireContext(),R.drawable.error_bg)
-//            }
-//        }
     }
-
-//    fun loadImage() {
-//        lifecycleScope.launch {
-//
-//            val path = withContext(Dispatchers.IO) {
-//                profileViewModel.fnGetImage().await()
-//            }
-//
-//            path?.let {
-//
-//                Glide.with(requireContext())
-//                    .load(File(it))
-//                    .into(profileBinding.idProfileImage)
-//            }
-//        }
-//    }
-
-//    fun checkCameraPermissions(){
-//        if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)== PackageManager.PERMISSION_GRANTED )
-//        {
-//            openCamera()
-//        }
-//        else{
-//            requestPermissions(arrayOf(Manifest.permission.CAMERA),100)
-//        }
-//    }
-
-//    fun openCamera(){
-//        profilePhotoUri=createImageUri()
-//        cameraLauncher.launch(profilePhotoUri)
-//    }
-
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String?>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if(requestCode==100 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//            openCamera()
-//        }
-//    }
-
-//    fun createImageUri(): Uri{
-//        val file = File(
-//            requireContext().cacheDir,
-//            "camera_${System.currentTimeMillis()}.jpg"
-//        )
-//
-//        return FileProvider.getUriForFile(
-//            requireContext(),
-//            "${requireContext().packageName}.provider",
-//            file
-//        )
-//    }
-
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -480,6 +381,14 @@ class AddIncome : BottomSheetDialogFragment()
 //        FileLogger(requireContext().applicationContext)
     val LOG_TAG = "ADD_INCOME"
 
+    private lateinit var editPromptBinding : EditIncomeWarningBinding
+
+    private lateinit var editPromptDialog : android.app.AlertDialog
+
+    val editPromptViewModel : DeletePromptViewModel by viewModels {
+        appViewModelFactory
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isCancelable = false
@@ -502,6 +411,48 @@ class AddIncome : BottomSheetDialogFragment()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        try
+        {
+            editPromptBinding =
+                DataBindingUtil.inflate(layoutInflater, R.layout.edit_income_warning, null, false)
+            editPromptBinding.prompt = editPromptViewModel
+            editPromptBinding.lifecycleOwner = viewLifecycleOwner
+
+            editPromptDialog = android.app.AlertDialog.Builder(requireContext())
+                .setView(editPromptBinding.root)
+                .setCancelable(false)
+                .create()
+            editPromptDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG, "Delete Prompt Screen Creation: ${e.message}")
+        }
+
+        editPromptViewModel.isClose.observe(viewLifecycleOwner) { isClose ->
+            try
+            {
+                when (isClose) {
+                    is ResultState.Success -> {
+                        Global.isCalendarSelected = false
+                        editPromptDialog.dismiss()
+                    }
+
+                    is ResultState.fail -> {
+                        Global.isCalendarSelected = false
+                        addIncomeViewModel.fnEditIncome()
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(
+                    LOG_TAG,
+                    "Is Close Value Observed From DeletePromptViewModel: ${e.message}"
+                )
+            }
+        }
 
         addIncomeBinding.idBtnCalendar.setOnClickListener {
             try
@@ -545,6 +496,72 @@ class AddIncome : BottomSheetDialogFragment()
             }
         }
 
+        addIncomeViewModel.existsIncome.observe(viewLifecycleOwner){ list ->
+            try {
+                if(list.income != 0.00f && list.income != null)
+                {
+                    Log.i(LOG_TAG,"Exist Income Observed")
+                    val editText = addIncomeBinding.idEIncome
+
+                    editText.post {
+                        // Reset old focus state
+                        editText.clearFocus()
+
+                        // Important
+                        editText.setSelectAllOnFocus(true)
+
+                        // Force fresh focus
+                        editText.isFocusableInTouchMode = true
+                        editText.requestFocus()
+
+                        // Move selection manually too
+                        editText.postDelayed({
+                            editText.selectAll()
+                        }, 150)
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Exist Income Observed: ${e.message}")
+            }
+        }
+
+        addIncomeViewModel.selectedDate.observe(viewLifecycleOwner){ date ->
+            try
+            {
+                addIncomeViewModel.fnGetIncomePerDay(date)
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Date Selected: ${e.message}")
+            }
+        }
+
+        addIncomeViewModel.displayWarning.observe(viewLifecycleOwner){ display ->
+            try
+            {
+                if(display)
+                {
+                    if(Global.isCalendarSelected==false)
+                    {
+                        //Flag Value
+                        Global.isCalendarSelected = true
+
+                        editPromptViewModel._message.value = getString(R.string.alreadyIncomeAdded)
+
+                        editPromptViewModel._title.value = getString(R.string.deleteAccount_Title)
+                        //Display Dialog Screen
+                        editPromptDialog.show()
+                    }
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Display Warning: ${e.message}")
+            }
+        }
+
         addIncomeViewModel.isClosed.observe(viewLifecycleOwner){ isClosed ->
             try
             {
@@ -565,9 +582,18 @@ class AddIncome : BottomSheetDialogFragment()
                 when(state)
                 {
                     is ResultState1.success -> {
-                        fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
-                        Global.isBottomSheetSelected=false
-                        dismiss()
+                        if(state.message  == R.string.income_EditIncomeSuccess)
+                        {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
+                            editPromptDialog.dismiss()
+                            addIncomeViewModel.fnGetIncomePerDay(addIncomeViewModel.selectedDate.value)
+                        }
+                        else
+                        {
+                            fnShowMessage(getString(state.message),requireContext(),R.drawable.bg_success,logger,LOG_TAG)
+                            Global.isBottomSheetSelected=false
+                            dismiss()
+                        }
                     }
 
                     is ResultState1.fail -> {
@@ -579,6 +605,7 @@ class AddIncome : BottomSheetDialogFragment()
                             addIncomeBinding.idEIncome.isFocusable = true
                             addIncomeBinding.idEIncome.requestFocus()
                         }
+
                     }
                 }
             }
@@ -589,55 +616,3 @@ class AddIncome : BottomSheetDialogFragment()
         }
     }
 }
-
-//class EditProfile : BottomSheetDialogFragment(){
-//
-//    private lateinit var editProfilePhotoBinding : EditProfilePhotoBinding
-//
-//    val editProfilePhotoViewModel : EditProfilePhotoViewModel by viewModels()
-//
-//    val profileViewModel : ProfileViewModel by activityViewModels()
-//
-//
-//
-//
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        isCancelable = false
-//    }
-//
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//
-//        editProfilePhotoBinding = DataBindingUtil.inflate(inflater,R.layout.edit_profile_photo,container,false)
-//        editProfilePhotoBinding.editProfilePhoto=editProfilePhotoViewModel
-//        editProfilePhotoBinding.lifecycleOwner=viewLifecycleOwner
-//
-//
-//        editProfilePhotoViewModel.isLeave.observe(viewLifecycleOwner){ isLeave ->
-//            if(isLeave){
-//                dismiss()
-//            }
-//        }
-//
-//        editProfilePhotoViewModel.isDelProfilePhoto.observe(viewLifecycleOwner){ isDel ->
-//            if(isDel){
-//                profileViewModel._isDelProfilePhoto.value =true
-//            }
-//        }
-//
-////        editProfilePhotoViewModel.editResult.observe(viewLifecycleOwner){ res ->
-////            when(res){
-////                is EditProfilePhoto.gallery -> galleryLauncher.launch("image/*")
-////                is EditProfilePhoto.camera -> {
-////
-////                }
-////            }
-////        }
-//
-//        return editProfilePhotoBinding.root
-//    }
-//}

@@ -1,10 +1,7 @@
 package com.example.expensetrackerapplication.data.repositary
 
 import android.util.Log
-import androidx.paging.LOG_TAG
-import androidx.paging.Logger
 import com.example.expensetrackerapplication.data.dao.IncomeDao
-import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
 import com.example.expensetrackerapplication.logger.FileLogger
 import com.example.expensetrackerapplication.utils.Global
@@ -24,15 +21,23 @@ class IncomeRepository(
 //        return incomeDao.fnInsertIncome(income)
 //    }
 
-    suspend fun fnUpdateIncome(income: IncomeEntity)
+    suspend fun fnUpdateIncome(income: IncomeEntity) : Boolean
     {
-        try
+        return try
         {
-            incomeDao.fnUpdateIncome(income)
+            var res = incomeDao.fnUpdateIncome(income)
+            if(res == 1)
+            {
+                true
+            }
+            else{
+                false
+            }
         }
         catch (e: Exception)
         {
             logger.logError(LOG_TAG,"Update Income: ${e.message}")
+            false
         }
     }
     suspend fun fnGetUnSyncedIncomes(): List <IncomeEntity>
@@ -158,4 +163,38 @@ class IncomeRepository(
             emptyList<IncomeEntity>()
         }
     }
+
+    fun fnGetIncomePerDay(date: String?) : List<IncomeEntity> {
+        return try
+        {
+            Log.i(LOG_TAG,"Get Income Per Date:$date")
+            incomeDao.fnGetIncomePerDay(date)
+        }
+        catch (e: Exception){
+            logger.logError(LOG_TAG,"Get Income Per Day: ${e.message}")
+            emptyList<IncomeEntity>()
+        }
+    }
+
+    suspend fun fnDeleteIncomePerUser(userId : Int) : Boolean{
+        return try
+        {
+            var incomeCount = incomeDao.fnGetIncomeCountPerUser(userId)
+            if(incomeCount > 0)
+            {
+                var result = incomeDao.fnDeleteIncomePerUserId(userId)
+                if(result > 0) true else false
+            }
+            else
+            {
+                return true
+            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Delete User: ${e.message}")
+            false
+        }
+    }
+
 }

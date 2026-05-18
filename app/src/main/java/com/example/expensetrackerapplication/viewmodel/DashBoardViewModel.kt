@@ -124,7 +124,7 @@ class DashBoardViewModel(
                     _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
                 else{
-                    _balance.postValue(0.00f.toString())
+                    _balance.postValue("0.00")
                 }
 
                 var p_ChartRes = withContext(Dispatchers.IO){
@@ -189,7 +189,7 @@ class DashBoardViewModel(
                     _balance.postValue(Global.fnFormatFloatTwoDigits(abs(balance),logger))
                 }
                 else{
-                    _balance.postValue(0.00f.toString())
+                    _balance.postValue("0.00")
                 }
 
                 var p_ChartRes = withContext(Dispatchers.IO){

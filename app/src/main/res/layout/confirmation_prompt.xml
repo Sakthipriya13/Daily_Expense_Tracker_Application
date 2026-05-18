@@ -35,18 +35,19 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 />
+
             <TextView
                 android:id="@+id/idContent"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:text="@{prompt._message}"
-                android:textSize="@dimen/text_size"
                 android:textColor="@color/text_color"
-                app:layout_constraintTop_toBottomOf="@id/idHeader"
-                app:layout_constraintStart_toStartOf="parent"
+                android:textSize="@dimen/text_size"
                 app:layout_constraintEnd_toEndOf="parent"
-                />
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/idHeader" />
 
             <LinearLayout
                 android:id="@+id/idBtnLayout"

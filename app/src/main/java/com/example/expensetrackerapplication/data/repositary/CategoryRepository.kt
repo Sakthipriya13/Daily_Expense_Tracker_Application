@@ -158,4 +158,25 @@ class CategoryRepository(
             emptyList<CategoryEntitty>()
         }
     }
+
+    suspend fun fnDeleteCategoryPerUser(userId : Int) : Boolean{
+        return try
+        {
+            var cateCount = categoryDao.fnGetCategoryCountPerUser(userId)
+            if(cateCount > 0)
+            {
+                var result = categoryDao.DeleteCategoryPerUserId(userId)
+                if(result > 0) true else false
+            }
+            else
+            {
+                return true
+            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Delete User: ${e.message}")
+            false
+        }
+    }
 }

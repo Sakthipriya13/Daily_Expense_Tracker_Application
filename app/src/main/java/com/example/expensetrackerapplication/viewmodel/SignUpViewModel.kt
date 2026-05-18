@@ -62,6 +62,9 @@ class SignUpViewModel(
     var _insertStatus = MutableLiveData<ResultState1>()
     var insertStatus : LiveData<ResultState1> = _insertStatus
 
+    var _newCloudUserCreateError = MutableLiveData<String?>(null)
+    var newCloudUserCreateError : LiveData<String?> = _newCloudUserCreateError
+
     //Clear All Fields
     var _clearAllFields = MutableLiveData<Boolean>()
     var clearAllFields : LiveData<Boolean> = _clearAllFields
@@ -205,9 +208,8 @@ class SignUpViewModel(
                         userRepository.fnInsertUserDetails(user)
                     }
 
-                    if (userInsertStatus.isSuccess) {
-                        Log.i("New user INSERT STATUS", "New User Insert Status: $userInsertStatus")
-
+                    if (userInsertStatus.isSuccess)
+                    {
                         var sUserId = withContext(Dispatchers.IO){
                             userRepository.fnGetSignUpUserId(email.value)
                         }
@@ -241,8 +243,12 @@ class SignUpViewModel(
                     }
                     else
                     {
-                        logger.logError(LOG_TAG,"New User Creation Failed: ${userInsertStatus.isFailure}")
-                        _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
+                        val errorMessage = userInsertStatus.exceptionOrNull()?.message
+                        logger.logError(LOG_TAG, "New User Creation: $errorMessage")
+//                        logger.logError(LOG_TAG,"New User Creation Failed: ${userInsertStatus.isFailure}")
+//                        _insertStatus.value = ResultState1.fail(R.string.signup_NewUserCreationFailed)
+//                        _insertStatus.value = ResultState1.fail("$errorMessage")
+                        _newCloudUserCreateError.value = "$errorMessage"
                         _isLoading.postValue(false)
                     }
                 }
@@ -250,7 +256,6 @@ class SignUpViewModel(
             catch(e : Exception)
             {
                 logger.logError(LOG_TAG,"New User Creation: ${e.message}")
-                Log.e("NEW USER CREATION","New User Creation: ${e.message}")
                 _insertStatus.postValue(ResultState1.fail(R.string.somethingWrong))
                 _isLoading.postValue(false)
             }
@@ -260,7 +265,18 @@ class SignUpViewModel(
     suspend fun isEmailExists(email: String?): Boolean {
         return try
         {
-            return userRepository.isEmailExistsFun(email)
+            var res = withContext(Dispatchers.IO){
+                userRepository.isEmailExistsFun(email)
+            }
+
+            if(res== true)
+            {
+                true
+            }
+            else
+            {
+                false
+            }
         }
         catch (e : Exception)
         {

@@ -325,5 +325,26 @@ class ExpenseRepository(
         }
     }
 
+    suspend fun fnDeleteExpensePerUser(userId : Int) : Boolean{
+        return try
+        {
+            var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId)
+            if(expenseCount > 0)
+            {
+                val result = expenseDao.DeleteExpensePerUserId(userId)
+                if(result > 0) true else false
+            }
+            else
+            {
+                return true
+            }
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Delete User: ${e.message}")
+            false
+        }
+    }
+
 
 }

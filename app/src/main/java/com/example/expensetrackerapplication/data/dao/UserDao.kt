@@ -23,7 +23,7 @@ interface UserDao {
     @Query("SELECT * FROM User WHERE UserName=:name")
     suspend fun fnGetUserBasedOnUserName(name: String?): List<UserEntity>
 
-    @Query("DELETE FROM User WHERE UserId= :id")
+    @Query("DELETE FROM User WHERE userId= :id")
     suspend fun fnDeleteUserAccountFromDb(id: Int) : Int
 
     @Query("UPDATE USER SET UserPassword= :newPassword , IsSynced=0 WHERE UserId= :userId AND UserPassword= :currentPassword")

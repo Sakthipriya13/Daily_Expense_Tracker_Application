@@ -301,5 +301,9 @@
     <string name="main_AlreadyInDashboard">Already You Are In Dashboard</string>
     <string name="total_expense">TOTAL EXPENSE</string>
 
+    <string name="alreadyIncomeAdded">Do You Want To Edit The Income</string>
+
+    <string name="income_EditIncomeSuccess">successfully Income Was Edited"</string>
+    <string name="income_EditIncomeFailed">Edit Income Failed"</string>
 
 </resources>

@@ -2,15 +2,14 @@ package com.example.expensetrackerapplication.data.repositary
 
 import android.app.Application
 import android.util.Log
-import androidx.paging.LOG_TAG
 import com.example.expensetrackerapplication.data.dao.UserDao
 import com.example.expensetrackerapplication.data.database.AppDatabase
 import com.example.expensetrackerapplication.data.entity.CategoryEntitty
 import com.example.expensetrackerapplication.data.entity.ExpenseEntity
 import com.example.expensetrackerapplication.data.entity.IncomeEntity
 import com.example.expensetrackerapplication.data.entity.UserEntity
+import com.example.expensetrackerapplication.datastore.LoginDataStore
 import com.example.expensetrackerapplication.logger.FileLogger
-import com.example.expensetrackerapplication.logger.Logger
 import com.example.expensetrackerapplication.utils.Global
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +27,7 @@ class UserRepository(
     var incomeInsertStatus = emptyList<Long>()
     var expenseInsertStatus = emptyList<Long>()
     var categoryInsertStatus = emptyList<Long>()
+    var loginDataStore : LoginDataStore = LoginDataStore(application,logger)
 
     suspend fun fnGetSignUpUserId(email: String?):Int
     {
@@ -64,6 +64,7 @@ class UserRepository(
                 .await()
 
             if (checkUserName.exists()) {
+                logger.logError(LOG_TAG,"User Name Already Exists")
                 return Result.failure(Exception("Username already exists"))
             }
 
@@ -91,9 +92,14 @@ class UserRepository(
 
             var userInsertStatus = userDao.fnInsertUser(user)
 
-            if (userInsertStatus > 0) {
+            if (userInsertStatus > 0)
+            {
+                logger.logInfo(LOG_TAG,"New User Successfully Created")
                 return Result.success("New User Account Successfully Created")
-            } else {
+            }
+            else
+            {
+                logger.logError(LOG_TAG,"New User Account Creation Failed")
                 return Result.failure(Exception("New User Account Creation Failed"))
             }
         }
@@ -164,7 +170,7 @@ class UserRepository(
         }
     }
 
-    suspend fun fnUpdateLoginUserProfilePhoto(userImgUri: String?, userId: Int):Boolean{
+//    suspend fun fnUpdateLoginUserProfilePhoto(userImgUri: String?, userId: Int):Boolean{
 //        return try {
 ////            var result = userDao.fnUpdateUserProfilePhoto(userImgUri,userId)
 ////            if(result>0) true else false
@@ -172,10 +178,10 @@ class UserRepository(
 //            Log.e("UPDATE USER PASSWORD","Update User Password: ${e.message}")
 //            false
 //        }
-        return true
-    }
+//        return true
+//    }
 
-    suspend fun fnGetLoginUserProfilePhotoUri(userId: Int):String?{
+//    suspend fun fnGetLoginUserProfilePhotoUri(userId: Int):String?{
 //        return try {
 ////             userDao.fnGetUserProfilePhotoUri(userId)
 //        }
@@ -184,8 +190,8 @@ class UserRepository(
 //            Log.e("GET USER PROFILE PHOTO","Get User Profile Photo: ${e.message}")
 //            null
 //        }
-        return ""
-    }
+//        return ""
+//    }
 
     suspend fun fnLoginCloudAccount(userName : String?,userPassword:String?): Result<String>
     {
@@ -210,17 +216,18 @@ class UserRepository(
                 .get()
                 .await()
 
-            if (!userNameDoc.exists()) {
-                Log.i("USER_REPOSITORY", "Username Not Found: $userName")
+            if (!userNameDoc.exists())
+            {
+                logger.logError(LOG_TAG,"User Name Not Found: $userName")
                 return Result.failure(Exception("User Not Found"))
             }
 
             val cloudUserEmail = userNameDoc.getString("userEmail") ?: ""
 
             if (cloudUserEmail.isEmpty()) {
+                logger.logError(LOG_TAG,"User Email Not Found: $userName")
                 return Result.failure(Exception("User Email Not Found"))
             }
-
 
             Log.i("USER DETAILS", "cloudUserId Email: $cloudUserEmail")
 
@@ -248,15 +255,18 @@ class UserRepository(
                 userEmail = userDetails?.userEmail ?:"",
                 userMobileNo = userDetails?.userMobileNo ?:"",
                 userPassword = userDetails?.userPassword ?:"",
-//                userProfilePhotoUri = userDetails?.userProfilePhotoUri ?:""
             )
 
             var userInsertStatus = userDao.fnInsertUser(user)
 
-            if (userInsertStatus !=-1L) {
+            if (userInsertStatus !=-1L)
+            {
                 Log.i("STORE USER DETAILS", "Store userDetails2: $userInsertStatus")
+            }
+            else
+            {
+                logger.logError(LOG_TAG,"Store UserDetails Fail: $userInsertStatus")
 
-            } else {
                 Log.i("STORE USER DETAILS", "Store userDetails Error: $userInsertStatus")
 
             }
@@ -337,10 +347,11 @@ class UserRepository(
 
             }
 
-            if(incomeInsertStatus.isNotEmpty() && incomeInsertStatus.all { it != -1L } &&
-                expenseInsertStatus.isNotEmpty() && expenseInsertStatus.all { it != -1L } &&
-                categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it != -1L } &&
-                userInsertStatus !=-1L)
+//            if(incomeInsertStatus.isNotEmpty() && incomeInsertStatus.all { it != -1L } &&
+//                expenseInsertStatus.isNotEmpty() && expenseInsertStatus.all { it != -1L } &&
+//                categoryInsertStatus.isNotEmpty() && categoryInsertStatus.all { it != -1L } &&
+//                userInsertStatus !=-1L)
+            if(userInsertStatus !=-1L)
             {
                 Global.lUserId = userDetails?.userId ?:0
                 Global.lUserName= userDetails?.userName ?:""
@@ -348,9 +359,22 @@ class UserRepository(
                 Global.lUserMobileNo=userDetails?.userMobileNo ?:""
                 Global.lUssrEmail=userDetails?.userEmail ?:""
 
+                loginDataStore.fnSaveUser(
+                    userDetails?.userId ?: -1,
+                    userDetails?.userName ?: "",
+                    userDetails?.userMobileNo ?: "",
+                    userDetails?.userEmail ?: "",
+                    userDetails?.userPassword ?: "",
+                    userDetails?.cloudId ?: "",
+                    1,
+                    userDetails?.signUpDate ?:""
+                )
+
+
                 return Result.success("User Successfully Login")
             }
-           else{
+            else
+            {
                 return Result.success("User Not Found")
             }
 

@@ -26,8 +26,18 @@ interface IncomeDao {
     suspend fun fnInsertAllIncomes(income: List<IncomeEntity>): List<Long>
 
     @Update
-    suspend fun fnUpdateIncome(income: IncomeEntity)
+    suspend fun fnUpdateIncome(income: IncomeEntity) : Int
 
     @Query("SELECT * FROM IncomeTable WHERE UserId = :lUserId AND IsSynced=0")
     suspend fun fnGetUnSyncedIncomes(lUserId: Int) : List<IncomeEntity>
+
+    @Query("SELECT * FROM IncomeTable WHERE Date= :date")
+    fun fnGetIncomePerDay(date: String?): List<IncomeEntity>
+
+    @Query("DELETE FROM IncomeTable WHERE UserId= :userId")
+    suspend fun fnDeleteIncomePerUserId(userId:Int): Int
+
+    @Query("SELECT COUNT(*) FROM IncomeTable WHERE UserId= :userId")
+    suspend fun fnGetIncomeCountPerUser(userId: Int) : Int
+
 }

@@ -49,8 +49,12 @@ class AddInComeViewModel(
     var _insertStatus = MutableLiveData<ResultState1>()
     var insertStatus : LiveData<ResultState1> = _insertStatus
 
-//    var _firestoreCloudId = MutableLiveData<String>()
-//    var firestoreCloudId : LiveData<String> = _firestoreCloudId
+    // Display Warning Variable Initialization
+    var _displayWarning = MutableLiveData<Boolean>(false)
+    var displayWarning : LiveData<Boolean> = _displayWarning
+
+    var _existsIncome = MutableLiveData<IncomeEntity>()
+    var existsIncome : LiveData<IncomeEntity> = _existsIncome
 
     val LOG_TAG ="ADD_INCOME_VIEW_MODEL"
 
@@ -90,11 +94,19 @@ class AddInComeViewModel(
         }
     }
 
-    fun fnInsertIncome(){
+    fun fnInsertIncome()
+    {
         viewModelScope.launch {
             try
             {
-//                if(!selectedDate.value.isNullOrBlank() && !income.value.isNullOrBlank()){
+                Log.i(LOG_TAG,"Exist Income Value: ${existsIncome.value?.income}")
+
+                if (existsIncome.value?.income != 0.00f && existsIncome.value?.income != null)
+                {
+                    _displayWarning.value = true
+                }
+                else
+                {
                     var income = IncomeEntity(
                         incomeId = 0,
                         userId = Global.lUserId,
@@ -106,15 +118,17 @@ class AddInComeViewModel(
                     var result = withContext(Dispatchers.IO){
                         incomeRepository.fnInsertIncome(income)
                     }
-                    if(result) {
+                    if(result)
+                    {
                         _insertStatus.postValue(ResultState1.success(R.string.income_InsertIncomeSuccess))
                         logger.logInfo(LOG_TAG,"Insert Income Success")
                     }
-                    else {
+                    else
+                    {
                         _insertStatus.postValue(ResultState1.fail(R.string.income_InsertIncomeFailed))
                         logger.logError(LOG_TAG,"Insert Income Failed")
                     }
-//                }
+                }
             }
             catch (e : Exception)
             {
@@ -136,6 +150,85 @@ class AddInComeViewModel(
         catch (e: Exception)
         {
             logger.logError(LOG_TAG,"Clear All Fields Value: ${e.message}")
+        }
+    }
+
+    fun fnGetIncomePerDay(date: String?)
+    {
+        viewModelScope.launch {
+            try
+            {
+                _income.value = "0.00"
+                _existsIncome.value = IncomeEntity(
+                    incomeId = 0,
+                    income = 0.00f,
+                    date = "",
+                    cloudId ="",
+                    isSynced =0,
+                    userId = 0
+                )
+
+                var income = withContext(Dispatchers.IO){
+                    incomeRepository.fnGetIncomePerDay(date)
+                }
+                if(income.isNotEmpty())
+                {
+                    income.forEach { i ->
+                        _existsIncome.value = IncomeEntity(
+                            incomeId = i.incomeId,
+                            income = i.income,
+                            date = i.date,
+                            cloudId = i.cloudId,
+                            isSynced = i.isSynced,
+                            userId = i.userId
+                        )
+                    }
+                    val amount : Float? = existsIncome.value?.income
+                    _income.value = (Global.fnFormatFloatTwoDigits(amount,logger))
+                }
+                else
+                {
+                    _income.value = ""
+                }
+                Log.i(LOG_TAG,"Get Income Per Date:$date and income:${_income.value}")
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Get Income Per Day: ${e.message}")
+            }
+        }
+    }
+
+    fun fnEditIncome()
+    {
+        viewModelScope.launch {
+            try
+            {
+                var editedIncome = IncomeEntity(
+                    userId = existsIncome.value?.userId ?: 0,
+                    incomeId = existsIncome.value?.incomeId ?: 0,
+                    cloudId = existsIncome.value?.cloudId ?:"",
+                    isSynced = 0,
+                    date = existsIncome.value?.date ?: selectedDate.value,
+                    income = income.value?.toFloatOrNull(),
+                )
+                var res = withContext(Dispatchers.IO){
+                    incomeRepository.fnUpdateIncome(editedIncome)
+                }
+
+                if(res == true)
+                {
+                    _insertStatus.postValue(ResultState1.success(R.string.income_EditIncomeSuccess))
+                }
+                else
+                {
+                    _insertStatus.postValue(ResultState1.success(R.string.income_EditIncomeFailed))
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"Edit Income: ${e.message}")
+            }
         }
     }
 }

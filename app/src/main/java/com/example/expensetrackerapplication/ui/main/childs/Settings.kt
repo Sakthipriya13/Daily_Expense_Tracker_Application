@@ -209,6 +209,8 @@ class Settings : Fragment()
                         Global.lUserMobileNo = it.userMobileNo ?: ""
                         Global.cloudUserId = it.cloudId
                     }
+                    Log.i(LOG_TAG,"Logined User Details:\nUserID:${Global.lUserId}\nUserName:${Global.lUserName}\nUserEmail:${Global.lUssrEmail}\n" +
+                            "UserPassword:${Global.lUserPassword}\nUserMobNo:${Global.lUserMobileNo}\nCloudId:${Global.cloudUserId}")
                 }
                 catch (e: CancellationException) {
                     logger.logError(LOG_TAG, "Coroutine cancelled: ${e.message}")
@@ -362,6 +364,7 @@ class Settings : Fragment()
         settingsViewModel.categoryList.observe(viewLifecycleOwner){ list ->
             try
             {
+                Log.i(LOG_TAG,"Category List:$list")
                 var categoryNameList : List<CategoryModel> = list.map { name ->
                     CategoryModel(userId = name.userId,categoryId = name.categoryId,categoryName = name.categoryName)
                 }

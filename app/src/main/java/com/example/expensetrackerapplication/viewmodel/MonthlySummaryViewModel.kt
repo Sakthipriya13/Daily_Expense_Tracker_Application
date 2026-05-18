@@ -3,6 +3,7 @@ package com.example.expensetrackerapplication.viewmodel
 import android.app.Application
 import android.content.ContentValues
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
@@ -25,6 +26,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.File
+import java.io.FileOutputStream
 import java.time.YearMonth
 import kotlin.math.abs
 
@@ -358,41 +361,107 @@ class MonthlySummaryViewModel(
 
     }
 
-    fun fnExportReportToDownloads(workBook : XSSFWorkbook, fileName : String): Boolean
+    fun fnExportReportToDownloads(workBook: XSSFWorkbook, fileName: String): Boolean
     {
         return try {
-            var values = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-                put(MediaStore.MediaColumns.MIME_TYPE,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                put(
-                    MediaStore.MediaColumns.RELATIVE_PATH,
-                    Environment.DIRECTORY_DOCUMENTS+"/ExpenseTracker"
-                )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            {
+                // Android 10+
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+                    put(
+                        MediaStore.MediaColumns.MIME_TYPE,
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        Environment.DIRECTORY_DOCUMENTS + "/ExpenseTracker"
+                    )
+                }
+
+                val uri: Uri = application.contentResolver.insert(
+                    MediaStore.Files.getContentUri("external"),
+                    values
+                ) ?: return false
+
+                application.contentResolver.openOutputStream(uri)?.use { os ->
+                    workBook.write(os)
+                }
+
             }
+            else
+            {
+                // Android 9 and below
+                val documentsDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS
+                )
 
-            val uri: Uri =application.contentResolver.insert(
-                MediaStore.Files.getContentUri("external"),
-                values
-            ) ?: return false
+                val appFolder = File(documentsDir, "ExpenseTracker")
 
-            application.contentResolver.openOutputStream(uri)?.use { os ->
-                workBook.write(os)
+                if (!appFolder.exists()) {
+                    appFolder.mkdirs()
+                }
+
+                val file = File(appFolder, fileName)
+
+                FileOutputStream(file).use { fos ->
+                    workBook.write(fos)
+                }
             }
 
             workBook.close()
-//            delay(1000L)
-            _isExportLoading.value=false
+            _isExportLoading.value = false
             true
+
         }
-        catch (e : Exception)
+        catch (e: Exception)
         {
-            logger.logError(LOG_TAG,"Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
-            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
+
+            logger.logError(
+                LOG_TAG,
+                "Export Monthly Summary Report Failed: ${e.message}"
+            )
+            _isExportLoading.value = false
             false
         }
-
     }
+
+
+//    fun fnExportReportToDownloads(workBook : XSSFWorkbook, fileName : String): Boolean
+//    {
+//        return try {
+//            var values = ContentValues().apply {
+//                put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+//                put(MediaStore.MediaColumns.MIME_TYPE,
+//                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+//                put(
+//                    MediaStore.MediaColumns.RELATIVE_PATH,
+//                    Environment.DIRECTORY_DOCUMENTS+"/ExpenseTracker"
+//                )
+//            }
+//
+//            val uri: Uri =application.contentResolver.insert(
+//                MediaStore.Files.getContentUri("external"),
+//                values
+//            ) ?: return false
+//
+//            application.contentResolver.openOutputStream(uri)?.use { os ->
+//                workBook.write(os)
+//            }
+//
+//            workBook.close()
+////            delay(1000L)
+//            _isExportLoading.value=false
+//            true
+//        }
+//        catch (e : Exception)
+//        {
+//            logger.logError(LOG_TAG,"Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
+//            Log.e("MONTHLY_SUMMARY_REPORT_VIEW_MODEL","Export Monthly Summary Report To Internal Storage(Document Path): ${e.message}")
+//            false
+//        }
+//
+//    }
 
 //    fun fnPreWarmExcelEngine()
 //    {

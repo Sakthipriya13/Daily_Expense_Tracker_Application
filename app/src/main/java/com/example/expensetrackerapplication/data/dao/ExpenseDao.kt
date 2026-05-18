@@ -160,4 +160,10 @@ interface ExpenseDao {
     @Query("SELECT * FROM ExpenseTable WHERE expenseId = :expenseId")
     suspend fun fnGetExpenseDetailsPerId(expenseId: Int?): List<ExpenseEntity>
 
+    @Query("DELETE FROM ExpenseTable WHERE UserId= :userId")
+    suspend fun DeleteExpensePerUserId(userId:Int): Int
+
+    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId")
+    suspend fun fnGetExpenseCountPerUser(userId: Int) : Int
+
 }

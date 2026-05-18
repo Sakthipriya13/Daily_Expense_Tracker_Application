@@ -17,6 +17,7 @@ import com.example.expensetrackerapplication.utils.fnShowMessage
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SignUpViewModel
 import com.example.expensetrackerapplication.viewmodel.SplashViewModel
+import com.google.android.play.core.assetpacks.ca
 import kotlin.math.log
 
 // TODO: Rename parameter arguments, choose names that match
@@ -173,7 +174,6 @@ class SignUp : Fragment() {
                 when(state)
                 {
                     is ResultState1.success -> {
-                        Log.d("DATA_INSERT_STATUS", "Data Successfully Inserted")
                         findNavController().navigate(R.id.action_signup_to_login)
                         fnShowMessage(
                             getString(state.message),
@@ -184,7 +184,6 @@ class SignUp : Fragment() {
                         )
                     }
                     is ResultState1.fail -> {
-                        Log.d("DATA_INSERT_STATUS", "Data Insterted Failed")
                         fnShowMessage(
                             getString(state.message),
                             requireContext(),
@@ -243,6 +242,25 @@ class SignUp : Fragment() {
             catch (e: Exception)
             {
                 logger.logError(LOG_TAG,"Insert Status Value Observed: ${e.message}")
+            }
+        }
+
+        signUpViewModel.newCloudUserCreateError.observe(viewLifecycleOwner){ message ->
+            try
+            {
+                message?.let {
+                    fnShowMessage(
+                        message,
+                        requireContext(),
+                        R.drawable.error_bg,
+                        logger,
+                        LOG_TAG
+                    )
+                }
+            }
+            catch (e: Exception)
+            {
+                logger.logError(LOG_TAG,"New Cloud User Creation Error Message Observed: ${e.message}")
             }
         }
 
