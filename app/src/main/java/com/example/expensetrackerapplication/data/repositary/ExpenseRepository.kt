@@ -330,7 +330,7 @@ class ExpenseRepository(
             var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId, Global.EXPENSE_STATUS_ADDED)
             if(expenseCount > 0)
             {
-                val result = expenseDao.DeleteExpensePerUserId(userId, Global.EXPENSE_STATUS_DELETED)
+                val result = expenseDao.DeleteExpensePerUserId(userId)
                 if(result > 0) true else false
             }
             else

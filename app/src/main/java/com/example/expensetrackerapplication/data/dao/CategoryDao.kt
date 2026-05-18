@@ -38,7 +38,7 @@ interface CategoryDao {
     suspend fun fnGetUnSyncedCategories(lUserId: Int) : List<CategoryEntitty>
 
     @Query("DELETE FROM Categories WHERE UserId= :userId")
-    suspend fun DeleteCategoryPerUserId(userId:Int,deleteStatus: Int,syncStatus: Int): Int
+    suspend fun DeleteCategoryPerUserId(userId:Int): Int
 
     @Query("SELECT COUNT(*) FROM Categories WHERE UserId= :userId AND DeleteStatus= :AddedStatus")
     suspend fun fnGetCategoryCountPerUser(userId: Int,AddedStatus: Int) : Int

@@ -165,8 +165,7 @@ class CategoryRepository(
             var cateCount = categoryDao.fnGetCategoryCountPerUser(userId, Global.CATEGORY_ADDED)
             if(cateCount > 0)
             {
-                var result = categoryDao.DeleteCategoryPerUserId(userId,Global.CATEGORY_DELETED,
-                    0)
+                var result = categoryDao.DeleteCategoryPerUserId(userId)
                 if(result > 0) true else false
             }
             else
