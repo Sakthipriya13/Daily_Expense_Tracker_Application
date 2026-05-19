@@ -15,6 +15,7 @@ import com.example.expensetrackerapplication.model.PaymentType
 import com.example.expensetrackerapplication.utils.Global
 import com.example.expensetrackerapplication.utils.ResultState1
 import com.example.expensetrackerapplication.viewmodel.SettingsViewModel.UiEvent
+import com.google.android.play.core.assetpacks.ca
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -53,9 +54,6 @@ class EditExpenseViewModel(
     var _selectedCategoryName = MutableLiveData<String?>("")
     var selectedCategoryName : LiveData<String?> = _selectedCategoryName
 
-//    var _paymentType = MutableLiveData<Int>(-1)
-//    var paymentType : LiveData<Int> = _paymentType
-
     // Payment type selected in RadioGroup
     val _selectedPaymentType = MutableLiveData<Int?>(-1)   // IMPORTANT: initially null
     val selectedPaymentType: LiveData<Int?> = _selectedPaymentType
@@ -67,27 +65,6 @@ class EditExpenseViewModel(
     var _remarks = MutableLiveData<String?>("")
     var remarks : LiveData<String?> = _remarks
 
-//    var _amtInCash = MutableLiveData<Float>(0.0f)
-//    var amtInCash : LiveData<Float> = _amtInCash
-//
-//    var _amtInCard = MutableLiveData<Float>(0.0f)
-//    var amtInCard : LiveData<Float> = _amtInCard
-//
-//    var _amtInUpi = MutableLiveData<Float>(0.0f)
-//    var amtInUpi : LiveData<Float> = _amtInUpi
-//    var _amtInOthers = MutableLiveData<Float>(0.0f)
-//    var amtInOthers : LiveData<Float> = _amtInOthers
-
-//    var _valueMissingError = MutableLiveData<String?>()
-//    var valueMissingError : LiveData<String?> = _valueMissingError
-    
-    // Edit Expense Status
-//    var _editStatus = MutableLiveData<Boolean>()
-//    var editStatus : LiveData<Boolean> = _editStatus
-    // Edit Expense Falg Value
-//    var _editFlag = MutableLiveData<Int>(0)
-//    var editFlag : LiveData<Int> = _editFlag
-
    // Show Split Payment Type Dialog Screen
     var _showSplitDialog = MutableLiveData<Boolean>()
     var showSplitDialog : LiveData<Boolean> = _showSplitDialog
@@ -95,24 +72,6 @@ class EditExpenseViewModel(
     // Clear All Fields Value
     var _clearAllFields = MutableLiveData<Boolean>()
     var clearAllFields : LiveData<Boolean> = _clearAllFields
-
-//    var _bothFieldsEmptyError = MutableLiveData<String?>()
-//    var bothFieldsEmptyError : LiveData<String?> = _bothFieldsEmptyError
-//
-//    var _amtFieldsEmptyError = MutableLiveData<String?>()
-//    var amtFieldsEmptyError : LiveData<String?> = _amtFieldsEmptyError
-//
-//    var _paymentFieldsEmptyError = MutableLiveData<String?>()
-//    var paymentFieldsEmptyError : LiveData<String?> = _paymentFieldsEmptyError
-//
-//    var _cateFieldsEmptyError = MutableLiveData<String?>()
-//    var cateFieldsEmptyError : LiveData<String?> = _cateFieldsEmptyError
-//
-//    val dbFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-//    val uiFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
-
-//    var _fireStoreCloudId = MutableLiveData<String>()
-//    var fireStoreCloudId : LiveData<String> = _fireStoreCloudId
 
     // Close The Edit Expense Screen
     var _isClosed = MutableLiveData<Boolean>(false)
@@ -123,15 +82,15 @@ class EditExpenseViewModel(
     var expenseList : LiveData<List<ExpenseEntity>> = _expenseList
 
     // Id For Edited Expense
-    var _editedExpenseId = MutableLiveData<Int>()
-    var editedExpenseId : LiveData<Int> = _editedExpenseId
+    var _editedExpenseId = MutableLiveData<Int?>()
+    var editedExpenseId : LiveData<Int? > = _editedExpenseId
+
+    var _editedExpenseCloudId = MutableLiveData<String?>()
+    var editedExpenseCloudId : LiveData<String?> = _editedExpenseCloudId
 
     // Date For Edited Expense
     var _editedExpenseDate = MutableLiveData<String>()
     var editedExpenseDate : LiveData<String> = _editedExpenseDate
-
-//    var _deleteExpenseStatus = MutableLiveData<Boolean>()
-//    var deleteExpenseStatus : LiveData<Boolean> = _deleteExpenseStatus
     
     // Add Expense To Db Flag
     var _insertFlag = MutableLiveData<Int>(0)
@@ -143,7 +102,6 @@ class EditExpenseViewModel(
 
     val LOG_TAG = "EDIT_EXPENSE_VIEW_MODEL"
 
-
     var _uiEvent = MutableSharedFlow<UiEvent>()
     var uiEvent : SharedFlow<UiEvent> = _uiEvent.asSharedFlow()
 
@@ -152,8 +110,8 @@ class EditExpenseViewModel(
         viewModelScope.launch {
             try
             {
-                fnDeleteExpense(editedExpenseId.value,editedExpenseDate.value)
-
+//                fnDeleteExpense(editedExpenseId.value,editedExpenseDate.value)
+                fnUpdateExpense()
             }
             catch (e: Exception)
             {
@@ -167,8 +125,9 @@ class EditExpenseViewModel(
         try {
             viewModelScope.launch {
                 _insertFlag.value=1
+
                 var expenseEntity = ExpenseEntity(
-                    expenseId =0,
+                    expenseId = editedExpenseId.value ?: 0,
                     userId = Global.lUserId,
                     expenseDate = selectedDate.value ?: "",
                     expenseAmt = expenseAmt.value?.toFloatOrNull() ?:0.0f,
@@ -190,11 +149,11 @@ class EditExpenseViewModel(
                     expenseAmtInOthers = selectedPaymentTypeAmt.value?.others ?: 0.00f,
                     expenseRemarks = remarks.value ?: "",
                     expenseStatus = Global.EXPENSE_STATUS_ADDED,
-                    cloudId = Global.cloudUserId ?:"",
+                    cloudId = editedExpenseCloudId.value ?:"",
                     isSynced = 0
                 )
                 var result = withContext(Dispatchers.IO){
-                    expenseRepository.fnInsertExpenseDatasToDb(expenseEntity)
+                    expenseRepository.fnUpdateExpenseDatasToDb(expenseEntity)
                 }
                 if(result)
                 {
@@ -389,7 +348,8 @@ class EditExpenseViewModel(
             }
         }
     }
-    fun fnDeleteExpense(expenseId: Int?,expenseDate: String?)
+//    fun fnDeleteExpense(expenseId: Int?,expenseDate: String?)
+    fun fnUpdateExpense()
     {
         viewModelScope.launch {
             try
@@ -420,18 +380,33 @@ class EditExpenseViewModel(
                     else -> {
                         if(insertFlag.value==0)
                         {
-                            var delRes= withContext(Dispatchers.IO){
-                                expenseRepository.fnDeleteExpense(expenseId,expenseDate)
-                            }
-                            if(delRes ==  true)
+                            var cashAmt = selectedPaymentTypeAmt.value?.cash ?: 0.00f
+                            var cardAmt: Float = selectedPaymentTypeAmt.value?.card ?: 0.00f
+                            var upiAmt: Float = selectedPaymentTypeAmt.value?.upi ?: 0.00f
+                            var othersAmt: Float = selectedPaymentTypeAmt.value?.others ?: 0.00f
+
+                            var totAmt = cashAmt+cardAmt+upiAmt+othersAmt
+
+                            if(totAmt == expenseAmt.value?.toFloat())
                             {
                                 fnInsertExpense()
                             }
                             else
                             {
-                                logger.logError(LOG_TAG,"Delete Expense Failed")
-                                Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense Failed")
+                                _expenseInsertStatus.value = ResultState1.fail(R.string.editEx_ExpenseAndSelectedPaymentTypeAmtMissMatch)
                             }
+//                            var delRes= withContext(Dispatchers.IO)
+//                            {
+//                                expenseRepository.fnDeleteExpense(expenseId,expenseDate)
+//                            }
+//                            if(delRes ==  true)
+//                            {
+//                            }
+//                            else
+//                            {
+//                                logger.logError(LOG_TAG,"Delete Expense Failed")
+//                                Log.e("EDIT_EXPENSE_VIEW_MODEL","Delete Expense Failed")
+//                            }
                         }
                     }
 

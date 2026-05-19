@@ -82,6 +82,28 @@ class ExpenseRepository(
             false
         }
     }
+    suspend fun fnUpdateExpenseDatasToDb(expense : ExpenseEntity) : Boolean
+    {
+        return try
+        {
+            Log.i(LOG_TAG,"Expense Before Update: $expense")
+
+            val result = expenseDao.fnUpdateExpense(expense)
+
+            if (result <= 0)
+            {
+                Log.e(LOG_TAG, "Update Expense To Local Status Failed")
+                return false
+            }
+
+            true
+        }
+        catch (e: Exception)
+        {
+            logger.logError(LOG_TAG,"Update Expense Datas To Db: ${e.message}")
+            false
+        }
+    }
 
     suspend fun fnGetExpenseDetailsPerDate(date: String?): List<ExpenseEntity>{
         return try

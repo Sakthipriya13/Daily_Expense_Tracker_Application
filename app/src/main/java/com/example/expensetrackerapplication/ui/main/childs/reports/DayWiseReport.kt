@@ -648,6 +648,7 @@ class DayWiseReport : Fragment() {
                         for (ex in list) {
                             editExpenseViewModel._editedExpenseId.value = ex.expenseId
                             editExpenseViewModel._editedExpenseDate.value = ex.expenseDate
+                            editExpenseViewModel._editedExpenseCloudId.value = ex.cloudId
 
                             editExpenseViewModel._selectedDate.value = ex.expenseDate
                             var uiDate = "${ex.expenseDate.substring(8)}-${

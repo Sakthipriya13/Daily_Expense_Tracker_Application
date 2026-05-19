@@ -69,7 +69,8 @@ class SyncWorker(
 
             Log.i("SYNC_USER", "Unsynced Users: ${users.size}")
 
-            for (u in users) {
+            for (u in users)
+            {
 
                 val docRef = firestore
                     .collection("ExpenseTrackerUser")
@@ -84,8 +85,8 @@ class SyncWorker(
                     "userEmail" to u.userEmail,
                     "userMobileNo" to u.userMobileNo,
                     "userPassword" to u.userPassword
-//                "userProfilePhotoUri" to u.userProfilePhotoUri
                 )
+
                 docRef.set(map).await()
 
                 u.isSynced = 1
@@ -116,6 +117,9 @@ class SyncWorker(
 
             for (cat in categories)
             {
+
+                Log.i(LOG_TAG,"cat.cloud Id: ${cat.cloudId}")
+
                 val docRef = if(cat.cloudId.isNullOrEmpty())
                 {
                     firestore
@@ -133,6 +137,7 @@ class SyncWorker(
                         .document(cat.cloudId)
                 }
 
+                Log.i("CLOUD_ID", "Category1: ${cat.categoryName} Id: ${docRef.id}")
 
                 val map = hashMapOf(
                     "userId" to cat.userId,
@@ -169,13 +174,25 @@ class SyncWorker(
 
             Log.i("SYNC_EXPENSE", "Unsynced Expenses: ${expenses.size}")
 
-            for (expense in expenses) {
+            for (expense in expenses)
+            {
 
-                val docRef = firestore
-                    .collection("ExpenseTrackerUser")
-                    .document(Global.cloudUserId)
-                    .collection("Expenses")
-                    .document()
+                val docRef = if(expense.cloudId.isNullOrEmpty())
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Expenses")
+                        .document()
+                }
+                else
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Expenses")
+                        .document(expense.cloudId)
+                }
 
                 val map = hashMapOf(
                     "userId" to expense.userId,
@@ -220,13 +237,24 @@ class SyncWorker(
 
             Log.i("SYNC_INCOME", "Unsynced Incomes: ${incomes.size}")
 
-            for (income in incomes) {
-
-                val docRef = firestore
-                    .collection("ExpenseTrackerUser")
-                    .document(Global.cloudUserId)
-                    .collection("Incomes")
-                    .document()
+            for (income in incomes)
+            {
+                val docRef = if(income.cloudId.isNullOrEmpty())
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Incomes")
+                        .document()
+                }
+                else
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Incomes")
+                        .document(income.cloudId)
+                }
 
                 val map = hashMapOf(
                     "userId" to income.userId,

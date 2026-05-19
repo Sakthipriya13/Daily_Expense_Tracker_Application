@@ -171,7 +171,7 @@ class SettingsViewModel(
                 var expenseDate = Global.fnGetCurrentDate(logger)
                 var newCategory = CategoryEntitty(
                     userId = Global.lUserId,
-                    cloudId = Global.cloudUserId ?:"",
+                    cloudId = "",
                     isSynced = 0,
                     categoryId = 0,
                     signUpDate = expenseDate,

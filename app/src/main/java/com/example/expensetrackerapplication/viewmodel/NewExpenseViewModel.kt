@@ -229,7 +229,7 @@ class NewExpenseViewModel(
                     expenseAmtInOthers = selectedPaymentTypeAmt.value?.others ?: 0.00f,
                     expenseRemarks = expenseRemarks.value ?: "",
                     expenseStatus = Global.EXPENSE_STATUS_ADDED,
-                    cloudId = Global.cloudUserId ?:"",
+                    cloudId = "",
                     isSynced = 0
                 )
 

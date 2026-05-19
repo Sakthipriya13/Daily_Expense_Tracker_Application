@@ -112,7 +112,7 @@ class AddInComeViewModel(
                         userId = Global.lUserId,
                         date = selectedDate.value,
                         income = income.value?.toFloatOrNull(),
-                        cloudId = Global.cloudUserId ?:"",
+                        cloudId = "",
                         isSynced = 0,
                         incomeStatus = Global.INCOME_ADDED
                     )

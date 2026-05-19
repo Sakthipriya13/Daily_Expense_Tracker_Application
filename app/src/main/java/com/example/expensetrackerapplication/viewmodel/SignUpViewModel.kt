@@ -219,7 +219,7 @@ class SignUpViewModel(
                                 categoryName = it,
                                 userId = sUserId,
                                 signUpDate = Global.fnGetCurrentDate(logger),
-                                cloudId = Global.cloudUserId ?: "",
+                                cloudId ="",
                                 isSynced = 0,
                                 deleteStatus = Global.CATEGORY_ADDED
                             )

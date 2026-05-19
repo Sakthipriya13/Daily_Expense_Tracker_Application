@@ -308,5 +308,6 @@
 
     <string name="del_Category">This category already has expenses added.If you want to delete the category,edit the category for the added expenses or delete those expenses first.</string>
 
+    <string name="editEx_ExpenseAndSelectedPaymentTypeAmtMissMatch">please Reselect payment Type</string>
 
 </resources>

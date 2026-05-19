@@ -151,7 +151,7 @@ interface ExpenseDao {
     suspend fun fnGetExpenseDataPerYear(year : String,expenseStatus : Int,lUserId : Int): List<ExpenseDetailsPerMonth>
 
     @Update
-    suspend fun fnUpdateExpense(expense: ExpenseEntity)
+    suspend fun fnUpdateExpense(expense: ExpenseEntity) : Int
 
     @Query("SELECT * FROM ExpenseTable WHERE UserId = :lUserId AND IsSynced=0")
     suspend fun fnGetUnSyncedExpense(lUserId: Int) : List<ExpenseEntity>

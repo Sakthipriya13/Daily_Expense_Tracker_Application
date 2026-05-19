@@ -229,6 +229,8 @@
     <string name="newEx_InsertExpenseSuccess">Successfully Expense Details Are Stored</string>
     <string name="newEx_InsertExpenseFailed">Something Wrong, Expense Details Are Not Stored</string>
 
+    <string name="editEx_ExpenseAndSelectedPaymentTypeAmtMissMatch">please Reselect payment Type</string>
+
     <string name="income_IncomeFieldEmpty">Income Field Was Empty</string>
     <string name="income_InsertIncomeSuccess">successfully Income Was Added"</string>
     <string name="income_InsertIncomeFailed">Add Income Failed"</string>
