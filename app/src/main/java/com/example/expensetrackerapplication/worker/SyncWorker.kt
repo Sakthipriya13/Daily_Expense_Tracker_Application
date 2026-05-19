@@ -116,11 +116,23 @@ class SyncWorker(
 
             for (cat in categories)
             {
-                val docRef = firestore
-                    .collection("ExpenseTrackerUser")
-                    .document(Global.cloudUserId)
-                    .collection("Categories")
-                    .document()
+                val docRef = if(cat.cloudId.isNullOrEmpty())
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Categories")
+                        .document()
+                }
+                else
+                {
+                    firestore
+                        .collection("ExpenseTrackerUser")
+                        .document(Global.cloudUserId)
+                        .collection("Categories")
+                        .document(cat.cloudId)
+                }
+
 
                 val map = hashMapOf(
                     "userId" to cat.userId,
