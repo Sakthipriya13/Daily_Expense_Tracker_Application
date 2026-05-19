@@ -47,4 +47,7 @@
 
     <color name="icon_color">?attr/colorPrimary</color>
 
+    <color name="clear_icon_color">#FFFFFFFF</color>
+
+
 </resources>

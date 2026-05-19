@@ -102,6 +102,9 @@ object Global {
     val CATEGORY_ADDED = 0
     val CATEGORY_DELETED = 1
 
+    val INCOME_ADDED = 0
+    val INCOME_EDITED = 0
+
     fun isNetworkAvailable(context: Context,logger: FileLogger): Boolean {
         try
         {

@@ -23,6 +23,8 @@
 
     <color name="text_color">#FF000000</color>
 
+    <color name="clear_icon_color">#FFFFFFFF</color>
+
 
     <color name ="colorPrimary1">#6C67E6</color>
     <color name="colorAccent1">#9995FA</color>

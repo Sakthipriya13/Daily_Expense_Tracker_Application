@@ -110,7 +110,7 @@ class IncomeRepository(
 
     suspend fun fnGetIncomePerMonth(curMonth : String): Float{
         return try {
-            incomeDao.fnGetIncomePerMonth(curMonth,Global.lUserId)
+            incomeDao.fnGetIncomePerMonth(curMonth,Global.lUserId, Global.INCOME_ADDED)
         }
         catch (e : Exception)
         {
@@ -122,7 +122,7 @@ class IncomeRepository(
 
     suspend fun fnGetIncomePerMonthAndYear(month : String,year:String): Float{
         return try {
-            incomeDao.fnGetIncomePerMonthAndYear(month,year,Global.lUserId)
+            incomeDao.fnGetIncomePerMonthAndYear(month,year,Global.lUserId, Global.INCOME_ADDED)
         }
         catch (e : Exception)
         {
@@ -134,7 +134,7 @@ class IncomeRepository(
 
     suspend fun fnGetIncomePerYear(year : String): Float{
         return try {
-            incomeDao.fnGetIncomePerYear(year,Global.lUserId)
+            incomeDao.fnGetIncomePerYear(year,Global.lUserId,Global.INCOME_ADDED)
         }
         catch (e : Exception)
         {
@@ -168,7 +168,7 @@ class IncomeRepository(
         return try
         {
             Log.i(LOG_TAG,"Get Income Per Date:$date")
-            incomeDao.fnGetIncomePerDay(date)
+            incomeDao.fnGetIncomePerDay(date, Global.INCOME_ADDED)
         }
         catch (e: Exception){
             logger.logError(LOG_TAG,"Get Income Per Day: ${e.message}")

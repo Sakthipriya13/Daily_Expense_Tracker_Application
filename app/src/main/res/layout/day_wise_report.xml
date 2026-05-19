@@ -418,7 +418,7 @@
                                     android:textStyle="bold"/>
 
                                 <TextView
-                                    android:layout_width="200dp"
+                                    android:layout_width="100dp"
                                     android:layout_height="match_parent"
                                     android:gravity="center"
                                     android:textColor="?attr/textColorWhite"

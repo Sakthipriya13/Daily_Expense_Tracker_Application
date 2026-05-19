@@ -111,8 +111,8 @@ class SettingsViewModel(
 
     val LOG_TAG = "SETTINGS_VIEW_MODEL"
 
-    var _displayCateDelWarning = MutableLiveData<Boolean>()
-    var displayCateWarning : LiveData<Boolean> = _displayCateDelWarning
+    var _displayCateDelWarning = MutableLiveData<Boolean?>()
+    var displayCateWarning : LiveData<Boolean?> = _displayCateDelWarning
 
 //    var _uiEvent = MutableLiveData<UiEvent>()
 //    var uiEvent : LiveData<UiEvent> = _uiEvent
@@ -378,10 +378,15 @@ class SettingsViewModel(
 
             writer.append("Date,CategoryName\n")
 
-            for(cat in list){
-                writer.append(
-                    "${cat.signUpDate},${cat.categoryName}\n"
-                )
+            for(cat in list)
+            {
+                if(cat.deleteStatus == Global.CATEGORY_ADDED)
+                {
+                    writer.append(
+                        "${cat.signUpDate},${cat.categoryName}\n"
+                    )
+                }
+
             }
 
             writer.flush()
@@ -407,22 +412,27 @@ class SettingsViewModel(
             writer.append("ExpenseDate,CategoryName,Expense,PaymentType,ExpenseInCash,ExpenseInCard,ExpenseInUpi," +
                     "ExpenseInOthers,Remarks\n")
 
-            for(cat in list){
-                var paymentType = when(cat.paymentType){
-                    2 -> "CARD"
-                    3 -> "UPI"
-                    4 -> "SPLIT"
-                    else -> {
-                        "CASH"
+            for(cat in list)
+            {
+                if(cat.expenseStatus == Global.EXPENSE_STATUS_ADDED)
+                {
+                    var paymentType = when(cat.paymentType){
+                        2 -> "CARD"
+                        3 -> "UPI"
+                        4 -> "SPLIT"
+                        else -> {
+                            "CASH"
+                        }
                     }
+                    writer.append(
+                        "${cat.expenseDate}," +
+                                "${cat.expenseCategoryName}," +
+                                "${cat.expenseAmt},$paymentType,${cat.expenseAmtInCash}," +
+                                "${cat.expenseAmtInCard},${cat.expenseAmtInUpi},${cat.expenseAmtInOthers}," +
+                                "${cat.expenseRemarks}\n"
+                    )
                 }
-                writer.append(
-                    "${cat.expenseDate}," +
-                            "${cat.expenseCategoryName}," +
-                            "${cat.expenseAmt},$paymentType,${cat.expenseAmtInCash}," +
-                            "${cat.expenseAmtInCard},${cat.expenseAmtInUpi},${cat.expenseAmtInOthers}," +
-                            "${cat.expenseRemarks}\n"
-                )
+
             }
 
             writer.flush()
@@ -446,10 +456,14 @@ class SettingsViewModel(
 
             writer.append("IncomeDate,Income\n")
 
-            for(cat in list){
-                writer.append(
-                    "${cat.date},${cat.income}\n"
-                )
+            for(cat in list)
+            {
+                if(cat.income != 0.00f && cat.income != null)
+                {
+                    writer.append(
+                        "${cat.date},${cat.income}\n"
+                    )
+                }
             }
 
             writer.flush()
@@ -532,6 +546,8 @@ class SettingsViewModel(
                 _insertCategoryStatus.value = null
                 _shareDataStatus.value = null
                 _sendEmailEvent.value = null
+                _displayCateDelWarning.value = null
+
 
                 _uiEvent.emit(UiEvent.RecreateActivity)
             }
@@ -563,6 +579,8 @@ class SettingsViewModel(
                 _insertCategoryStatus.value = null
                 _shareDataStatus.value = null
                 _sendEmailEvent.value = null
+                _displayCateDelWarning.value = null
+
 
                 _uiEvent.emit(UiEvent.RecreateActivity)
 
@@ -599,6 +617,7 @@ class SettingsViewModel(
                 _insertCategoryStatus.value = null
                 _shareDataStatus.value = null
                 _sendEmailEvent.value = null
+                _displayCateDelWarning.value = null
                 _btnThemeCode.value = themeCode
 
                 when(themeCode){

@@ -100,7 +100,7 @@
 
             <ImageView
                 android:id="@+id/idDeleteExpense"
-                android:layout_width="200dp"
+                android:layout_width="100dp"
                 android:layout_height="match_parent"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:onClick="@{() -> deleteClickListener.onDeleteClick(dayWiseReportListItem)}"

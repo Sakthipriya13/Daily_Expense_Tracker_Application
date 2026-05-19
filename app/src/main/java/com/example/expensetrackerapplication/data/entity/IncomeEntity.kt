@@ -36,6 +36,6 @@ data class IncomeEntity(
     @ColumnInfo(name="Income")
     var income : Float?=0.00f,
 
-
-
+    @ColumnInfo(name="IncomeStatus")
+    var incomeStatus : Int = 0
 )

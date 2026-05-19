@@ -327,7 +327,7 @@ class ExpenseRepository(
     suspend fun fnDeleteExpensePerUser(userId : Int) : Boolean{
         return try
         {
-            var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId, Global.EXPENSE_STATUS_ADDED)
+            var expenseCount = expenseDao.fnGetExpenseCountPerUser(userId)
             if(expenseCount > 0)
             {
                 val result = expenseDao.DeleteExpensePerUserId(userId)

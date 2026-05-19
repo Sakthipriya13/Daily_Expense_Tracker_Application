@@ -113,7 +113,8 @@ class AddInComeViewModel(
                         date = selectedDate.value,
                         income = income.value?.toFloatOrNull(),
                         cloudId = Global.cloudUserId ?:"",
-                        isSynced = 0
+                        isSynced = 0,
+                        incomeStatus = Global.INCOME_ADDED
                     )
                     var result = withContext(Dispatchers.IO){
                         incomeRepository.fnInsertIncome(income)
@@ -165,7 +166,8 @@ class AddInComeViewModel(
                     date = "",
                     cloudId ="",
                     isSynced =0,
-                    userId = 0
+                    userId = 0,
+                    incomeStatus = 0
                 )
 
                 var income = withContext(Dispatchers.IO){
@@ -180,7 +182,8 @@ class AddInComeViewModel(
                             date = i.date,
                             cloudId = i.cloudId,
                             isSynced = i.isSynced,
-                            userId = i.userId
+                            userId = i.userId,
+                            incomeStatus = i.incomeStatus
                         )
                     }
                     val amount : Float? = existsIncome.value?.income
@@ -211,6 +214,7 @@ class AddInComeViewModel(
                     isSynced = 0,
                     date = existsIncome.value?.date ?: selectedDate.value,
                     income = income.value?.toFloatOrNull(),
+                    incomeStatus = Global.INCOME_EDITED
                 )
                 var res = withContext(Dispatchers.IO){
                     incomeRepository.fnUpdateIncome(editedIncome)

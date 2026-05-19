@@ -162,8 +162,8 @@ interface ExpenseDao {
     @Query("DELETE FROM ExpenseTable WHERE UserId= :userId")
     suspend fun DeleteExpensePerUserId(userId:Int): Int
 
-    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId AND ExpenseStatus= :status ")
-    suspend fun fnGetExpenseCountPerUser(userId: Int,status: Int) : Int
+    @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId")
+    suspend fun fnGetExpenseCountPerUser(userId: Int) : Int
 
     @Query("SELECT COUNT(*) FROM ExpenseTable WHERE UserId= :userId AND ExpenseStatus= :status AND ExpenseCategoryId= :categoryId")
     suspend fun fnCheckExpenseExistForSelectedCate(userId: Int?, categoryId: Int?, status: Int) : Int

@@ -162,7 +162,7 @@ class CategoryRepository(
     suspend fun fnDeleteCategoryPerUser(userId : Int) : Boolean{
         return try
         {
-            var cateCount = categoryDao.fnGetCategoryCountPerUser(userId, Global.CATEGORY_ADDED)
+            var cateCount = categoryDao.fnGetCategoryCountPerUser(userId)
             if(cateCount > 0)
             {
                 var result = categoryDao.DeleteCategoryPerUserId(userId)

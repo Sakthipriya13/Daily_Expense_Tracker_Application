@@ -114,8 +114,8 @@ class SyncWorker(
 
             Log.i("SYNC_CATEGORY", "Unsynced Categories: Size : ${categories.size} And Categories: $categories")
 
-            for (cat in categories) {
-
+            for (cat in categories)
+            {
                 val docRef = firestore
                     .collection("ExpenseTrackerUser")
                     .document(Global.cloudUserId)
@@ -222,7 +222,8 @@ class SyncWorker(
                     "isSynced" to 1,
                     "incomeId" to income.incomeId,
                     "date" to income.date,
-                    "income" to income.income
+                    "income" to income.income,
+                    "incomeStatus" to income.incomeStatus
                 )
 
                 docRef.set(map).await()

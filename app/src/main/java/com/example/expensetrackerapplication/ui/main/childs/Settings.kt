@@ -410,7 +410,7 @@ class Settings : Fragment()
                     deletePromptViewModel._message.value = getString(R.string.del_Category)
                     deletePromptDialog.show()
                 }
-                else
+                else if(status == false)
                 {
                     // Assign Title
                     deletePromptViewModel._title.value = getString(R.string.warning)
