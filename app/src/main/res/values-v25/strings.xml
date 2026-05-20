@@ -310,4 +310,7 @@
 
     <string name="editEx_ExpenseAndSelectedPaymentTypeAmtMissMatch">please Reselect payment Type</string>
 
+    <string name="somethingWrong">Something Wrong</string>
+
+
 </resources>
